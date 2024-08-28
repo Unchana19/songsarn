@@ -18,7 +18,7 @@ const menuItems = [
 
 export default function MenuTabsComponent() {
   return (
-    <div className="flex gap-2 xl:max-w-6xl md:max-w-2xl max-w-md items-center border-b-1 py-3 overflow-x-auto whitespace-nowrap px-5">
+    <div className="flex gap-2 xl:max-w-6xl md:max-w-3xl max-w-md items-center border-b-1 overflow-x-auto px-5 min-h-20">
       <div className="flex">
         {menuItems.map((menu) => (
           <Button as={Link} href="#" key={menu.label} variant="light">
