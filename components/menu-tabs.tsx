@@ -5,6 +5,7 @@ import { FaPencil } from "react-icons/fa6";
 import { FaTruck } from "react-icons/fa";
 import { MdTipsAndUpdates } from "react-icons/md";
 import { FaBasketShopping } from "react-icons/fa6";
+import Link from "next/link";
 
 const menuItems = [
   { label: "Shop products", icon: FaShop },
@@ -17,10 +18,10 @@ const menuItems = [
 
 export default function MenuTabsComponent() {
   return (
-    <div className="flex gap-2 xl:max-w-6xl md:max-w-2xl max-w-md items-center border-b-1 pb-3 overflow-x-auto whitespace-nowrap px-5">
+    <div className="flex gap-2 xl:max-w-6xl md:max-w-2xl max-w-md items-center border-b-1 py-3 overflow-x-auto whitespace-nowrap px-5">
       <div className="flex">
         {menuItems.map((menu) => (
-          <Button key={menu.label} variant="light">
+          <Button as={Link} href="#" key={menu.label} variant="light">
             <menu.icon />
             <p>{menu.label}</p>
           </Button>
