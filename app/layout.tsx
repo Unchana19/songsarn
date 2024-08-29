@@ -4,9 +4,10 @@ import clsx from "clsx";
 
 import { Providers } from "./providers";
 
-import { fontPrompt, fontSans, fontSarabun } from "@/config/fonts";
+import { fontSarabun } from "@/config/fonts";
 import NavbarComponent from "@/components/navbar";
 import MenuTabsComponent from "@/components/menu-tabs";
+import FooterComponent from "@/components/footer";
 
 export const metadata: Metadata = {
   title: {
@@ -40,9 +41,7 @@ export default function RootLayout({
             <main className="container mx-auto max-w-7xl pt-8 px-6 flex-grow">
               {children}
             </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              Footer
-            </footer>
+            <FooterComponent />
           </div>
         </Providers>
       </body>

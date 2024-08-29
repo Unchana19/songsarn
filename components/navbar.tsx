@@ -17,9 +17,11 @@ import { FaBasketShopping } from "react-icons/fa6";
 import { MdOutlineFavorite } from "react-icons/md";
 
 import { SearchIcon } from "./icons/search-icon";
+import { usePathname } from "next/navigation";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
     "Profile",
@@ -34,6 +36,7 @@ export default function NavbarComponent() {
     "Log Out",
   ];
 
+  if (pathname === "/sign-in") return null;
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent justify="start">
@@ -70,14 +73,9 @@ export default function NavbarComponent() {
             <MdOutlineFavorite size={20} color="#D4AF37" />
           </Button>
         </NavbarItem>
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">
-            <p className="text-black">Login</p>
-          </Link>
-        </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            <p className="text-black">Sign Up</p>
+          <Button as={Link} color="primary" href="/sign-in" variant="flat">
+            <p className="text-black">Sign In</p>
           </Button>
         </NavbarItem>
       </NavbarContent>

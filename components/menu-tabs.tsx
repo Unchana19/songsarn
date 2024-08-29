@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@nextui-org/button";
 import { FaShop } from "react-icons/fa6";
 import { FaShoppingBag } from "react-icons/fa";
@@ -6,6 +8,7 @@ import { FaTruck } from "react-icons/fa";
 import { MdTipsAndUpdates } from "react-icons/md";
 import { FaBasketShopping } from "react-icons/fa6";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const menuItems = [
   { label: "Shop products", icon: FaShop },
@@ -17,6 +20,9 @@ const menuItems = [
 ];
 
 export default function MenuTabsComponent() {
+  const pathname = usePathname();
+
+  if (pathname === "/sign-in") return null;
   return (
     <div className="flex gap-2 xl:max-w-6xl md:max-w-3xl max-w-md items-center border-b-1 overflow-x-auto px-5 min-h-20">
       <div className="flex">
