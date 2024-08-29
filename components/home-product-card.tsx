@@ -7,7 +7,7 @@ interface Props {
   label: string;
 }
 
-export default function ProductCard({ image, label }: Props) {
+export default function HomeProductCard({ image, label }: Props) {
   return (
     <Card
       className="aspect-[3/5] min-w-40 cursor-pointer p-1"

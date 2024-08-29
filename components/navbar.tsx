@@ -45,7 +45,9 @@ export default function NavbarComponent() {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <p className="font-bold text-inherit">Songsarn</p>
+          <Link href="/" className="font-bold text-inherit">
+            Songsarn
+          </Link>
         </NavbarBrand>
       </NavbarContent>
 

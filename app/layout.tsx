@@ -38,7 +38,7 @@ export default function RootLayout({
           <div className="relative flex flex-col h-screen items-center jus overflow-x-hidden">
             <NavbarComponent />
             <MenuTabsComponent />
-            <main className="container mx-auto max-w-7xl pt-8 px-6 flex-grow">
+            <main className="container mx-auto max-w-7xl pt-8 px-6 mb-40 flex-grow">
               {children}
             </main>
             <FooterComponent />
