@@ -1,9 +1,7 @@
+import ShopButtonComponent from "@/components/shop-button";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
-import { FaCartPlus } from "react-icons/fa6";
-import { MdFavoriteBorder } from "react-icons/md";
 
 interface Props {
   image: string;
@@ -12,7 +10,7 @@ interface Props {
   isTopSeller?: boolean;
 }
 
-export default function AllProductsCardComponent({
+export default function ProductCardSmallComponent({
   image,
   price,
   name,
@@ -35,20 +33,10 @@ export default function AllProductsCardComponent({
       </CardHeader>
       <CardBody className="flex flex-col gap-2">
         <p>{name}</p>
-        <h3 className="text-lg font-bold">
-          {formatNumberWithComma(price)} THB
-        </h3>
+        <h3 className="text-lg font-bold">{formatNumberWithComma(price)}</h3>
       </CardBody>
       <CardFooter className="flex gap-2">
-        <Button isIconOnly color="primary" size="sm">
-          <FaCartPlus color="white" size={20} />
-        </Button>
-        <Button isIconOnly color="primary" variant="light" size="sm">
-          <MdFavoriteBorder size={20} />
-        </Button>
-        <Button color="primary" size="sm">
-          <p className="text-white">More detail</p>
-        </Button>
+        <ShopButtonComponent size="sm" />
       </CardFooter>
     </Card>
   );

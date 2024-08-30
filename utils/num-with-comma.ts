@@ -1,3 +1,3 @@
 export function formatNumberWithComma(num: number): string {
-  return num.toLocaleString();
+  return num.toLocaleString() + " THB";
 }

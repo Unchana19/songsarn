@@ -1,4 +1,5 @@
-import ProductSlideComponent from "@/components/shop-products/all-products/products-slide";
+import ProductSlideComponent from "@/components/products-slide";
+
 
 const productTypes = [
   "ศาลพระหรหม",
@@ -12,7 +13,7 @@ const productTypes = [
 export default function AllProductsPage() {
   return (
     <div>
-      <h2 className="font-bold text-lg">All product</h2>
+      <h2 className="font-bold text-lg">All products</h2>
         {productTypes.map((productType) => (
           <ProductSlideComponent productType={productType} />
         ))}

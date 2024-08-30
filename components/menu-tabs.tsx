@@ -18,11 +18,11 @@ import {
 } from "@nextui-org/dropdown";
 
 const menuItems = [
-  { label: "Shop by catalog", icon: FaBookOpen },
-  { label: "Create your own shrine", icon: FaPencil },
-  { label: "My order", icon: FaInbox },
-  { label: "Checking delivery price", icon: FaTruck },
-  { label: "Tips", icon: MdTipsAndUpdates },
+  { label: "Shop by catalog", icon: FaBookOpen, href: "/catalog" },
+  { label: "Create your own shrine", icon: FaPencil, href: "/create-shrine" },
+  { label: "My order", icon: FaInbox, href: "/my-order" },
+  { label: "Checking delivery price", icon: FaTruck, href: "/delivery-price" },
+  { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
 ];
 
 export default function MenuTabsComponent() {
@@ -32,10 +32,15 @@ export default function MenuTabsComponent() {
   if (pathname === "/sign-in") return null;
   return (
     <div className="flex gap-2 xl:max-w-6xl md:max-w-3xl max-w-md items-center border-b-1 overflow-x-auto px-5 min-h-20">
-      <div className="flex">
+      <div className="flex gap-2">
         <Dropdown>
           <DropdownTrigger>
-            <Button as={Link} href="#" variant="light">
+            <Button
+              as={Link}
+              href="#"
+              variant={pathname === "/all-products" ? "flat" : "light"}
+              color={pathname === "/all-products" ? "primary" : "default"}
+            >
               <FaShoppingBag />
               <p>Shop products</p>
               <RiArrowDropDownLine size={25} />
@@ -55,7 +60,13 @@ export default function MenuTabsComponent() {
           </DropdownMenu>
         </Dropdown>
         {menuItems.map((menu) => (
-          <Button as={Link} href="#" key={menu.label} variant="light">
+          <Button
+            as={Link}
+            href={menu.href}
+            key={menu.label}
+            variant={pathname === menu.href ? "flat" : "light"}
+            color={pathname === menu.href ? "primary" : "default"}
+          >
             <menu.icon />
             <p>{menu.label}</p>
           </Button>
