@@ -5,12 +5,17 @@ import { Image } from "@nextui-org/image";
 interface Props {
   image: string;
   label: string;
+  isSelected?: boolean;
 }
 
-export default function HomeProductCard({ image, label }: Props) {
+export default function ProductTypeCardComponent({
+  image,
+  label,
+  isSelected,
+}: Props) {
   return (
     <Card
-      className="aspect-[3/5] min-w-40 cursor-pointer p-1"
+      className={`aspect-[3/5] min-w-40 cursor-pointer p-1 ${isSelected && "border-4 border-primary"}`}
       shadow="sm"
       isHoverable
     >

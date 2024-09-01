@@ -1,11 +1,11 @@
-import HomeProductCard from "@/components/home-product-card";
+import ProductTypeCardComponent from "@/components/product-type-card";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 import { NextPage } from "next";
 
 interface Props {}
 
-const productTypes = [
+export const productTypes = [
   { image: "/shrine/sarnpraprom.png", label: "ศาลพระพรหม" },
   { image: "/shrine/sarnpraprom.png", label: "ศาลพระภูมิ" },
   { image: "/shrine/sarnpraprom.png", label: "ศาลเจ้าที่" },
@@ -19,7 +19,7 @@ const HomePage: NextPage<Props> = () => {
     <div>
       <section className="flex gap-5 overflow-x-auto p-2">
         {productTypes.map((productType) => (
-          <HomeProductCard
+          <ProductTypeCardComponent
             key={productType.label}
             image={productType.image}
             label={productType.label}
