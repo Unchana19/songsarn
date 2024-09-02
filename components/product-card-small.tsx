@@ -2,12 +2,14 @@ import ShopButtonComponent from "@/components/shop-button";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
+import { ReactNode } from "react";
 
 interface Props {
   image: string;
   price: number;
   name: string;
   isTopSeller?: boolean;
+  cardButton: ReactNode;
 }
 
 export default function ProductCardSmallComponent({
@@ -15,6 +17,7 @@ export default function ProductCardSmallComponent({
   price,
   name,
   isTopSeller,
+  cardButton,
 }: Props) {
   return (
     <Card isHoverable shadow="none" className="cursor-pointer min-w-[200px]">
@@ -35,9 +38,7 @@ export default function ProductCardSmallComponent({
         <p>{name}</p>
         <h3 className="text-lg font-bold">{formatNumberWithComma(price)}</h3>
       </CardBody>
-      <CardFooter className="flex gap-2">
-        <ShopButtonComponent size="sm" />
-      </CardFooter>
+      <CardFooter className="flex gap-2">{cardButton}</CardFooter>
     </Card>
   );
 }

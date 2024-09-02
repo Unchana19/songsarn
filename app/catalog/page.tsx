@@ -1,7 +1,27 @@
 import ProductSlideComponent from "@/components/products-slide";
 import ShopButtonComponent from "@/components/shop-button";
+import { Product } from "@/types";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Image } from "@nextui-org/image";
+
+const products = [
+  {
+    name: "ศาลพระภูมิลายมังกร",
+    price: 45000,
+    image: "/shrine/sarnpraprom.png",
+  },
+  {
+    name: "ศาลพระภูมิทรงไทย ติดกระจก",
+    price: 45000,
+    image: "/shrine/sarnpraprom.png",
+  },
+  {
+    name: "ศาลพระพรหมยอดปรางค์จัมโบ้",
+    price: 45000,
+    image: "/shrine/sarnpraprom.png",
+  },
+  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
+] as Product[];
 
 export default function CatalogPage() {
   return (
@@ -21,7 +41,10 @@ export default function CatalogPage() {
         </div>
       </div>
       <div>
-        <ProductSlideComponent />
+        <ProductSlideComponent
+          products={products}
+          cardButton={<ShopButtonComponent size="sm" />}
+        />
       </div>
       <div className="flex flex-row">
         <div className="flex flex-col justify-center items-center w-1/2">

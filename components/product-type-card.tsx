@@ -6,12 +6,14 @@ interface Props {
   image: string;
   label: string;
   isSelected?: boolean;
+  canSelected?: boolean;
 }
 
 export default function ProductTypeCardComponent({
   image,
   label,
   isSelected,
+  canSelected,
 }: Props) {
   return (
     <Card
@@ -28,9 +30,25 @@ export default function ProductTypeCardComponent({
         />
       </CardBody>
       <CardFooter className="flex justify-center items-center">
-        <Button color="primary" variant="flat">
-          <p className="text-black">{label}</p>
-        </Button>
+        {canSelected ? (
+          <Button
+            color={isSelected ? "primary" : "default"}
+            variant="flat"
+            className="opacity-100"
+            isDisabled
+          >
+            <p className="text-black text-center">{label}</p>
+          </Button>
+        ) : (
+          <Button
+            color="primary"
+            variant="flat"
+            className="opacity-100"
+            isDisabled
+          >
+            <p className="text-black text-center">{label}</p>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
