@@ -34,7 +34,7 @@ export default function RootLayout({
           fontSarabun.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="relative flex flex-col h-screen items-center jus overflow-x-hidden">
             <NavbarComponent />
             <MenuTabsComponent />
