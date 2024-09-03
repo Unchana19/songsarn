@@ -13,27 +13,36 @@ import {
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import { Input } from "@nextui-org/input";
-import { FaBasketShopping } from "react-icons/fa6";
-import { MdOutlineFavorite } from "react-icons/md";
+import {
+  FaBasketShopping,
+  FaBookOpen,
+  FaInbox,
+  FaPencil,
+  FaTruck,
+} from "react-icons/fa6";
+import { PiSignInBold } from "react-icons/pi";
+import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
 
 import { SearchIcon } from "./icons/search-icon";
 import { usePathname } from "next/navigation";
+import { FaShoppingBag } from "react-icons/fa";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const menuItems = [
-    "Profile",
-    "Dashboard",
-    "Activity",
-    "Analytics",
-    "System",
-    "Deployments",
-    "My Settings",
-    "Team Settings",
-    "Help & Feedback",
-    "Log Out",
+    { label: "All products", icon: FaShoppingBag, href: "/all-products" },
+    { label: "Shop by catalog", icon: FaBookOpen, href: "/catalog" },
+    { label: "Create your own shrine", icon: FaPencil, href: "/create-shrine" },
+    { label: "My order", icon: FaInbox, href: "/my-order" },
+    {
+      label: "Checking delivery price",
+      icon: FaTruck,
+      href: "/delivery-price",
+    },
+    { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
+    { label: "Sign In", icon: PiSignInBold, href: "/sign-in" },
   ];
 
   if (pathname === "/sign-in") return null;
@@ -82,22 +91,18 @@ export default function NavbarComponent() {
         </NavbarItem>
       </NavbarContent>
       <NavbarMenu>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
-            <Link
-              className="w-full"
-              color={
-                index === 2
-                  ? "primary"
-                  : index === menuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-              }
-              href="#"
-              size="lg"
+        {menuItems.map((menu, index) => (
+          <NavbarMenuItem key={`${menu}-${index}`}>
+            <Button
+              as={Link}
+              href={menu.href}
+              key={menu.label}
+              variant={pathname === menu.href ? "flat" : "light"}
+              color={pathname === menu.href ? "primary" : "default"}
             >
-              {item}
-            </Link>
+              <menu.icon />
+              <p>{menu.label}</p>
+            </Button>
           </NavbarMenuItem>
         ))}
       </NavbarMenu>

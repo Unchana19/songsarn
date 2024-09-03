@@ -51,7 +51,7 @@ export default function StatusTab({ orderStatus }: Props) {
             <Tab
               key={tab.id}
               title={tab.label}
-              className="py-5 px-10 mx-5 my-1 rounded-3xl"
+              className="py-5 px-10 m-1 rounded-3xl"
             ></Tab>
           ))}
         </Tabs>
