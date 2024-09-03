@@ -8,15 +8,15 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import CreateStructPage from "./create-struct";
 import CreateOptionPage from "./create-option";
 
-const step = [
-  "เลือกประเภทศาล",
-  "ออกแบบโครงสร้างศาล",
-  "ออกแบบส่วนประกอบอื่นๆ เพิ่มเติม (Optional)",
-];
-
 export default function CustomizePage() {
   const [activeStep, setActiveStep] = useState(1);
 
+  const step = [
+    "เลือกประเภทศาล",
+    "ออกแบบโครงสร้างศาล",
+    "ออกแบบส่วนประกอบอื่นๆ เพิ่มเติม (Optional)",
+  ];
+  
   const nextPage = (page: number) => {
     if (page < 3) {
       setActiveStep(page + 1);

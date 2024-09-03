@@ -27,8 +27,9 @@ export default function ProductSlideComponent({
         </div>
       )}
       <div className="flex justify-around overflow-x-auto gap-4">
-        {products.map((product) => (
+        {products.map((product: Product) => (
           <ProductCardSmallComponent
+            key={product.name}
             isTopSeller={isTopSeller && product === products[0]}
             image={product.image}
             price={product.price}

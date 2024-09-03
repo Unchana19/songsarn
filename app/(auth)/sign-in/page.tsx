@@ -8,13 +8,13 @@ export default function SignInPage() {
       <h1 className="text-4xl font-bold">Sign In</h1>
       <Button
         className="mt-20 px-20 py-8"
-        startContent={<FaGoogle color="black" size={25} />}
         color="primary"
         size="lg"
+        startContent={<FaGoogle color="black" size={25} />}
       >
         <p className="text-black p-10 font-bold text-lg">Sign in with google</p>
       </Button>
-      <Button as={Link} href="/" className="mt-5" variant="light">
+      <Button as={Link} className="mt-5" href="/" variant="light">
         <p className="text-primary font-bold">กลับสู่หน้าแรก</p>
       </Button>
     </div>

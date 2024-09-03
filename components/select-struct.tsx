@@ -29,7 +29,7 @@ export default function SelectStructComponent({
       </div>
       <div className="flex justify-around overflow-x-auto gap-4 mb-10">
         {structs.map((struct) => (
-          <div onClick={() => setSelectedStruct(struct.name)}>
+          <div key={struct.name} onClick={() => setSelectedStruct(struct.name)}>
             <ProductCardSmallComponent
               image={struct.image}
               price={struct.price}

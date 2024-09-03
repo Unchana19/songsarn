@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sarabun antialiased",
-          fontSarabun.variable
+          fontSarabun.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>

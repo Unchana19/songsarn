@@ -1,31 +1,17 @@
 import ProductSlideComponent from "@/components/products-slide";
 import ShopButtonComponent from "@/components/shop-button";
-import { Product } from "@/types";
-
-const productTypes = [
-  "ศาลพระหรหม",
-  "ศาลพระภูมิ",
-  "ศาลพระเจ้าที่",
-  "ศาลพระตายาย",
-  "โต๊ะหน้าศาล",
-  "อุปกรณ์ประกอบศาล",
-];
-
-const products = [
-  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
-  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
-  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
-  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
-] as Product[];
+import { productsAll } from "@/data/product-all";
+import { productTypes } from "@/data/product-type";
+import { ProductType } from "@/types";
 
 export default function AllProductsPage() {
   return (
     <div>
       <h2 className="font-bold text-lg">All products</h2>
-      {productTypes.map((productType) => (
+      {productTypes.map((productType: ProductType) => (
         <ProductSlideComponent
-          productType={productType}
-          products={products}
+          productType={productType.label}
+          products={productsAll}
           cardButton={<ShopButtonComponent size="sm" />}
           isTopSeller
         />

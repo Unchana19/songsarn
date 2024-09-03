@@ -1,27 +1,9 @@
 import ProductSlideComponent from "@/components/products-slide";
 import ShopButtonComponent from "@/components/shop-button";
-import { Product } from "@/types";
+import { productsCatalog } from "@/data/product-catalog";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Image } from "@nextui-org/image";
 
-const products = [
-  {
-    name: "ศาลพระภูมิลายมังกร",
-    price: 45000,
-    image: "/shrine/sarnpraprom.png",
-  },
-  {
-    name: "ศาลพระภูมิทรงไทย ติดกระจก",
-    price: 45000,
-    image: "/shrine/sarnpraprom.png",
-  },
-  {
-    name: "ศาลพระพรหมยอดปรางค์จัมโบ้",
-    price: 45000,
-    image: "/shrine/sarnpraprom.png",
-  },
-  { name: "ศาลพระพรหมทรงไทย", price: 45000, image: "/shrine/sarnpraprom.png" },
-] as Product[];
 
 export default function CatalogPage() {
   return (
@@ -42,7 +24,7 @@ export default function CatalogPage() {
       </div>
       <div>
         <ProductSlideComponent
-          products={products}
+          products={productsCatalog}
           cardButton={<ShopButtonComponent size="sm" />}
         />
       </div>

@@ -1,33 +1,23 @@
 import ProductTypeCardComponent from "@/components/product-type-card";
+import { productTypes } from "@/data/product-type";
+import { ProductType } from "@/types";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
-import { NextPage } from "next";
 
-interface Props {}
-
-export const productTypes = [
-  { image: "/shrine/sarnpraprom.png", label: "ศาลพระพรหม" },
-  { image: "/shrine/sarnpraprom.png", label: "ศาลพระภูมิ" },
-  { image: "/shrine/sarnpraprom.png", label: "ศาลเจ้าที่" },
-  { image: "/shrine/sarnpraprom.png", label: "ศาลตายาย" },
-  { image: "/shrine/sarnpraprom.png", label: "โต๊ะหน้าศาล" },
-  { image: "/shrine/sarnpraprom.png", label: "อุปกรณ์ประกอบศาล" },
-];
-
-const HomePage: NextPage<Props> = () => {
+export default function HomePage() {
   return (
     <div>
-      <section className="flex gap-5 overflow-x-auto p-2">
-        {productTypes.map((productType) => (
+      <div className="flex gap-5 overflow-x-auto p-2">
+        {productTypes.map((productType: ProductType) => (
           <ProductTypeCardComponent
             key={productType.label}
             image={productType.image}
             label={productType.label}
           />
         ))}
-      </section>
+      </div>
 
-      <section className="flex flex-col md:flex-row mt-10 md:justify-between items-center p-2">
+      <div className="flex flex-col md:flex-row mt-10 md:justify-between items-center p-2">
         <div className="flex flex-col items-center md:items-start">
           <h1 className="text-6xl font-bold leading-relaxed text-center">
             Top 5 Best Sellers
@@ -40,9 +30,9 @@ const HomePage: NextPage<Props> = () => {
         <div>
           <Image src="/shrine/sarnpraprom.png" />
         </div>
-      </section>
+      </div>
 
-      <section className="flex flex-col md:flex-row mt-8 md:justify-between items-center p-2">
+      <div className="flex flex-col md:flex-row mt-8 md:justify-between items-center p-2">
         <div>
           <Image src="/shrine/sarnpraprom.png" />
         </div>
@@ -65,9 +55,9 @@ const HomePage: NextPage<Props> = () => {
             </Button>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="flex flex-col md:flex-row mt-20 mb-40 justify-center items-center gap-32">
+      <div className="flex flex-col md:flex-row mt-20 mb-40 justify-center items-center gap-32">
         <div className="max-w-md">
           <h2 className="text-5xl font-bold leading-relaxed md:text-start text-center">
             Delivery And
@@ -83,9 +73,7 @@ const HomePage: NextPage<Props> = () => {
         <div className="max-w-xl">
           <Image src="/home/truck.png" width={250} />
         </div>
-      </section>
+      </div>
     </div>
   );
-};
-
-export default HomePage;
+}
