@@ -40,18 +40,20 @@ export default function StatusTab({ orderStatus }: Props) {
   return (
     <div className="mb-40">
       <h3 className="font-bold text-xl mb-5">My orders</h3>
-      <div>
+      <div className="max-w-xl">
         <Tabs
+          radius="full"
           aria-label="Status tabs"
           color="primary"
           size="lg"
+          fullWidth
           onSelectionChange={(key) => handleTabChange(key)}
         >
           {tabs.map((tab) => (
             <Tab
               key={tab.id}
               title={tab.label}
-              className="py-5 px-10 m-1 rounded-3xl"
+              className="m-1 p-5 rounded-3xl"
             ></Tab>
           ))}
         </Tabs>

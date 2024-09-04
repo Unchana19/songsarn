@@ -26,7 +26,7 @@ export default function ProductSlideComponent({
           </Button>
         </div>
       )}
-      <div className="flex justify-around overflow-x-auto gap-4">
+      <div className="flex justify-around overflow-x-auto gap-4 px-5">
         {products.map((product: Product) => (
           <ProductCardSmallComponent
             key={product.name}

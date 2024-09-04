@@ -57,7 +57,7 @@ export default function CustomizePage() {
                 <Button
                   isIconOnly
                   color="primary"
-                  className="rounded-full"
+                  radius="full"
                   onClick={() => prevPage(activeStep)}
                 >
                   <FaArrowLeftLong />
@@ -67,7 +67,7 @@ export default function CustomizePage() {
                 <Button
                   color="primary"
                   variant={activeStep < 3 ? "bordered" : "solid"}
-                  className="rounded-3xl"
+                  radius="full"
                   onClick={() => nextPage(activeStep)}
                 >
                   {activeStep < 3 ? (

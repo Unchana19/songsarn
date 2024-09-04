@@ -23,10 +23,21 @@ module.exports = {
       light: {
         colors: {
           primary: {
+            50: "#D4AF37",
+            100: "#F6EFD7",
+            200: "#F6EFD7",
+            300: "#F6EFD7",
+            400: "#F6EFD7",
+            500: "#F6EFD7",
+            600: "#F6EFD7",
+            700: "#F6EFD7",
+            800: "#F6EFD7",
+            900: "#F6EFD7",
+            background: "#D4AF37",
             foreground: "#000000",
             DEFAULT: "#D4AF37",
-            100: "#F6EFD7"
-          }
+          },
+          focus: "#F6EFD7",
         }
       }
     }

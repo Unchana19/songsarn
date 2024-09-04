@@ -65,6 +65,7 @@ export default function NavbarComponent() {
           <Input
             color="primary"
             placeholder="Find your favorite shrine"
+            radius="full"
             startContent={
               <SearchIcon className="text-amber/50 mb-0.5 text-[#D4AF37] pointer-events-none flex-shrink-0" />
             }
