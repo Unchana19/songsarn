@@ -19,14 +19,14 @@ export default function ProductSlideComponent({
   return (
     <div className="flex flex-col my-10">
       {productType && (
-        <div className="flex items-center justify-between my-2">
+        <div className="flex items-center justify-between my-5">
           <p className="font-bold text-lg">{productType}</p>
-          <Button color="primary">
+          <Button color="primary" className="text-white">
             <p>See all {productType}</p>
           </Button>
         </div>
       )}
-      <div className="flex justify-around overflow-x-auto gap-4 px-5">
+      <div className="flex md:justify-around overflow-x-auto gap-10 px-5">
         {products.map((product: Product) => (
           <ProductCardSmallComponent
             key={product.name}
