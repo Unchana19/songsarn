@@ -17,7 +17,7 @@ export default function ProductSlideComponent({
   products,
 }: Props) {
   return (
-    <div className="flex flex-col my-5">
+    <div className="flex flex-col my-10">
       {productType && (
         <div className="flex items-center justify-between my-2">
           <p className="font-bold text-lg">{productType}</p>
