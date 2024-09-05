@@ -66,6 +66,8 @@ export default function MenuTabsComponent() {
             key={menu.label}
             variant={pathname === menu.href ? "flat" : "light"}
             color={pathname === menu.href ? "primary" : "default"}
+            isDisabled={pathname === menu.href}
+            className="opacity-100"
           >
             <menu.icon />
             <p>{menu.label}</p>

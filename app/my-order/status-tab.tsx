@@ -1,8 +1,6 @@
+import TabsSelect from "@/components/tabs-select";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@nextui-org/button";
-import { Card, CardHeader } from "@nextui-org/card";
-import { Spinner } from "@nextui-org/spinner";
-import { Tab, Tabs } from "@nextui-org/tabs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Key, useTransition } from "react";
 
@@ -40,27 +38,12 @@ export default function StatusTab({ orderStatus }: Props) {
   return (
     <div className="mb-40">
       <h3 className="font-bold text-xl mb-5">My orders</h3>
-      <div className="max-w-xl">
-        <Tabs
-          radius="full"
-          aria-label="Status tabs"
-          color="primary"
-          size="lg"
-          fullWidth
-          onSelectionChange={(key) => handleTabChange(key)}
-        >
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.id}
-              title={tab.label}
-              className="m-1 p-5 rounded-3xl"
-            ></Tab>
-          ))}
-        </Tabs>
-        {isPending && (
-          <Spinner color="primary" className="self-center ml-3"></Spinner>
-        )}
-      </div>
+      <TabsSelect
+        tabs={tabs}
+        handleTabChange={handleTabChange}
+        isPending={isPending}
+        variant="bordered"
+      />
 
       <div>
         {tabs.map((tab) => {

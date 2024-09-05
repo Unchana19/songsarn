@@ -81,7 +81,15 @@ export default function NavbarComponent() {
           </Button>
         </NavbarItem>
         <NavbarItem>
-          <Button isIconOnly variant="light">
+          <Button
+            as={Link}
+            href="/favorite"
+            color="primary"
+            isDisabled={pathname === "/favorite"}
+            className="opacity-100"
+            isIconOnly
+            variant={pathname === "/favorite" ? "flat" : "light"}
+          >
             <MdOutlineFavorite size={20} color="#D4AF37" />
           </Button>
         </NavbarItem>
@@ -95,6 +103,7 @@ export default function NavbarComponent() {
         {menuItems.map((menu, index) => (
           <NavbarMenuItem key={`${menu}-${index}`}>
             <Button
+              fullWidth
               as={Link}
               href={menu.href}
               key={menu.label}
