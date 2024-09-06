@@ -107,6 +107,8 @@ export default function NavbarComponent() {
               as={Link}
               href={menu.href}
               key={menu.label}
+              isDisabled={pathname === menu.href}
+              className="opacity-100"
               variant={pathname === menu.href ? "flat" : "light"}
               color={pathname === menu.href ? "primary" : "default"}
             >
