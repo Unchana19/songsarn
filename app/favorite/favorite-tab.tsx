@@ -49,7 +49,7 @@ export default function FavoriteTab({ products }: Props) {
   };
 
   const calTotal = (products: ProductCustomize[] | ProductFinished[]) => {
-    return products.reduce(
+    return (products as ProductCustomize[]).reduce(
       (total, product) => total + product.price * product.amount,
       0
     );
@@ -77,7 +77,7 @@ export default function FavoriteTab({ products }: Props) {
                     <div className="my-5 flex flex-col gap-10 w-full">
                       {(products as ProductFinished[]).map(
                         (product: ProductFinished) => (
-                          <div>
+                          <div key={product.id}>
                             <div className="flex items-center justify-evenly">
                               {isFinished && (
                                 <div>

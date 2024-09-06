@@ -2,7 +2,7 @@ import { ProductFinished } from "@/app/favorite/favorite-tab";
 
 export const productFinished = [
   {
-    id: "0",
+    id: "01",
     name: "ศาลพระภูมิทรงไทย",
     price: 45000,
     amount: 1,
@@ -10,7 +10,7 @@ export const productFinished = [
     image: "/shrine/sarnpraprom.png",
   },
   {
-    id: "1",
+    id: "02",
     name: "ศาลพระภูมิทรงไทย",
     price: 45000,
     amount: 1,

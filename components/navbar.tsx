@@ -110,8 +110,10 @@ export default function NavbarComponent() {
               variant={pathname === menu.href ? "flat" : "light"}
               color={pathname === menu.href ? "primary" : "default"}
             >
-              <menu.icon />
-              <p>{menu.label}</p>
+              <div className="flex w-full items-center gap-4">
+                <menu.icon />
+                <p>{menu.label}</p>
+              </div>
             </Button>
           </NavbarMenuItem>
         ))}
