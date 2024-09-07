@@ -1,6 +1,8 @@
 "use client";
 
+import CartCardComponent from "@/components/cart-card";
 import TabsSelect from "@/components/tabs-select";
+import { calTotal } from "@/utils/cal-total";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
@@ -14,6 +16,7 @@ export type ProductCustomize = {
   name: string;
   price: number;
   amount: number;
+  type: "finished" | "custom";
 };
 
 export type ProductFinished = {
@@ -23,6 +26,7 @@ export type ProductFinished = {
   amount: number;
   size: string;
   image: string;
+  type: "finished" | "custom";
 };
 
 interface Props {
@@ -48,13 +52,6 @@ export default function FavoriteTab({ products }: Props) {
     });
   };
 
-  const calTotal = (products: ProductCustomize[] | ProductFinished[]) => {
-    return (products as ProductCustomize[]).reduce(
-      (total, product) => total + product.price * product.amount,
-      0
-    );
-  };
-
   return (
     <div className="mb-40">
       <h3 className="font-bold text-xl mb-5">Favorites</h3>
@@ -77,64 +74,11 @@ export default function FavoriteTab({ products }: Props) {
                     <div className="my-5 flex flex-col gap-10 w-full">
                       {(products as ProductFinished[]).map(
                         (product: ProductFinished) => (
-                          <div key={product.id}>
-                            <div className="flex items-center justify-evenly">
-                              {isFinished && (
-                                <div>
-                                  <Image src={product.image} width={200} />
-                                </div>
-                              )}
-                              <div
-                                className={`flex flex-col gap-4 ${isFinished ? "w-2/3" : "w-full"}`}
-                              >
-                                <div className="flex flex-col md:flex-row md:justify-between">
-                                  <h3 className="font-bold text-lg">
-                                    {isFinished
-                                      ? product.name
-                                      : `Custom order no.${product.id}`}
-                                  </h3>
-                                  <h3 className="font-bold text-lg">
-                                    {formatNumberWithComma(product.price)}
-                                  </h3>
-                                </div>
-                                <p>
-                                  {isFinished ? product.size : product.name}
-                                </p>
-                                <div className="flex gap-4">
-                                  <div className="flex border-2 border-primary rounded-3xl items-center gap-2">
-                                    <Button
-                                      isIconOnly
-                                      variant="light"
-                                      radius="full"
-                                    >
-                                      <p className="text-xl">-</p>
-                                    </Button>
-                                    <p className="px-3">{product.amount}</p>
-                                    <Button
-                                      isIconOnly
-                                      variant="light"
-                                      radius="full"
-                                    >
-                                      <p>+</p>
-                                    </Button>
-                                  </div>
-                                  <Button
-                                    isIconOnly
-                                    color="primary"
-                                    radius="full"
-                                  >
-                                    <FaCartPlus color="white" size={20} />
-                                  </Button>
-                                  {!isFinished && (
-                                    <Button color="primary" radius="full">
-                                      <p className="text-white">Detail</p>
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <Divider className="mt-5 mb-10" />
-                          </div>
+                          <CartCardComponent
+                            key={product.id}
+                            product={product}
+                            isImage={isFinished}
+                          />
                         )
                       )}
                     </div>

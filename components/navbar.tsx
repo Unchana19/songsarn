@@ -25,7 +25,7 @@ import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
 
 import { SearchIcon } from "./icons/search-icon";
 import { usePathname } from "next/navigation";
-import { FaShoppingBag } from "react-icons/fa";
+import { FaGoogle, FaShoppingBag } from "react-icons/fa";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,11 +76,6 @@ export default function NavbarComponent() {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
-          <Button isIconOnly variant="light">
-            <FaBasketShopping size={20} color="#D4AF37" />
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
           <Button
             as={Link}
             href="/favorite"
@@ -94,8 +89,24 @@ export default function NavbarComponent() {
           </Button>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="/sign-in" variant="flat">
-            <p className="text-black">Sign In</p>
+          <Button
+            as={Link}
+            href="/cart"
+            color="primary"
+            isDisabled={pathname === "/cart"}
+            className="opacity-100"
+            isIconOnly
+            variant={pathname === "/cart" ? "flat" : "light"}
+          >
+            <FaBasketShopping size={20} color="#D4AF37" />
+          </Button>
+        </NavbarItem>
+        <NavbarItem>
+          <Button as={Link} color="primary" href="/" variant="flat">
+            <div className="flex items-center gap-2">
+              <FaGoogle size={18} />
+              <p className="text-black">Sign in</p>
+            </div>
           </Button>
         </NavbarItem>
       </NavbarContent>

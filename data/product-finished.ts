@@ -8,6 +8,7 @@ export const productFinished = [
     amount: 1,
     size: "2x2x2 m",
     image: "/shrine/sarnpraprom.png",
+    type: "finished",
   },
   {
     id: "02",
@@ -16,5 +17,6 @@ export const productFinished = [
     amount: 1,
     size: "2x2x2 m",
     image: "/shrine/sarnpraprom.png",
+    type: "finished",
   },
 ] as ProductFinished[];
