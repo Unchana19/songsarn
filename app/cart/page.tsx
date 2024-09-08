@@ -47,5 +47,5 @@ export default function CartPage() {
     }
   };
 
-  return <div>{getStepContent(activeStep)}</div>;
+  return <div className="mb-40">{getStepContent(activeStep)}</div>;
 }

@@ -14,7 +14,7 @@ export default function CatalogPage() {
           <Image src="/shrine/sarnpraprom.png" />
         </div>
         <div className="flex flex-col gap-4 justify-center">
-          <h2 className="font-bold text-3xl text-center leading-relaxed">
+          <h2 className="font-bold text-3xl text-center md:text-start leading-relaxed">
             ชุดศาลพระภูมิ
           </h2>
           <p>ประกอบด้วย...</p>
@@ -33,7 +33,7 @@ export default function CatalogPage() {
       <div className="flex flex-row">
         <div className="flex flex-col justify-center items-center w-1/2">
           <div className="flex flex-col gap-4">
-            <h2 className="font-bold text-3xl text-center leading-relaxed">
+            <h2 className="font-bold text-3xl text-center md:text-start leading-relaxed">
               ชุดศาลพระเจ้าที่
             </h2>
             <p>ประกอบด้วย...</p>
