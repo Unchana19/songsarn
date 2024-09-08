@@ -27,7 +27,7 @@ export default function SelectStructComponent({
       <div className="flex items-center justify-between my-2">
         <p className="font-bold text-lg">{typeStruct}</p>
       </div>
-      <div className="flex justify-around overflow-x-auto gap-4 mb-10">
+      <div className="flex md:justify-around overflow-x-auto gap-4 mb-10">
         {structs.map((struct) => (
           <div key={struct.name} onClick={() => setSelectedStruct(struct.name)}>
             <ProductCardSmallComponent
@@ -45,7 +45,7 @@ export default function SelectStructComponent({
       </div>
       <div className="flex flex-col gap-4">
         <p className="font-bold text-lg">Choose size</p>
-        <div className="flex justify-around overflow-x-auto gap-4 mb-5 p-2">
+        <div className="flex md:justify-around overflow-x-auto gap-4 mb-5 p-2">
           {sizes.map((size) => {
             let isSelectedBaseSize = selectedSize === size;
             return (

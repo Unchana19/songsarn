@@ -3,6 +3,7 @@ import { productTypes } from "@/data/product-type";
 import { ProductType } from "@/types";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -23,7 +24,13 @@ export default function HomePage() {
             Top 5 Best Sellers
           </h1>
           <p className="text-xl py-2">ศาลพระภูมิ 5 อันดับที่ขายดีที่สุด!</p>
-          <Button color="primary" className="mt-10 w-1/2" size="lg">
+          <Button
+            as={Link}
+            href="/all-products"
+            color="primary"
+            className="mt-10 w-1/2"
+            size="lg"
+          >
             <p className="text-black text-xl font-bold">Shop now</p>
           </Button>
         </div>
@@ -47,10 +54,22 @@ export default function HomePage() {
             For Your Guardian Spirit
           </h2>
           <div className="flex gap-8 w-full mt-10">
-            <Button color="primary" className="w-full" size="lg">
+            <Button
+              as={Link}
+              href="/catalog"
+              color="primary"
+              className="w-full"
+              size="lg"
+            >
               <p className="text-black text-xl font-bold">Catalog</p>
             </Button>
-            <Button color="primary" className="w-full" size="lg">
+            <Button
+              as={Link}
+              href="/create-shrine"
+              color="primary"
+              className="w-full"
+              size="lg"
+            >
               <p className="text-black text-xl font-bold">Customize</p>
             </Button>
           </div>

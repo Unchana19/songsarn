@@ -93,13 +93,13 @@ export default function FavoriteTab({ products }: Props) {
         <div className="md:w-1/2 flex mt-10 ">
           <div className="w-full flex flex-col items-center">
             <div className="md:w-2/3 w-full flex flex-col gap-4">
-              <p className="font-bold">Summary</p>
+              <p className="font-bold text-lg">Summary</p>
               {products.map((product) => (
                 <div className="flex justify-between">
                   <p>
                     {product.name} ({product.amount})
                   </p>
-                  <p>{formatNumberWithComma(product.price)}</p>
+                  <p>{formatNumberWithComma(product.price * product.amount)}</p>
                 </div>
               ))}
               <Divider className="my-1" />

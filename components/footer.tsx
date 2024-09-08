@@ -7,7 +7,7 @@ export default function FooterComponent() {
 
   if (pathname === "/sign-in") return null;
   return (
-    <footer className="flex bg-gray-200 px-5 pt-10 pb-20 gap-10 w-full justify-center">
+    <footer className="flex bg-gray-200 px-5 pt-10 pb-40 gap-10 w-full justify-center">
       <div className="md:grid md:grid-cols-5 flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <h2 className="text-3xl font-bold">Contact</h2>

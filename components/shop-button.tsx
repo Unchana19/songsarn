@@ -8,7 +8,7 @@ interface Props {
 
 export default function ShopButtonComponent({ size }: Props) {
   return (
-    <div className="flex">
+    <div className="flex gap-2">
       <Button isIconOnly color="primary" size={size}>
         <FaCartPlus color="white" size={20} />
       </Button>

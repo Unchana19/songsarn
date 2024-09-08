@@ -1,59 +1,51 @@
+"use client";
+
+import { useState } from "react";
+import CartSummaryPage from "./cart-summary";
+import DeliveryAddressPage from "./delivery-address";
 import { productCustomize } from "@/data/product-customize";
 import { productFinished } from "@/data/product-finished";
-import { calTotal } from "@/utils/cal-total";
-import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
-import { MdOutlinePayments } from "react-icons/md";
 import { ProductFinished } from "../favorite/favorite-tab";
-import CartCardComponent from "@/components/cart-card";
+import PaymentPage from "./payment";
 
 export default function CartPage() {
+  const [activeStep, setActiveStep] = useState(0);
+
   const products = [
     ...productFinished,
     ...productCustomize,
   ] as ProductFinished[];
 
-  return (
-    <div>
-      <h3 className="font-bold text-xl mb-5">Favorites</h3>
-      <div className="flex flex-col md:flex-row w-full">
-        <div className="md:w-1/2">
-          <div>
-            {products.map((product: ProductFinished) => {
-              const isImage = product.type === "finished";
-              return <CartCardComponent key={product.id} product={product} isImage={isImage} />;
-            })}
-          </div>
-        </div>
-        <div className="md:w-1/2 flex mt-10 ">
-          <div className="w-full flex flex-col items-center">
-            <div className="md:w-2/3 w-full flex flex-col gap-4">
-              <p className="font-bold">Summary</p>
-              {products.map((product) => (
-                <div className="flex justify-between">
-                  <p>
-                    {product.name} ({product.amount})
-                  </p>
-                  <p>{formatNumberWithComma(product.price)}</p>
-                </div>
-              ))}
-              <Divider className="my-1" />
-              <div className="flex justify-between font-bold text-lg">
-                <p>Total</p>
-                <p>{formatNumberWithComma(calTotal(products))}</p>
-              </div>
-              <Button
-                color="primary"
-                radius="full"
-                startContent={<MdOutlinePayments color="white" size={20} />}
-              >
-                <p className="text-white">Go to checkout</p>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const nextPage = (page: number) => {
+    if (page < 2) {
+      setActiveStep(page + 1);
+    }
+  };
+
+  const prevPage = (page: number) => {
+    if (page > 0) {
+      setActiveStep(page - 1);
+    }
+  };
+
+  const getStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return <CartSummaryPage products={products} nextPage={nextPage} />;
+      case 1:
+        return (
+          <DeliveryAddressPage
+            products={products}
+            prevPage={prevPage}
+            nextPage={nextPage}
+          />
+        );
+      case 2:
+        return <PaymentPage products={products} prevPage={prevPage} />;
+      default:
+        return "unknow step";
+    }
+  };
+
+  return <div>{getStepContent(activeStep)}</div>;
 }

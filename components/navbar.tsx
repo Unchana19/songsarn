@@ -42,7 +42,6 @@ export default function NavbarComponent() {
       href: "/delivery-price",
     },
     { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
-    { label: "Sign In", icon: PiSignInBold, href: "/sign-in" },
   ];
 
   if (pathname === "/sign-in") return null;
@@ -74,7 +73,7 @@ export default function NavbarComponent() {
           />
         </NavbarItem>
       </NavbarContent>
-      <NavbarContent justify="end">
+      <NavbarContent justify="end" className="gap-2 md:gap-5">
         <NavbarItem>
           <Button
             as={Link}
@@ -105,7 +104,7 @@ export default function NavbarComponent() {
           <Button as={Link} color="primary" href="/" variant="flat">
             <div className="flex items-center gap-2">
               <FaGoogle size={18} />
-              <p className="text-black">Sign in</p>
+              <p className="text-black text-sm">Sign in</p>
             </div>
           </Button>
         </NavbarItem>
