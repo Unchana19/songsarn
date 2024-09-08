@@ -1,4 +1,3 @@
-import ShopButtonComponent from "@/components/shop-button";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";

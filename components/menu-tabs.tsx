@@ -36,10 +36,8 @@ export default function MenuTabsComponent() {
         <Dropdown>
           <DropdownTrigger>
             <Button
-              as={Link}
-              href="#"
-              variant={pathname === "/all-products" ? "flat" : "light"}
-              color={pathname === "/all-products" ? "primary" : "default"}
+              variant={pathname.includes("/all-products") ? "flat" : "light"}
+              color={pathname.includes("/all-products") ? "primary" : "default"}
             >
               <FaShoppingBag />
               <p>Shop products</p>
@@ -48,9 +46,9 @@ export default function MenuTabsComponent() {
           </DropdownTrigger>
           <DropdownMenu
             aria-label="Action event example"
-            onAction={(key) => router.push(`/${key}`)}
+            onAction={(key) => router.push(`/all-products/${key}`)}
           >
-            <DropdownItem key="all-products">All products</DropdownItem>
+            <DropdownItem key="">All products</DropdownItem>
             <DropdownItem key="brahma-shrine">ศาลพระพรหม</DropdownItem>
             <DropdownItem key="spirit-house">ศาลพระภูมิ</DropdownItem>
             <DropdownItem key="shrine">ศาลเจ้าที่</DropdownItem>

@@ -8,14 +8,19 @@ export default function AllProductsPage() {
   return (
     <div>
       <h2 className="font-bold text-lg">All products</h2>
-      {productTypes.map((productType: ProductType) => (
-        <ProductSlideComponent
-          productType={productType.label}
-          products={productsAll}
-          cardButton={<ShopButtonComponent size="sm" />}
-          isTopSeller
-        />
-      ))}
+      {productTypes.map((productType: ProductType) => {
+        const products = productsAll.filter(
+          (product) => product.type === productType.key
+        );
+        return (
+          <ProductSlideComponent
+            productType={productType}
+            products={products}
+            cardButton={<ShopButtonComponent size="sm" />}
+            isTopSeller
+          />
+        );
+      })}
     </div>
   );
 }

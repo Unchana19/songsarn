@@ -8,9 +8,11 @@ export type Product = {
   image: string;
   price: number;
   name: string;
+  type: string;
 };
 
 export interface ProductType {
   image: string;
   label: string;
+  key: string;
 }
