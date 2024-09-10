@@ -1,17 +1,19 @@
+import { ProductType } from "@/types";
 import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
+import Link from "next/link";
 
 interface Props {
   image: string;
-  label: string;
+  productType: ProductType
   isSelected?: boolean;
   canSelected?: boolean;
 }
 
 export default function ProductTypeCardComponent({
   image,
-  label,
+  productType,
   isSelected,
   canSelected,
 }: Props) {
@@ -25,7 +27,7 @@ export default function ProductTypeCardComponent({
         <Image
           width={150}
           src={image}
-          alt={label}
+          alt={productType.label}
           className="object-cover pr-1"
         />
       </CardBody>
@@ -37,7 +39,7 @@ export default function ProductTypeCardComponent({
             className="opacity-100"
             isDisabled
           >
-            <p className="text-black text-center">{label}</p>
+            <p className="text-black text-center">{productType.label}</p>
           </Button>
         ) : (
           <Button
@@ -46,7 +48,7 @@ export default function ProductTypeCardComponent({
             className="opacity-100"
             isDisabled
           >
-            <p className="text-black text-center">{label}</p>
+            <p className="text-black text-center">{productType.label}</p>
           </Button>
         )}
       </CardFooter>

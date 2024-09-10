@@ -17,7 +17,7 @@ export const productTypes = [
     label: "ศาลตายาย",
     key: "grandparent-shrine",
   },
-  { image: "/shrine/sarnpraprom.png", label: "โต๊ะหน้าศาล", key: "table" },
+  { image: "/shrine/sarnpraprom.png", label: "หน้าโต๊ะ", key: "table" },
   {
     image: "/shrine/sarnpraprom.png",
     label: "อุปกรณ์ประกอบศาล",

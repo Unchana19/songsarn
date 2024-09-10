@@ -10,11 +10,16 @@ export default function HomePage() {
     <div>
       <div className="flex gap-5 overflow-x-auto p-2">
         {productTypes.map((productType: ProductType) => (
-          <ProductTypeCardComponent
+          <Link
+            href={`/all-products/${productType.key}`}
             key={productType.label}
-            image={productType.image}
-            label={productType.label}
-          />
+            className="aspect-[3/5] min-w-40 cursor-pointer p-1"
+          >
+            <ProductTypeCardComponent
+              image={productType.image}
+              productType={productType}
+            />
+          </Link>
         ))}
       </div>
 

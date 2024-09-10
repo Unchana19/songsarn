@@ -23,7 +23,7 @@ export default function SelectTypePage() {
             canSelected
             image={productType.image}
             isSelected={selected === productType.label}
-            label={productType.label}
+            productType={productType}
           />
         </div>
       ))}
