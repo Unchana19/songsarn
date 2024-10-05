@@ -16,6 +16,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@nextui-org/dropdown";
+import { loginPath, signUpPath } from "@/constant/auth-path";
 
 const menuItems = [
   { label: "Shop by catalog", icon: FaBookOpen, href: "/catalog" },
@@ -29,7 +30,7 @@ export default function MenuTabsComponent() {
   const pathname = usePathname();
   const router = useRouter();
 
-  if (pathname === "/sign-in") return null;
+  if (pathname === loginPath || pathname === signUpPath) return null;
   return (
     <div className="md:flex gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
       <div className="flex gap-2">

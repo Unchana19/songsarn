@@ -20,12 +20,12 @@ import {
   FaPencil,
   FaTruck,
 } from "react-icons/fa6";
-import { PiSignInBold } from "react-icons/pi";
 import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
 
 import { SearchIcon } from "./icons/search-icon";
 import { usePathname } from "next/navigation";
-import { FaGoogle, FaShoppingBag } from "react-icons/fa";
+import { FaShoppingBag } from "react-icons/fa";
+import { loginPath, signUpPath } from "@/constant/auth-path";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,7 +44,7 @@ export default function NavbarComponent() {
     { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
   ];
 
-  if (pathname === "/sign-in") return null;
+  if (pathname === loginPath || pathname === signUpPath) return null;
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent justify="start">
@@ -100,12 +100,20 @@ export default function NavbarComponent() {
             <FaBasketShopping size={20} color="#D4AF37" />
           </Button>
         </NavbarItem>
+        <NavbarItem className="hidden lg:flex">
+          <Button
+            as={Link}
+            color="primary"
+            href="/sign-up"
+            variant="light"
+            className="border-primary-50"
+          >
+            <p className="text-primary text-sm">Sign up</p>
+          </Button>
+        </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="/" variant="flat">
-            <div className="flex items-center gap-2">
-              <FaGoogle size={18} />
-              <p className="text-black text-sm">Sign in</p>
-            </div>
+          <Button as={Link} color="primary" href="/login" variant="flat">
+            <p className="text-black text-sm">Log in</p>
           </Button>
         </NavbarItem>
       </NavbarContent>
