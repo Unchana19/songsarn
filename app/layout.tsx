@@ -5,9 +5,9 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 
 import { fontSarabun } from "@/config/fonts";
-import NavbarComponent from "@/components/navbar";
 import MenuTabsComponent from "@/components/menu-tabs";
 import FooterComponent from "@/components/footer";
+import NavbarComponent from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: {
@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sarabun antialiased",
-          fontSarabun.variable,
+          fontSarabun.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>

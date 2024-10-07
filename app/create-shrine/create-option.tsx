@@ -1,38 +1,57 @@
 import SelectStructComponent from "@/components/select-struct";
-import { poles, poleSizes, tops, topSizes } from "@/data/product-create-option";
+import {
+  baseStructs,
+  bodyShrine,
+  colorPrimary,
+  colorSecondary,
+} from "@/data/product-create-struct";
 import { useState } from "react";
 
 export default function CreateOptionPage() {
-  const [selectedPole, setSelectedPole] = useState(poles[0].name);
-  const [selectedPoleSize, setSelectedPoleSize] = useState(poleSizes[0]);
+  const [selectedBase, setSelectedBase] = useState(baseStructs[0].name);
+  const [selectedBasePrimaryColor, setSelectedBasePrimaryColor] = useState(
+    colorPrimary[0]
+  );
+  const [selectedBaseSecondaryColor, setSelectedBaseSecondaryColor] = useState(
+    colorSecondary[0]
+  );
 
-  const [seletedTop, setSelectedTop] = useState(
-    tops[0].name
+  const [seletedBodyShrine, setSelectedBodyShrine] = useState(
+    bodyShrine[0].name
   );
-  const [selectedTopSize, setSelecteTopSize] = useState(
-    topSizes[0]
-  );
+  const [selectedBodyShrinePrimaryColor, setSelectedBodyShrinePrimaryColor] =
+    useState(colorPrimary[0]);
+  const [
+    selectedBodyShrineSecondaryColor,
+    setSelectedBodyShrineSecondaryColor,
+  ] = useState(colorSecondary[0]);
 
   return (
     <div>
       <SelectStructComponent
-        typeStruct="ลายเสา"
-        structs={poles}
-        sizes={poleSizes}
-        selectedStruct={selectedPole}
-        selectedSize={selectedPoleSize}
-        setSelectedStruct={setSelectedPole}
-        setSelectedSize={setSelectedPoleSize}
+        typeStruct="ฐานล่าง"
+        structs={baseStructs}
+        primaryColor={colorPrimary}
+        secondaryColor={colorSecondary}
+        selectedStruct={selectedBase}
+        selectedPrimaryColor={selectedBasePrimaryColor}
+        selectedSecondaryColor={selectedBaseSecondaryColor}
+        setSelectedStruct={setSelectedBase}
+        setSelectedPrimaryColor={setSelectedBasePrimaryColor}
+        setSelectedSecondaryColor={setSelectedBaseSecondaryColor}
       />
 
       <SelectStructComponent
-        typeStruct="ยอด"
-        structs={tops}
-        sizes={topSizes}
-        selectedStruct={seletedTop}
-        selectedSize={selectedTopSize}
-        setSelectedStruct={setSelectedTop}
-        setSelectedSize={setSelecteTopSize}
+        typeStruct="ถาดจาน"
+        structs={bodyShrine}
+        primaryColor={colorPrimary}
+        secondaryColor={colorSecondary}
+        selectedStruct={seletedBodyShrine}
+        selectedPrimaryColor={selectedBodyShrinePrimaryColor}
+        selectedSecondaryColor={selectedBodyShrineSecondaryColor}
+        setSelectedStruct={setSelectedBodyShrine}
+        setSelectedPrimaryColor={setSelectedBodyShrinePrimaryColor}
+        setSelectedSecondaryColor={setSelectedBodyShrineSecondaryColor}
       />
     </div>
   );

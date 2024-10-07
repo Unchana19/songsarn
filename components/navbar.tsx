@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   NavbarBrand,
@@ -22,14 +22,46 @@ import {
 } from "react-icons/fa6";
 import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
 
-import { SearchIcon } from "./icons/search-icon";
 import { usePathname } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
 import { loginPath, signUpPath } from "@/constant/auth-path";
+import { signOut, useSession } from "next-auth/react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@nextui-org/dropdown";
+import { Avatar } from "@nextui-org/avatar";
+import { User } from "@/interfaces/user.interface";
+import { SearchIcon } from "./icons/search-icon";
 
 export default function NavbarComponent() {
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState<User | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (status === "authenticated" && session?.userId) {
+        try {
+          const response = await fetch(`/api/users/${session.userId}`);
+
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user:", error);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+  }, [status, session]);
 
   const menuItems = [
     { label: "All products", icon: FaShoppingBag, href: "/all-products" },
@@ -100,22 +132,49 @@ export default function NavbarComponent() {
             <FaBasketShopping size={20} color="#D4AF37" />
           </Button>
         </NavbarItem>
-        <NavbarItem className="hidden lg:flex">
-          <Button
-            as={Link}
-            color="primary"
-            href="/sign-up"
-            variant="light"
-            className="border-primary-50"
-          >
-            <p className="text-primary text-sm">Sign up</p>
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="/login" variant="flat">
-            <p className="text-black text-sm">Log in</p>
-          </Button>
-        </NavbarItem>
+        {user === null ? (
+          <NavbarItem className="flex gap-2">
+            <div>
+              <Button
+                as={Link}
+                color="primary"
+                href="/sign-up"
+                variant="light"
+                className="border-primary-50 hidden lg:flex"
+              >
+                <p className="text-primary text-sm">Sign up</p>
+              </Button>
+            </div>
+            <Button as={Link} color="primary" href="/login" variant="flat">
+              <p className="text-black text-sm">Log in</p>
+            </Button>
+          </NavbarItem>
+        ) : (
+          <NavbarItem>
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  as="button"
+                  className="transition-transform"
+                  src={
+                    user.img ??
+                    `https://songsarn-project.s3.ap-southeast-1.amazonaws.com/default-profile.jpg`
+                  }
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownItem
+                  onClick={() => signOut()}
+                  key="logout"
+                  className="text-danger"
+                  color="danger"
+                >
+                  <p>Log Out</p>
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
+        )}
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((menu, index) => (

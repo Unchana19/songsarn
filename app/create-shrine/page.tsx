@@ -9,7 +9,7 @@ import CreateStructPage from "./create-struct";
 import CreateOptionPage from "./create-option";
 
 export default function CustomizePage() {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(2);
 
   const step = [
     "เลือกประเภทศาล",

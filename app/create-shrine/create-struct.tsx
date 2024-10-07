@@ -1,16 +1,29 @@
 import SelectStructComponent from "@/components/select-struct";
-import { baseStructs, baseSizes, plateStand, plateStandSizes } from "@/data/product-create-struct";
+import {
+  baseStructs,
+  bodyShrine,
+  colorPrimary,
+  colorSecondary,
+} from "@/data/product-create-struct";
 import { useState } from "react";
 
 export default function CreateStructPage() {
   const [selectedBase, setSelectedBase] = useState(baseStructs[0].name);
-  const [selectedBaseSize, setSelectedBaseSize] = useState(baseSizes[0]);
-
-  const [seletedPlateStand, setSelectedPlateStand] = useState(
-    plateStand[0].name
+  const [selectedBasePrimaryColor, setSelectedBasePrimaryColor] = useState(
+    colorPrimary[0]
   );
-  const [selectedPlateStandSize, setSelectePlateStandSize] = useState(
-    plateStandSizes[0]
+  const [selectedBaseSecondaryColor, setSelectedBaseSecondaryColor] = useState(
+    colorSecondary[0]
+  );
+
+  const [seletedBodyShrine, setSelectedBodyShrine] = useState(
+    bodyShrine[0].name
+  );
+  const [selectedBodyShrinePrimaryColor, setSelectedBodyShrinePrimaryColor] = useState(
+    colorPrimary[0]
+  );
+  const [selectedBodyShrineSecondaryColor, setSelectedBodyShrineSecondaryColor] = useState(
+    colorSecondary[0]
   );
 
   return (
@@ -18,21 +31,27 @@ export default function CreateStructPage() {
       <SelectStructComponent
         typeStruct="ฐานล่าง"
         structs={baseStructs}
-        sizes={baseSizes}
+        primaryColor={colorPrimary}
+        secondaryColor={colorSecondary}
         selectedStruct={selectedBase}
-        selectedSize={selectedBaseSize}
+        selectedPrimaryColor={selectedBasePrimaryColor}
+        selectedSecondaryColor={selectedBaseSecondaryColor}
         setSelectedStruct={setSelectedBase}
-        setSelectedSize={setSelectedBaseSize}
+        setSelectedPrimaryColor={setSelectedBasePrimaryColor}
+        setSelectedSecondaryColor={setSelectedBaseSecondaryColor}
       />
 
       <SelectStructComponent
         typeStruct="ถาดจาน"
-        structs={plateStand}
-        sizes={plateStandSizes}
-        selectedStruct={seletedPlateStand}
-        selectedSize={selectedPlateStandSize}
-        setSelectedStruct={setSelectedPlateStand}
-        setSelectedSize={setSelectePlateStandSize}
+        structs={bodyShrine}
+        primaryColor={colorPrimary}
+        secondaryColor={colorSecondary}
+        selectedStruct={seletedBodyShrine}
+        selectedPrimaryColor={selectedBodyShrinePrimaryColor}
+        selectedSecondaryColor={selectedBodyShrineSecondaryColor}
+        setSelectedStruct={setSelectedBodyShrine}
+        setSelectedPrimaryColor={setSelectedBodyShrinePrimaryColor}
+        setSelectedSecondaryColor={setSelectedBodyShrineSecondaryColor}
       />
     </div>
   );
