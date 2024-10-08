@@ -6,7 +6,6 @@ import { calTotal } from "@/utils/cal-total";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
-import { Image } from "@nextui-org/image";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Key, useTransition } from "react";
 import { FaCartPlus } from "react-icons/fa";
@@ -110,6 +109,7 @@ export default function FavoriteTab({ products }: Props) {
               <Button
                 color="primary"
                 radius="full"
+                size="lg"
                 startContent={<FaCartPlus color="white" size={20} />}
               >
                 <p className="text-white">Add all items to cart</p>

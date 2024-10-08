@@ -1,12 +1,4 @@
-"use client";
-
-import { loginPath, signUpPath } from "@/constant/auth-path";
-import { usePathname } from "next/navigation";
-
 export default function FooterComponent() {
-  const pathname = usePathname();
-
-  if (pathname === loginPath || pathname === signUpPath) return null;
   return (
     <footer className="flex bg-gray-200 px-5 pt-10 pb-40 gap-10 w-full justify-center">
       <div className="md:grid md:grid-cols-5 flex flex-col gap-8">

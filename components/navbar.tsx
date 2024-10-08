@@ -21,10 +21,8 @@ import {
   FaTruck,
 } from "react-icons/fa6";
 import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
-
 import { usePathname } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
-import { loginPath, signUpPath } from "@/constant/auth-path";
 import { signOut, useSession } from "next-auth/react";
 import {
   Dropdown,
@@ -33,6 +31,7 @@ import {
   DropdownItem,
 } from "@nextui-org/dropdown";
 import { Avatar } from "@nextui-org/avatar";
+import { Skeleton } from "@nextui-org/skeleton";
 import { User } from "@/interfaces/user.interface";
 import { SearchIcon } from "./icons/search-icon";
 
@@ -41,6 +40,7 @@ export default function NavbarComponent() {
   const [user, setUser] = useState<User | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const isLoading = status === "loading";
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -76,7 +76,64 @@ export default function NavbarComponent() {
     { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
   ];
 
-  if (pathname === loginPath || pathname === signUpPath) return null;
+  const renderAuthUI = () => {
+    if (isLoading) {
+      return (
+        <NavbarItem className="flex items-center gap-2">
+          <Skeleton className="w-8 h-8 rounded-full" />
+        </NavbarItem>
+      );
+    }
+
+    if (!user && !isLoading) {
+      return (
+        <NavbarItem className="flex gap-2">
+          <div>
+            <Button
+              as={Link}
+              color="primary"
+              href="/sign-up"
+              variant="light"
+              className="border-primary-50 hidden lg:flex"
+            >
+              <p className="text-primary text-sm">Sign up</p>
+            </Button>
+          </div>
+          <Button as={Link} color="primary" href="/login" variant="flat">
+            <p className="text-black text-sm">Log in</p>
+          </Button>
+        </NavbarItem>
+      );
+    }
+
+    return (
+      <NavbarItem>
+        <Dropdown placement="bottom-end">
+          <DropdownTrigger>
+            <Avatar
+              as="button"
+              className="transition-transform"
+              src={
+                user?.img ??
+                `https://songsarn-project.s3.ap-southeast-1.amazonaws.com/default-profile.jpg`
+              }
+            />
+          </DropdownTrigger>
+          <DropdownMenu aria-label="Profile Actions" variant="flat">
+            <DropdownItem
+              onClick={() => signOut()}
+              key="logout"
+              className="text-danger"
+              color="danger"
+            >
+              <p>Log Out</p>
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </NavbarItem>
+    );
+  };
+
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent justify="start">
@@ -106,75 +163,33 @@ export default function NavbarComponent() {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end" className="gap-2 md:gap-5">
-        <NavbarItem>
-          <Button
-            as={Link}
-            href="/favorite"
-            color="primary"
-            isDisabled={pathname === "/favorite"}
-            className="opacity-100"
-            isIconOnly
-            variant={pathname === "/favorite" ? "flat" : "light"}
-          >
-            <MdOutlineFavorite size={20} color="#D4AF37" />
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button
-            as={Link}
-            href="/cart"
-            color="primary"
-            isDisabled={pathname === "/cart"}
-            className="opacity-100"
-            isIconOnly
-            variant={pathname === "/cart" ? "flat" : "light"}
-          >
-            <FaBasketShopping size={20} color="#D4AF37" />
-          </Button>
-        </NavbarItem>
-        {user === null ? (
+        {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
-            <div>
-              <Button
-                as={Link}
-                color="primary"
-                href="/sign-up"
-                variant="light"
-                className="border-primary-50 hidden lg:flex"
-              >
-                <p className="text-primary text-sm">Sign up</p>
-              </Button>
-            </div>
-            <Button as={Link} color="primary" href="/login" variant="flat">
-              <p className="text-black text-sm">Log in</p>
+            <Button
+              as={Link}
+              href="/favorite"
+              color="primary"
+              isDisabled={pathname === "/favorite"}
+              className="opacity-100"
+              isIconOnly
+              variant={pathname === "/favorite" ? "flat" : "light"}
+            >
+              <MdOutlineFavorite size={20} color="#D4AF37" />
+            </Button>
+            <Button
+              as={Link}
+              href="/cart"
+              color="primary"
+              isDisabled={pathname === "/cart"}
+              className="opacity-100"
+              isIconOnly
+              variant={pathname === "/cart" ? "flat" : "light"}
+            >
+              <FaBasketShopping size={20} color="#D4AF37" />
             </Button>
           </NavbarItem>
-        ) : (
-          <NavbarItem>
-            <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <Avatar
-                  as="button"
-                  className="transition-transform"
-                  src={
-                    user.img ??
-                    `https://songsarn-project.s3.ap-southeast-1.amazonaws.com/default-profile.jpg`
-                  }
-                />
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Profile Actions" variant="flat">
-                <DropdownItem
-                  onClick={() => signOut()}
-                  key="logout"
-                  className="text-danger"
-                  color="danger"
-                >
-                  <p>Log Out</p>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </NavbarItem>
-        )}
+        ) : null}
+        {renderAuthUI()}
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((menu, index) => (

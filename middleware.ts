@@ -5,6 +5,7 @@ import { NextRequestWithAuth } from "next-auth/middleware";
 export default async function middleware(req: NextRequestWithAuth) {
   const token = await getToken({ req });
   const isAuthenticated = !!token;
+  const isManager = token?.role === "manager";
 
   const path = req.nextUrl.pathname;
 
@@ -24,6 +25,15 @@ export default async function middleware(req: NextRequestWithAuth) {
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
   );
+
+  if (path.startsWith("/manager")) {
+    if (!isAuthenticated || !isManager) {
+      const redirectUrl = new URL("/login", req.url);
+      redirectUrl.searchParams.set("callbackUrl", path);
+      return NextResponse.redirect(redirectUrl);
+    }
+    return NextResponse.next();
+  }
 
   if (isProtectedRoute) {
     if (!isAuthenticated) {

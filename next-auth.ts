@@ -92,14 +92,16 @@ export const authOptions: NextAuthOptions = {
           token.accessToken = data.accessToken;
           token.refreshToken = data.refreshToken;
           token.userId = data.id;
-          token.role = data.role;
+          token.role = data.role || "customer";
+        } else {
+          if (user) {
+            token.accessToken = user.accessToken;
+            token.refreshToken = user.refreshToken;
+            token.userId = user.id;
+            token.role = user.role || "customer";
+          }
         }
-        if (user) {
-          token.accessToken = user.accessToken;
-          token.refreshToken = user.refreshToken;
-          token.userId = user.id;
-          token.role = user.role;
-        }
+
         token.accessTokenExpires = Date.now() + 3600 * 1000;
 
         const now = Date.now();
@@ -121,7 +123,7 @@ export const authOptions: NextAuthOptions = {
 
       session.accessToken = token.accessToken;
       session.userId = token.userId;
-      session.role = token.role as string;
+      session.role = token.role;
 
       return session;
     },
@@ -134,4 +136,4 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 24 * 60 * 60,
   },
-} as NextAuthOptions;
+} as unknown as NextAuthOptions;

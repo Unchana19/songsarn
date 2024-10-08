@@ -5,9 +5,6 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 
 import { fontSarabun } from "@/config/fonts";
-import MenuTabsComponent from "@/components/menu-tabs";
-import FooterComponent from "@/components/footer";
-import NavbarComponent from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -35,14 +32,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen items-center jus overflow-x-hidden">
-            <NavbarComponent />
-            <MenuTabsComponent />
-            <main className="container mx-auto max-w-7xl pt-8 px-6 mb-40 flex-grow">
-              {children}
-            </main>
-            <FooterComponent />
-          </div>
+          {children}
         </Providers>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import { SVGProps } from "react";
+import { IconType } from "react-icons";
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -15,4 +16,10 @@ export interface ProductType {
   image: string;
   label: string;
   key: string;
+}
+
+export interface MenuItems {
+  label: string;
+  icon: IconType;
+  href: string;
 }
