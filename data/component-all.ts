@@ -1,0 +1,58 @@
+import { Component } from "@/interfaces/component.interface";
+
+export const componentAll = [
+  {
+    id: "01",
+    name: "มาลัย",
+    price: 4000,
+    category: "05",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+  {
+    id: "02",
+    name: "มาลัย",
+    price: 4000,
+    category: "05",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+  {
+    id: "03",
+    name: "มาลัย",
+    price: 4000,
+    category: "05",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+  {
+    id: "04",
+    name: "มาลัย",
+    price: 4000,
+    category: "06",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+  {
+    id: "05",
+    name: "มาลัย",
+    price: 4000,
+    category: "06",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+  {
+    id: "06",
+    name: "มาลัย",
+    price: 4000,
+    category: "06",
+    primaryColor: "#FFFFFF",
+    patternColor: "#FBBF24",
+    img: "/shrine/sarnpraprom.png",
+  },
+] as Component[];

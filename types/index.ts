@@ -13,9 +13,10 @@ export type Product = {
 };
 
 export interface ProductType {
+  id: string;
   image: string;
   label: string;
-  key: string;
+  type: "product" | "component"
 }
 
 export interface MenuItems {

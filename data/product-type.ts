@@ -1,26 +1,40 @@
-import { ProductType } from "@/types";
+import { Category } from "@/interfaces/category.interface";
 
 export const productTypes = [
   {
+    id: "01",
     image: "/shrine/sarnpraprom.png",
-    label: "ศาลพระพรหม",
-    key: "brahma-shrine",
+    name: "ศาลพระพรหม ขนาดกลาง",
+    type: "product",
   },
   {
+    id: "02",
     image: "/shrine/sarnpraprom.png",
-    label: "ศาลพระภูมิ",
-    key: "spirit-house",
+    name: "ศาลพระพรหม ขนาดใหญ่",
+    type: "product",
   },
-  { image: "/shrine/sarnpraprom.png", label: "ศาลเจ้าที่", key: "shrine" },
   {
+    id: "03",
     image: "/shrine/sarnpraprom.png",
-    label: "ศาลตายาย",
-    key: "grandparent-shrine",
+    name: "ศาลพระภูมิ ",
+    type: "product",
   },
-  { image: "/shrine/sarnpraprom.png", label: "หน้าโต๊ะ", key: "table" },
   {
+    id: "04",
     image: "/shrine/sarnpraprom.png",
-    label: "อุปกรณ์ประกอบศาล",
-    key: "equipment",
+    name: "ศาลเจ้าที่",
+    type: "product",
   },
-] as ProductType[];
+  {
+    id: "05",
+    image: "/shrine/sarnpraprom.png",
+    name: "ฐานต้น",
+    type: "component",
+  },
+  {
+    id: "06",
+    image: "/shrine/sarnpraprom.png",
+    name: "ต้นศาล",
+    type: "component",
+  },
+] as Category[];

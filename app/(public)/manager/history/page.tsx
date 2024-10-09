@@ -1,4 +1,5 @@
 "use client";
+
 import { cpoHistory, mpoHistory } from "@/data/histories";
 import HistoryTab from "./history-tab";
 

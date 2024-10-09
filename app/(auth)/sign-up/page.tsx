@@ -179,7 +179,6 @@ const onSubmit = async (data: SignUpSchema) => {
         isOpen={isOpen}
         onClose={onOpenChange}
         message={message}
-        isError={isError}
         buttonTitle={"Go to log in"}
         buttonFunction={() => router.push("/login")}
       />

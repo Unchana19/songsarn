@@ -11,41 +11,46 @@ interface Props {
   message: string;
   isOpen: boolean;
   onClose: () => void;
-  isError: boolean;
-  buttonTitle: string;
-  buttonFunction: any;
+  buttonTitle?: string;
+  buttonFunction?: any;
 }
 
 export default function PopupModal({
   message,
   isOpen,
   onClose,
-  isError,
   buttonTitle,
   buttonFunction,
 }: Props) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose}>
-      <ModalContent>
+      <ModalContent className="flex items-center">
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
-              {isError ? "Error" : "Success"}
-            </ModalHeader>
-            <ModalBody>
-              <p>{message}</p>
+            <ModalHeader></ModalHeader>
+            <ModalBody className="flex items-center w-full">
+              <p className="text-lg font-bold">{message}</p>
             </ModalBody>
-            <ModalFooter>
-              {isError && (
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
+            <ModalFooter className="mb-5 flex flex-col w-1/2">
+              {buttonTitle && buttonFunction && (
+                <Button
+                  fullWidth
+                  radius="full"
+                  color="primary"
+                  onPress={buttonFunction}
+                >
+                  <p className="text-white">{buttonTitle}</p>
                 </Button>
               )}
-              {!isError && (
-                <Button color="primary" onPress={buttonFunction}>
-                  {buttonTitle}
-                </Button>
-              )}
+              <Button
+                fullWidth
+                radius="full"
+                color="danger"
+                variant="light"
+                onPress={onClose}
+              >
+                Close
+              </Button>
             </ModalFooter>
           </>
         )}
