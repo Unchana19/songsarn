@@ -3,7 +3,5 @@ export interface Component {
   name: string;
   price: number;
   category: string;
-  primaryColor?: string;
-  patternColor?: string;
   img?: string;
 }

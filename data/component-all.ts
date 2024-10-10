@@ -3,29 +3,23 @@ import { Component } from "@/interfaces/component.interface";
 export const componentAll = [
   {
     id: "01",
-    name: "มาลัย",
+    name: "ฐานบัวพ้นน้ำ",
     price: 4000,
     category: "05",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
   {
     id: "02",
-    name: "มาลัย",
+    name: "ฐานบัวพ้นน้ำ",
     price: 4000,
     category: "05",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
   {
     id: "03",
-    name: "มาลัย",
+    name: "ฐานบัวพ้นน้ำ",
     price: 4000,
     category: "05",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
   {
@@ -33,8 +27,6 @@ export const componentAll = [
     name: "มาลัย",
     price: 4000,
     category: "06",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
   {
@@ -42,8 +34,6 @@ export const componentAll = [
     name: "มาลัย",
     price: 4000,
     category: "06",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
   {
@@ -51,8 +41,6 @@ export const componentAll = [
     name: "มาลัย",
     price: 4000,
     category: "06",
-    primaryColor: "#FFFFFF",
-    patternColor: "#FBBF24",
     img: "/shrine/sarnpraprom.png",
   },
 ] as Component[];

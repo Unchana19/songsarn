@@ -2,6 +2,8 @@ import { Product } from "@/types";
 import { Button } from "@nextui-org/button";
 import ProductCardSmallComponent from "./product-card-small";
 import SelectButtonComponent from "./select-button";
+import PatternColorSelect from "./pattern-color-select";
+import PrimaryColorSelect from "./primary-color-select";
 
 interface Props {
   typeStruct: string;
@@ -51,81 +53,17 @@ export default function SelectStructComponent({
       </div>
       <div className="flex flex-col gap-4">
         <p className="text-lg">เลือกสีหลัก</p>
-        <div className="flex overflow-x-auto gap-8 mb-5 p-2">
-          {primaryColor.map((color, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center justify-center gap-2"
-            >
-              <Button
-                onClick={() => setSelectedPrimaryColor(color)}
-                style={{ backgroundColor: color.color }}
-                className={
-                  selectedPrimaryColor == color
-                    ? `border-primary border-3`
-                    : `border-gray-400 border-3`
-                }
-                isIconOnly
-                radius="full"
-                size="lg"
-              ></Button>
-              <p
-                className={`text-sm ${selectedPrimaryColor == color ? "text-primary" : ""}`}
-              >
-                {color.label}
-              </p>
-            </div>
-          ))}
-        </div>
+        <PrimaryColorSelect
+          selectedColor={selectedPrimaryColor}
+          setSelectedColor={setSelectedPrimaryColor}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <p className="text-lg">เลือกสีลาย</p>
-        <div className="flex overflow-x-auto gap-8 mb-5 p-2">
-          {secondaryColor.map((color, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center justify-center gap-2"
-            >
-              <div className="relative">
-                <Button
-                  onClick={() => setSelectedSecondaryColor(color)}
-                  style={{
-                    backgroundColor:
-                      color.color === "transparent"
-                        ? "transparent"
-                        : color.color,
-                  }}
-                  className={
-                    selectedSecondaryColor == color
-                      ? `border-primary border-3`
-                      : `border-gray-400 border-3`
-                  }
-                  isIconOnly
-                  radius="full"
-                  size="lg"
-                ></Button>
-
-                {color.label === "ไม่มีสี" && (
-                  <div className="absolute left-0 top-0 w-full h-full pointer-events-none flex items-center justify-center">
-                    <div
-                      style={{
-                        borderTop: "2px solid gray",
-                        width: "100%",
-                        transform: "rotate(-45deg)",
-                      }}
-                    ></div>
-                  </div>
-                )}
-              </div>
-
-              <p
-                className={`text-sm ${selectedSecondaryColor == color ? "text-primary" : ""}`}
-              >
-                {color.label}
-              </p>
-            </div>
-          ))}
-        </div>
+        <PatternColorSelect
+          selectedColor={selectedSecondaryColor}
+          setSelectedColor={setSelectedPrimaryColor}
+        />
       </div>
     </div>
   );

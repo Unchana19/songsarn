@@ -45,7 +45,6 @@ export default function PopupModal({
               <Button
                 fullWidth
                 radius="full"
-                color="danger"
                 variant="light"
                 onPress={onClose}
               >

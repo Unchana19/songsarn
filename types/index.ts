@@ -13,6 +13,7 @@ export type Product = {
 };
 
 export interface ProductType {
+  key: any;
   id: string;
   image: string;
   label: string;

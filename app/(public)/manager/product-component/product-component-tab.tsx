@@ -13,6 +13,7 @@ import { componentAll } from "@/data/component-all";
 import ComponentsPage from "./components";
 import { Component } from "@/interfaces/component.interface";
 import EditComponent from "./edit-component";
+import EditProduct from "./edit-product";
 
 interface Props {
   categories: Category[];
@@ -60,6 +61,7 @@ export default function ProductComponentTab({ categories }: Props) {
             products={products}
             handleEdit={handleEditProduct}
             handleDelete={handleDelete}
+            handleBack={handleBack}
           />
         );
       case 3:
@@ -70,12 +72,21 @@ export default function ProductComponentTab({ categories }: Props) {
             components={components}
             handleEdit={handleEditComponent}
             handleDelete={handleDelete}
+            handleBack={handleBack}
+          />
+        );
+      case 4:
+        return (
+          <EditProduct
+            category={category}
+            product={product}
+            handleSave={handleSave}
+            handleDiscard={handleDiscard}
           />
         );
       case 5:
         return (
           <EditComponent
-            label={label}
             category={category}
             component={component}
             handleSave={handleSave}
@@ -129,11 +140,18 @@ export default function ProductComponentTab({ categories }: Props) {
     setActiveStep(0);
   };
 
-  const handleEditProduct = (product?: Product | null) => {};
+  const handleEditProduct = (product?: Product | null) => {
+    setProduct(product!);
+    setActiveStep(4);
+  };
 
   const handleEditComponent = (component?: Component | null) => {
     setComponent(component!);
     setActiveStep(5);
+  };
+
+  const handleBack = () => {
+    setActiveStep(0);
   };
 
   return (

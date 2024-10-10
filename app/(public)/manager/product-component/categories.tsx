@@ -41,50 +41,52 @@ export default function CategoriesPage({
           <p>Add category</p>
         </Button>
       </div>
-      <div className="flex flex-wrap mt-5 gap-10 justify-start">
+      <div className="flex flex-wrap mt-5 justify-start">
         {categories.map((category) => (
-          <Card shadow="sm" className="w-full md:w-1/3 xl:w-1/5 p-1">
-            <CardHeader className="overflow-hidden flex justify-center pt-5">
-              <Image
-                src={category.image}
-                alt={category.name}
-                height={200}
-                className="object-cover"
-              />
-            </CardHeader>
-            <CardBody className="flex flex-col gap-4">
-              <div className="p-2 border-primary border-2 rounded-xl text-center">
-                <p>{category.name}</p>
-              </div>
-              <Button
-                onClick={() => handleSeeAll(category, label)}
-                color="primary"
-                radius="full"
-              >
-                <p className="text-white">See all</p>
-              </Button>
-              <div className="flex justify-center gap-4">
+          <div className="w-full md:w-1/2 xl:w-1/4 p-5">
+            <Card shadow="sm" className="w-full">
+              <CardHeader className="overflow-hidden flex justify-center pt-5">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  height={200}
+                  className="object-cover"
+                />
+              </CardHeader>
+              <CardBody className="flex flex-col gap-4">
+                <div className="p-2 border-primary border-2 rounded-xl text-center">
+                  <p>{category.name}</p>
+                </div>
                 <Button
-                  onClick={onOpen}
-                  isIconOnly
+                  onClick={() => handleSeeAll(category, label)}
                   color="primary"
-                  variant="light"
-                >
-                  <RiDeleteBin5Line size={20} />
-                </Button>
-
-                <Button
-                  color="primary"
-                  className="text-white"
                   radius="full"
-                  onClick={() => handleEdit(category)}
                 >
-                  <FiEdit />
-                  <p>Edit</p>
+                  <p className="text-white">See all</p>
                 </Button>
-              </div>
-            </CardBody>
-          </Card>
+                <div className="flex justify-center gap-4">
+                  <Button
+                    onClick={onOpen}
+                    isIconOnly
+                    color="primary"
+                    variant="light"
+                  >
+                    <RiDeleteBin5Line size={20} />
+                  </Button>
+
+                  <Button
+                    color="primary"
+                    className="text-white"
+                    radius="full"
+                    onClick={() => handleEdit(category)}
+                  >
+                    <FiEdit />
+                    <p>Edit</p>
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         ))}
       </div>
       <PopupModal

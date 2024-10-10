@@ -1,3 +1,5 @@
+import StockTab from "./stock-tab";
+
 export default function StockPage() {
-  return <div>Stock</div>;
+  return <StockTab />;
 }

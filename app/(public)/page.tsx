@@ -1,11 +1,23 @@
+"use client";
+
 import ProductTypeCardComponent from "@/components/product-type-card";
 import { productTypes } from "@/data/product-type";
 import { ProductType } from "@/types";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function HomePage() {
+  const session = useSession();
+
+  useEffect(() => {
+    if (session?.data?.error === "RefreshAccessTokenError") {
+      signIn();
+    }
+  }, [session]);
+  
   return (
     <div>
       <div className="flex gap-5 overflow-x-auto p-2">

@@ -16,7 +16,7 @@ export default function TabsSelect({
   variant,
 }: Props) {
   return (
-    <div className="max-w-xl">
+    <div className="max-w-xl w-full">
       <Tabs
         variant={variant}
         radius="full"
