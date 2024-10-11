@@ -1,7 +1,8 @@
 export interface Requisition {
   id: string;
-  material: string;
+  material_id: string;
+  material_name: string;
   quantity: string;
   unit: string;
-  createDate: Date;
+  create_date_time: Date;
 }

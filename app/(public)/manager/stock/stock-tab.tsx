@@ -61,7 +61,11 @@ export default function StockTab() {
         return isLoading ? (
           <SkeletonLoading />
         ) : (
-          <AllMeterial materials={materials} handleEdit={handleEdit} />
+          <AllMeterial
+            materials={materials}
+            handleEdit={handleEdit}
+            fetchRequisition={fetchRequisitions}
+          />
         );
       case "All requisition":
         return isLoading ? (
@@ -100,9 +104,6 @@ export default function StockTab() {
       const result = await response.json();
       if (response.ok) {
         setMaterials(result);
-        setError("");
-      } else {
-        setError(result.message);
       }
     } catch (error) {
       setError("Failed to fetch materials");
@@ -111,8 +112,30 @@ export default function StockTab() {
     }
   };
 
+  const fetchRequisitions = async () => {
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch("/api/requisitions", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setRequisitions(result);
+      }
+    } catch (error) {
+      setError("Failed to fetch requisitions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMaterials();
+    fetchRequisitions();
   }, [session]);
 
   const onSubmit = async (data: CreateMaterialSchema) => {
