@@ -162,6 +162,7 @@ export default function ProductComponentTab({ categories }: Props) {
         handleTabChange={handleTabChange}
         isPending={isPending}
         variant="bordered"
+        size={"lg"}
       />
 
       <div>

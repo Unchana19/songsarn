@@ -3,7 +3,7 @@ import {
   CreateMPOSchema,
   createMPOSchema,
 } from "@/lib/schemas/createMPOSchema";
-import { convertTimestamp } from "@/utils/convert-timestamp";
+import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
@@ -30,9 +30,13 @@ import { FaPlus } from "react-icons/fa";
 
 interface Props {
   requisitions: Requisition[];
+  fetchRequisition: () => void;
 }
 
-export default function AllRequisition({ requisitions }: Props) {
+export default function AllRequisition({
+  requisitions,
+  fetchRequisition,
+}: Props) {
   const session = useSession();
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set([]));
   const [selectedRequisitions, setSelectedRequisitions] = useState<
@@ -81,8 +85,9 @@ export default function AllRequisition({ requisitions }: Props) {
       const dataRequisition = selectedRequisitions.map((requisition) => ({
         material_id: requisition.material_id,
         quantity: requisition.quantity,
+        requisition_id: requisition.id,
       }));
-      const dataWithMeterial = { ...data, material: [ ...dataRequisition ] };
+      const dataWithMeterial = { ...data, material: [...dataRequisition] };
       const response = await fetch("/api/material-purchase-orders", {
         method: "POST",
         headers: {
@@ -95,6 +100,7 @@ export default function AllRequisition({ requisitions }: Props) {
       if (response.ok) {
         setError("");
         onOpenChange();
+        fetchRequisition();
       } else {
         setError(result.message);
       }
@@ -136,7 +142,7 @@ export default function AllRequisition({ requisitions }: Props) {
               <TableCell>{requisition.material_name}</TableCell>
               <TableCell>{`${requisition.quantity} ${requisition.unit}`}</TableCell>
               <TableCell>
-                {convertTimestamp(requisition.create_date_time)}
+                {convertTimestampToDateTime(requisition.create_date_time)}
               </TableCell>
             </TableRow>
           ))}

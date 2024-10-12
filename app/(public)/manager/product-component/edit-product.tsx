@@ -1,12 +1,9 @@
 "use client";
 
 import ComponentSelect from "@/components/component-select";
-import PatternColorSelect from "@/components/pattern-color-select";
-import PrimaryColorSelect from "@/components/primary-color-select";
 import { patternColors } from "@/constants/patternColors";
 import { primaryColors } from "@/constants/primaryColors";
 import { componentAll } from "@/data/component-all";
-import { colorPrimary } from "@/data/product-create-struct";
 import { productTypes } from "@/data/product-type";
 import { Category } from "@/interfaces/category.interface";
 import { Product } from "@/interfaces/product.interface";
@@ -14,7 +11,6 @@ import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { Input } from "@nextui-org/input";
-import { Select, SelectItem } from "@nextui-org/select";
 import { SetStateAction, useState } from "react";
 import { RiImageAddFill, RiImageEditFill } from "react-icons/ri";
 

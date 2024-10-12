@@ -6,6 +6,7 @@ interface Props {
   tabs: { id: string; label: string }[];
   handleTabChange(key: Key): void;
   isPending: boolean;
+  size: "sm" | "md" | "lg";
   variant: "solid" | "bordered" | "light" | "underlined";
 }
 
@@ -13,16 +14,17 @@ export default function TabsSelect({
   tabs,
   handleTabChange,
   isPending,
+  size,
   variant,
 }: Props) {
   return (
-    <div className="max-w-xl w-full">
+    <div className={`${size === "lg" ? "max-w-xl" : "max-w-3xl"} w-full`}>
       <Tabs
         variant={variant}
         radius="full"
         aria-label="Status tabs"
-        color="primary"
-        size="lg"
+        color={size === "lg" ? "primary" : "default"}
+        size={size}
         fullWidth
         onSelectionChange={(key) => handleTabChange(key)}
       >
@@ -30,7 +32,7 @@ export default function TabsSelect({
           <Tab
             key={tab.id}
             title={tab.label}
-            className="m-1 p-5 rounded-3xl"
+            className={`m-1 ${size === "lg" ? "p-5" : ""} rounded-3xl`}
           ></Tab>
         ))}
       </Tabs>

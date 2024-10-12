@@ -1,4 +1,4 @@
-export function convertTimestamp(timestamp: Date): string {
+export function convertTimestampToDateTime(timestamp: Date): string {
   const date = new Date(timestamp);
   return date.toLocaleString("en-GB", {
     day: "numeric",
@@ -8,3 +8,13 @@ export function convertTimestamp(timestamp: Date): string {
     minute: "2-digit",
   });
 }
+
+export function convertTimestampToDate(timestamp: Date): string {
+  const date = new Date(timestamp);
+  return date.toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+

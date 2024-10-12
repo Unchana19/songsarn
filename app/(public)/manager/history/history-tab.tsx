@@ -60,6 +60,7 @@ export default function HistoryTab({ histories }: Props) {
         handleTabChange={handleTabChange}
         isPending={isPending}
         variant="bordered"
+        size={"lg"}
       />
 
       <div>

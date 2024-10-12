@@ -1,3 +1,5 @@
-export default function PurchaseOrder() {
-  return <div></div>
+import PurchaseOrderTab from "./purchase-order-tab";
+
+export default function PurchaseOrderPage() {
+  return <PurchaseOrderTab />;
 }

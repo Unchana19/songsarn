@@ -5,7 +5,7 @@ import { productTypes } from "@/data/product-type";
 import { ProductType } from "@/types";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect } from "react";
 
