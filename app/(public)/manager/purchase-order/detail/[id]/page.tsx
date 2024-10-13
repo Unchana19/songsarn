@@ -1,13 +1,18 @@
 "use client";
 
+import PopupModal from "@/components/popup-modal";
 import { paymentMethod } from "@/constants/paymentMethod";
 import { MPOGetOne } from "@/interfaces/mpo-get-one.interface";
-import { updateMPOSchema, UpdateMPOSchema } from "@/lib/schemas/updateMPOSchema";
+import {
+  updateMPOSchema,
+  UpdateMPOSchema,
+} from "@/lib/schemas/updateMPOSchema";
 import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { Input } from "@nextui-org/input";
+import { useDisclosure } from "@nextui-org/modal";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Skeleton } from "@nextui-org/skeleton";
 import { useSession } from "next-auth/react";
@@ -28,6 +33,9 @@ export default function PurchaseOrderDetial({ params }: Props) {
   const [mpo, setMpo] = useState<MPOGetOne | null>(null);
   const [selected, setSelected] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [error, setError] = useState("");
 
   const {
     handleSubmit,
@@ -63,7 +71,8 @@ export default function PurchaseOrderDetial({ params }: Props) {
       if (response.ok) {
         setMpo(result);
         calculateTotalPrice(result.materials);
-        setValue("materials", result.materials)
+        setSelected(result.payment_method);
+        setValue("materials", result.materials);
       }
     } catch (error) {
     } finally {
@@ -86,10 +95,37 @@ export default function PurchaseOrderDetial({ params }: Props) {
     setTotalPrice(total);
   };
 
-  const onSubmit = (data: UpdateMPOSchema) => {};
+  const onSubmit = async (data: UpdateMPOSchema) => {
+    try {
+      const dataWithPayment = {
+        mpo_id: id,
+        payment_method: selected,
+        ...data,
+      };
+      const response = await fetch(
+        "/api/material-purchase-orders/mpo-order-line",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data?.accessToken}`,
+          },
+          body: JSON.stringify(dataWithPayment),
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        setError("Save successfully");
+        fetchMpo();
+        onOpen();
+      } else {
+        setError(result.message);
+      }
+    } catch (error) {}
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mb-40 w-full">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <div className="flex justify-between">
         <h3 className="text-lg font-bold">Purchase order detail</h3>
         <Button
@@ -134,13 +170,15 @@ export default function PurchaseOrderDetial({ params }: Props) {
             <Select
               color="primary"
               variant="bordered"
-              placeholder="Select an method"
-              selectedKeys={selected}
+              placeholder="Select a method"
+              selectedKeys={[selected]}
               className="max-w-xs"
               onChange={handleSelectionChange}
             >
-              {paymentMethod.map((payment, index) => (
-                <SelectItem key={index}>{payment}</SelectItem>
+              {paymentMethod.map((payment) => (
+                <SelectItem value={payment} key={payment}>
+                  {payment}
+                </SelectItem>
               ))}
             </Select>
           </div>
@@ -201,14 +239,17 @@ export default function PurchaseOrderDetial({ params }: Props) {
           size="lg"
           radius="full"
           className="px-20 text-white text-lg"
-          isDisabled={
-            selected === "" || !isValid
-          }
+          isDisabled={selected === "" || !isValid}
           isLoading={isSubmitting}
         >
           <p>Save</p>
         </Button>
       </div>
+      <PopupModal
+        message={error}
+        isOpen={isOpen}
+        onClose={onOpenChange}
+      />
     </form>
   );
 }

@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function PATCH(req: Request) {
   try {
     const data = await req.json();
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
-    console.log(data);
-
     const response = await fetch(
-      `${process.env.API_URL}/material-purchase-orders/mpo-order-line`,
+      `${process.env.API_URL}/material-purchase-orders/receive`,
       {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

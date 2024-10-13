@@ -69,7 +69,7 @@ export default function PurchaseOrderTab() {
         return isLoading ? (
           <SkeletonLoading />
         ) : (
-          <MaterialPurchaseOrder mpo={mpo} />
+          <MaterialPurchaseOrder mpo={mpo} fetchMPO={fetchMpo} />
         );
 
       default:
@@ -92,7 +92,11 @@ export default function PurchaseOrderTab() {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
             <div className="mt-5">
-              {isLoading ? <SkeletonLoading /> : getStepContent(tab.label)}
+              {isLoading ? (
+                <SkeletonLoading />
+              ) : (
+                getStepContent(tab.label)
+              )}
             </div>
           ) : null;
         })}

@@ -45,7 +45,7 @@ export default function PopupModal({
               <Button
                 fullWidth
                 radius="full"
-                variant="light"
+                variant={(buttonTitle && buttonFunction) ? "light" : "solid"}
                 onPress={onClose}
               >
                 Close

@@ -32,6 +32,7 @@ export default function StockTab() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
   const [isPending, startTransition] = useTransition();
 
   const editModal = useDisclosure();
@@ -71,7 +72,10 @@ export default function StockTab() {
         return isLoading ? (
           <SkeletonLoading />
         ) : (
-          <AllRequisition requisitions={requisitions} fetchRequisition={fetchRequisitions} />
+          <AllRequisition
+            requisitions={requisitions}
+            fetchRequisition={fetchRequisitions}
+          />
         );
       default:
         return "unknown label";
@@ -214,7 +218,7 @@ export default function StockTab() {
       <h3 className="font-bold text-xl mb-5">Stock</h3>
       <div className="flex items-center gap-10 w-full">
         <TabsSelect
-        size="lg"
+          size="lg"
           tabs={tabs}
           handleTabChange={handleTabChange}
           isPending={isPending}

@@ -1,22 +1,27 @@
 "use client";
 
+import PopupModal from "@/components/popup-modal";
 import TabsSelect from "@/components/tabs-select";
 import { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
 import { convertTimestampToDate } from "@/utils/convert-timestamp";
 import { getStatusMpo } from "@/utils/get-status-mpo";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@nextui-org/button";
+import { useDisclosure } from "@nextui-org/modal";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useState, useTransition } from "react";
+import { Key, useEffect, useState, useTransition } from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { RiDeleteBin5Line } from "react-icons/ri";
 
 interface Props {
   mpo: MPOGetAll[] | null;
+  fetchMPO: () => void;
 }
 
-export default function MaterialPurchaseOrder({ mpo }: Props) {
+export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
+  const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -26,6 +31,10 @@ export default function MaterialPurchaseOrder({ mpo }: Props) {
   const [mpoFilter, setMpoFilter] = useState<MPOGetAll[] | null | undefined>(
     null
   );
+
+  const [mpoId, setMpoId] = useState("");
+  const cancelModal = useDisclosure();
+  const receiveModal = useDisclosure();
 
   const filterMpo = (status: string) => {
     setMpoFilter(mpo?.filter((m) => m.status === status));
@@ -47,6 +56,60 @@ export default function MaterialPurchaseOrder({ mpo }: Props) {
       }
       router.replace(`${pathname}?${params.toString()}`);
     });
+  };
+
+  const handleReceieve = (id: string) => {
+    setMpoId(id);
+    receiveModal.onOpen();
+  };
+
+  const handleReceieveConfirm = async () => {
+    try {
+      const response = await fetch("/api/material-purchase-orders/receive", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data?.accessToken}`,
+        },
+        body: JSON.stringify({ id: mpoId }),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        await fetchMPO();
+        filterMpo(searchParams.get("status") || "waiting");
+        receiveModal.onOpenChange();
+        router.refresh();
+      } else {
+        receiveModal.onOpenChange();
+      }
+    } catch (error) {}
+  };
+
+  const handleCancel = (id: string) => {
+    setMpoId(id);
+    cancelModal.onOpen();
+  };
+
+  const handleCancelConfirm = async () => {
+    try {
+      const response = await fetch("/api/material-purchase-orders/cancel", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data?.accessToken}`,
+        },
+        body: JSON.stringify({ id: mpoId }),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        await fetchMPO();
+        filterMpo(searchParams.get("status") || "waiting");
+        cancelModal.onOpenChange();
+        router.refresh();
+      } else {
+        cancelModal.onOpenChange();
+      }
+    } catch (error) {}
   };
 
   return (
@@ -75,8 +138,8 @@ export default function MaterialPurchaseOrder({ mpo }: Props) {
                       </p>
                       <p>
                         Total amount(Baht){" "}
-                        {mpo.total_amount
-                          ? formatNumberWithComma(mpo.total_amount)
+                        {mpo.total_price
+                          ? formatNumberWithComma(mpo.total_price)
                           : "-"}
                       </p>
                     </div>
@@ -104,30 +167,31 @@ export default function MaterialPurchaseOrder({ mpo }: Props) {
                       <Button
                         as={Link}
                         href={`/manager/purchase-order/detail/${mpo.id}`}
-                        size="lg"
                         color="primary"
                         radius="full"
                         className="text-white"
                       >
                         <p>Detail</p>
                       </Button>
-                      <Button
-                        size="lg"
-                        color="primary"
-                        radius="full"
-                        variant="bordered"
-                        className="text-black"
-                      >
-                        <p>Receive</p>
-                        <FaArrowRightLong />
-                      </Button>
+                      {tab.id === "waiting" ? (
+                        <Button
+                          onClick={() => handleReceieve(mpo.id)}
+                          color="primary"
+                          radius="full"
+                          variant="bordered"
+                          className="text-black"
+                        >
+                          <p>Receive</p>
+                          <FaArrowRightLong />
+                        </Button>
+                      ) : null}
                     </div>
                   </div>
 
                   <div className="flex w-full md:w-1/12 items-center justify-center">
                     <div className="flex flex-col">
                       <Button
-                        size="lg"
+                        onClick={() => handleCancel(mpo.id)}
                         isIconOnly
                         color="primary"
                         variant="light"
@@ -142,6 +206,20 @@ export default function MaterialPurchaseOrder({ mpo }: Props) {
           ) : null;
         })}
       </div>
+      <PopupModal
+        message={"Are you sure to cancel order"}
+        isOpen={cancelModal.isOpen}
+        onClose={cancelModal.onOpenChange}
+        buttonTitle="Confirm"
+        buttonFunction={handleCancelConfirm}
+      />
+      <PopupModal
+        message={"Are you sure to receive order"}
+        isOpen={receiveModal.isOpen}
+        onClose={receiveModal.onOpenChange}
+        buttonTitle="Confirm"
+        buttonFunction={handleReceieveConfirm}
+      />
     </div>
   );
 }
