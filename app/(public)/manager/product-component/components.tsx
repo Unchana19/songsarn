@@ -16,7 +16,7 @@ interface Props {
   label: string;
   category?: string;
   components: Component[];
-  handleEdit: (component?: Component | null) => void;
+  handleEdit: (component: Component | null) => void;
   handleDelete: (componentId: string) => void;
   handleBack: () => void;
 }
@@ -38,7 +38,7 @@ export default function ComponentsPage({
           <div className="flex items-center gap-5">
             <p className="font-bold">{category}</p>
             <Button
-              onClick={() => handleEdit()}
+              onClick={() => handleEdit(null)}
               color="primary"
               radius="full"
               className="text-white"

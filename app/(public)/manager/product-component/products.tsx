@@ -16,7 +16,7 @@ interface Props {
   label: string;
   category?: string;
   products: Product[];
-  handleEdit: (product?: Product | null) => void;
+  handleEdit: (product: Product | null) => void;
   handleDelete: (productId: string) => void;
   handleBack: () => void;
 }
@@ -38,7 +38,7 @@ export default function ProductsPage({
           <div className="flex items-center gap-5">
             <p className="font-bold">{category}</p>
             <Button
-              onClick={() => handleEdit()}
+              onClick={() => handleEdit(null)}
               color="primary"
               radius="full"
               className="text-white"

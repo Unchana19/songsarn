@@ -12,8 +12,8 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 
 interface Props {
   label: string;
-  categories: Category[];
-  handleSeeAll: (category?: Category | null, label?: string) => void;
+  categories: Category[] | null | undefined;
+  handleSeeAll: (category: Category, label: string) => void;
   handleEdit: (category?: Category | null) => void;
   handleDelete: (categoryId: string) => void;
 }
@@ -42,12 +42,12 @@ export default function CategoriesPage({
         </Button>
       </div>
       <div className="flex flex-wrap mt-5 justify-start">
-        {categories.map((category) => (
+        {categories?.map((category) => (
           <div className="w-full md:w-1/2 xl:w-1/4 p-5">
             <Card shadow="sm" className="w-full">
               <CardHeader className="overflow-hidden flex justify-center pt-5">
                 <Image
-                  src={category.image}
+                  src={category.img}
                   alt={category.name}
                   height={200}
                   className="object-cover"

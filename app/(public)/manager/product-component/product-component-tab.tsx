@@ -1,65 +1,200 @@
 "use client";
 
-import TabsSelect from "@/components/tabs-select";
+import { useEffect, useState, useTransition } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { Key, useState, useTransition } from "react";
-import { Category } from "@/interfaces/category.interface";
+import { useSession } from "next-auth/react";
+import TabsSelect from "@/components/tabs-select";
 import CategoriesPage from "./categories";
 import EditCategory from "./edit-categories";
-import { Product } from "@/interfaces/product.interface";
 import ProductsPage from "./products";
+import ComponentsPage from "./components";
+import EditProduct from "./edit-product";
+import EditComponent from "./edit-component";
+import { Category } from "@/interfaces/category.interface";
+import { Product } from "@/interfaces/product.interface";
+import { Component } from "@/interfaces/component.interface";
+import { CreateCategorySchema } from "@/lib/schemas/createCategoySchema";
 import { productsAll } from "@/data/product-all";
 import { componentAll } from "@/data/component-all";
-import ComponentsPage from "./components";
-import { Component } from "@/interfaces/component.interface";
-import EditComponent from "./edit-component";
-import EditProduct from "./edit-product";
+import { Skeleton } from "@nextui-org/skeleton";
+import PopupModal from "@/components/popup-modal";
+import { useDisclosure } from "@nextui-org/modal";
 
-interface Props {
-  categories: Category[];
-}
-
-export default function ProductComponentTab({ categories }: Props) {
+export default function ProductComponentTab() {
+  const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [activeStep, setActiveStep] = useState(0);
   const [category, setCategory] = useState<Category | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filterCategories, setFilterCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState(productsAll);
   const [product, setProduct] = useState<Product | null>(null);
   const [components, setComponents] = useState(componentAll);
   const [component, setComponent] = useState<Component | null>(null);
 
-  const getStepContent = (step: number, label: string) => {
-    switch (step) {
+  const { isOpen, onOpenChange } = useDisclosure();
+  const [message, setMessage] = useState("");
+
+  const tabs = [
+    { id: "product", label: "Product" },
+    { id: "component", label: "Component" },
+  ];
+
+  useEffect(() => {
+    fetchCategories();
+  }, [session]);
+
+  useEffect(() => {
+    const type = searchParams.get("type") || "product";
+    filterTypeCategories(type);
+  }, [searchParams, categories]);
+
+  const fetchCategories = async () => {
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch("/api/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setCategories(result);
+      }
+    } catch (error) {
+      setMessage(error as string);
+      onOpenChange();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterTypeCategories = (type: string) => {
+    setFilterCategories(
+      categories.filter((category) => category.type === type)
+    );
+  };
+
+  const handleTabChange = (key: string) => {
+    setActiveStep(0);
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+      params.set("type", key);
+      router.replace(`${pathname}?${params.toString()}`);
+    });
+  };
+
+  const handleSeeAll = (category: Category, label: string) => {
+    setCategory(category);
+    if (label === "Product") {
+      setProducts(productsAll.filter((p) => p.category === category.id));
+      setActiveStep(2);
+    } else {
+      setComponents(componentAll.filter((c) => c.category === category.id));
+      setActiveStep(3);
+    }
+  };
+
+  const handleCategoryEdit = (category?: Category | null) => {
+    setCategory(category || null);
+    setActiveStep(1);
+  };
+
+  const handleCategorySave = async (
+    data: CreateCategorySchema,
+    file: File | null
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("type", data.type);
+      if (file) formData.append("file", file);
+
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+        body: formData,
+      });
+      const result = await response.json();
+      if (response.ok) {
+        await fetchCategories();
+        setActiveStep(0);
+      } else {
+        setMessage(result.message as string);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error as string);
+      onOpenChange();
+    }
+  };
+
+  const handleDelete = (categoryId: string) => {
+    // Implement delete logic
+  };
+
+  const handleDiscard = () => setActiveStep(0);
+
+  const handleProductEdit = (product: Product | null) => {
+    setProduct(product);
+    setActiveStep(4);
+  };
+
+  const handleProductSave = () => {
+    // Implement product save logic
+  };
+
+  const handleComponentEdit = (component: Component | null) => {
+    setComponent(component);
+    setActiveStep(5);
+  };
+
+  const handleComponentSave = () => {
+    // Implement component save logic
+  };
+
+  const handleBack = () => setActiveStep(0);
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="w-3/4 h-8 rounded-lg" />
+          <Skeleton className="w-full h-64 rounded-lg" />
+        </div>
+      );
+    }
+
+    switch (activeStep) {
       case 0:
         return (
           <CategoriesPage
-            label={label}
-            categories={categories}
+            label={searchParams.get("type") || "product"}
+            categories={filterCategories}
             handleSeeAll={handleSeeAll}
-            handleEdit={handleEdit}
+            handleEdit={handleCategoryEdit}
             handleDelete={handleDelete}
           />
         );
       case 1:
         return (
           <EditCategory
-            label={label}
+            label={searchParams.get("type") || "product"}
             category={category}
-            handleSave={handleSave}
+            handleSave={handleCategorySave}
             handleDiscard={handleDiscard}
           />
         );
       case 2:
         return (
           <ProductsPage
-            label={label}
+            label="Product"
             category={category?.name}
             products={products}
-            handleEdit={handleEditProduct}
+            handleEdit={handleProductEdit}
             handleDelete={handleDelete}
             handleBack={handleBack}
           />
@@ -67,10 +202,10 @@ export default function ProductComponentTab({ categories }: Props) {
       case 3:
         return (
           <ComponentsPage
-            label={label}
+            label="Component"
             category={category?.name}
             components={components}
-            handleEdit={handleEditComponent}
+            handleEdit={handleComponentEdit}
             handleDelete={handleDelete}
             handleBack={handleBack}
           />
@@ -80,7 +215,7 @@ export default function ProductComponentTab({ categories }: Props) {
           <EditProduct
             category={category}
             product={product}
-            handleSave={handleSave}
+            handleSave={handleProductSave}
             handleDiscard={handleDiscard}
           />
         );
@@ -89,69 +224,13 @@ export default function ProductComponentTab({ categories }: Props) {
           <EditComponent
             category={category}
             component={component}
-            handleSave={handleSave}
+            handleSave={handleComponentSave}
             handleDiscard={handleDiscard}
           />
         );
       default:
-        return "unknow step";
+        return null;
     }
-  };
-
-  const tabs = [
-    { id: "product", label: "Product" },
-    { id: "component", label: "Component" },
-  ];
-
-  const handleTabChange = (key: Key) => {
-    setActiveStep(0);
-    startTransition(() => {
-      const params = new URLSearchParams(searchParams);
-      params.set("type", key.toString());
-      router.replace(`${pathname}?${params.toString()}`);
-    });
-  };
-
-  const handleSeeAll = (category?: Category | null, label?: string) => {
-    setCategory(category!);
-    if (label === "Product") {
-      setProducts(productsAll.filter((p) => p.category === category?.id));
-      setActiveStep(2);
-    } else {
-      setComponents(componentAll.filter((c) => c.category === category?.id));
-      setActiveStep(3);
-    }
-  };
-
-  const handleEdit = (category?: Category | null) => {
-    if (category) {
-      setCategory(category);
-    } else {
-      setCategory(null);
-    }
-    setActiveStep(1);
-  };
-
-  const handleDelete = (categoryId: string) => {};
-
-  const handleSave = () => {};
-
-  const handleDiscard = () => {
-    setActiveStep(0);
-  };
-
-  const handleEditProduct = (product?: Product | null) => {
-    setProduct(product!);
-    setActiveStep(4);
-  };
-
-  const handleEditComponent = (component?: Component | null) => {
-    setComponent(component!);
-    setActiveStep(5);
-  };
-
-  const handleBack = () => {
-    setActiveStep(0);
   };
 
   return (
@@ -162,17 +241,10 @@ export default function ProductComponentTab({ categories }: Props) {
         handleTabChange={handleTabChange}
         isPending={isPending}
         variant="bordered"
-        size={"lg"}
+        size="lg"
       />
-
-      <div>
-        {tabs.map((tab) => {
-          const isSelected = searchParams.get("type") === tab.id;
-          return isSelected ? (
-            <div className="mt-8">{getStepContent(activeStep, tab.label)}</div>
-          ) : null;
-        })}
-      </div>
+      <div className="mt-8">{renderContent()}</div>
+      <PopupModal message={message} isOpen={isOpen} onClose={onOpenChange} />
     </div>
   );
 }
