@@ -9,10 +9,10 @@ interface Props {
 
 export default function Layout({ children }: Props) {
   return (
-    <div className="relative flex flex-col h-screen items-center jus overflow-x-hidden">
+    <div className="relative flex flex-col min-h-screen items-center jus overflow-x-hidden">
       <NavbarComponent />
       <MenuTabsComponent />
-      <main className="container mx-auto max-w-7xl pt-8 px-6 mb-40 flex-grow min-h-screen">
+      <main className="container mx-auto max-w-7xl pt-8 px-6 mb-40 flex-grow min-h-screen h-full">
         {children}
       </main>
       <FooterComponent />

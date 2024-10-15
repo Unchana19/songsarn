@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import ImagePlaceholder from "@/components/image-placeholder";
 import PopupModal from "@/components/popup-modal";
 import { Category } from "@/interfaces/category.interface";
 import { Button } from "@nextui-org/button";
@@ -12,9 +14,9 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 
 interface Props {
   label: string;
-  categories: Category[] | null | undefined;
+  categories: Category[] | null;
   handleSeeAll: (category: Category, label: string) => void;
-  handleEdit: (category?: Category | null) => void;
+  handleEdit: (category: Category | null) => void;
   handleDelete: (categoryId: string) => void;
 }
 
@@ -26,13 +28,27 @@ export default function CategoriesPage({
   handleDelete,
 }: Props) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  const openDeleteModal = (categoryId: string) => {
+    setCategoryToDelete(categoryId);
+    onOpen();
+  };
+
+  const confirmDelete = () => {
+    if (categoryToDelete) {
+      handleDelete(categoryToDelete);
+      setCategoryToDelete(null);
+      onOpenChange();
+    }
+  };
 
   return (
     <div>
       <div className="flex items-center gap-10">
         <p className="font-bold">{label} categories</p>
         <Button
-          onClick={() => handleEdit()}
+          onClick={() => handleEdit(null)}
           color="primary"
           radius="full"
           className="text-white"
@@ -43,15 +59,22 @@ export default function CategoriesPage({
       </div>
       <div className="flex flex-wrap mt-5 justify-start">
         {categories?.map((category) => (
-          <div className="w-full md:w-1/2 xl:w-1/4 p-5">
+          <div key={category.id} className="w-full md:w-1/2 xl:w-1/4 p-5">
             <Card shadow="sm" className="w-full">
               <CardHeader className="overflow-hidden flex justify-center pt-5">
-                <Image
-                  src={category.img}
-                  alt={category.name}
-                  height={200}
-                  className="object-cover"
-                />
+                {category.img ? (
+                  <Image
+                    src={category.img}
+                    alt={category.name}
+                    height={200}
+                    className="object-cover"
+                  />
+                ) : (
+                  <ImagePlaceholder
+                    name={category.name}
+                    classNames="w-full h-[200px]"
+                  />
+                )}
               </CardHeader>
               <CardBody className="flex flex-col gap-4">
                 <div className="p-2 border-primary border-2 rounded-xl text-center">
@@ -66,7 +89,7 @@ export default function CategoriesPage({
                 </Button>
                 <div className="flex justify-center gap-4">
                   <Button
-                    onClick={onOpen}
+                    onClick={() => openDeleteModal(category.id)}
                     isIconOnly
                     color="primary"
                     variant="light"
@@ -92,9 +115,12 @@ export default function CategoriesPage({
       <PopupModal
         message={"Are you sure to delete this category?"}
         isOpen={isOpen}
-        onClose={onOpenChange}
+        onClose={() => {
+          onOpenChange();
+          setCategoryToDelete(null);
+        }}
         buttonTitle={"Confirm"}
-        buttonFunction={handleDelete}
+        buttonFunction={confirmDelete}
       />
     </div>
   );

@@ -67,7 +67,7 @@ export default function EditCategory({
         <h3>
           {category
             ? "Edit"
-            : `New ${label === "Product" ? "product" : "component"} category`}
+            : `New ${label === "product" ? "product" : "component"} category`}
         </h3>
       </div>
       <div className="flex mt-5 flex-col md:flex-row gap-10">
@@ -115,7 +115,7 @@ export default function EditCategory({
               variant="bordered"
               color="primary"
               fullWidth
-              placeholder={`Enter ${label === "Product" ? "product" : "component"} category`}
+              placeholder={`Enter ${label === "product" ? "product" : "component"} category`}
               radius="full"
               size="lg"
               defaultValue={category?.name}

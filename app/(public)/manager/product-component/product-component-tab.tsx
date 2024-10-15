@@ -19,6 +19,8 @@ import { componentAll } from "@/data/component-all";
 import { Skeleton } from "@nextui-org/skeleton";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@nextui-org/modal";
+import { CreateComponentSchema } from "@/lib/schemas/createComponentSchema";
+import { Material } from "@/interfaces/material.interface";
 
 export default function ProductComponentTab() {
   const session = useSession();
@@ -89,7 +91,7 @@ export default function ProductComponentTab() {
 
   const handleSeeAll = (category: Category, label: string) => {
     setCategory(category);
-    if (label === "Product") {
+    if (label === "product") {
       setProducts(productsAll.filter((p) => p.category === category.id));
       setActiveStep(2);
     } else {
@@ -98,7 +100,7 @@ export default function ProductComponentTab() {
     }
   };
 
-  const handleCategoryEdit = (category?: Category | null) => {
+  const handleCategoryEdit = (category: Category | null) => {
     setCategory(category || null);
     setActiveStep(1);
   };
@@ -111,10 +113,13 @@ export default function ProductComponentTab() {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("type", data.type);
+      if (category) {
+        formData.append("id", category.id);
+      }
       if (file) formData.append("file", file);
 
       const response = await fetch("/api/categories", {
-        method: "POST",
+        method: category ? "PATCH" : "POST",
         headers: { Authorization: `Bearer ${session.data?.accessToken}` },
         body: formData,
       });
@@ -127,13 +132,32 @@ export default function ProductComponentTab() {
         onOpenChange();
       }
     } catch (error) {
-      setMessage(error as string);
+      setMessage(error instanceof Error ? error.message : String(error));
       onOpenChange();
     }
   };
 
-  const handleDelete = (categoryId: string) => {
-    // Implement delete logic
+  const handleDelete = async (categoryId: string) => {
+    try {
+      const response = await fetch(`/api/categories?id=${categoryId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data?.accessToken}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        await fetchCategories();
+      } else {
+        setMessage(result.message as string);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+      onOpenChange();
+    }
   };
 
   const handleDiscard = () => setActiveStep(0);
@@ -152,8 +176,41 @@ export default function ProductComponentTab() {
     setActiveStep(5);
   };
 
-  const handleComponentSave = () => {
-    // Implement component save logic
+  const handleComponentSave = async (
+    data: CreateComponentSchema,
+    materials: { material: Material; quantity: string }[],
+    file: File | null
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("category_id", data.category);
+      formData.append("name", data.name);
+      formData.append("price", data.price);
+      const simplifiedMaterials = materials.map((item) => ({
+        material_id: item.material.id,
+        quantity: item.quantity,
+      }));
+      formData.append("materials", JSON.stringify(simplifiedMaterials));
+
+      if (file) formData.append("file", file);
+
+      const response = await fetch("/api/components", {
+        method: component ? "PATCH" : "POST",
+        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+        body: formData,
+      });
+      const result = await response.json();
+      if (response.ok) {
+        await fetchCategories();
+        setActiveStep(3);
+      } else {
+        setMessage(result.message as string);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+      onOpenChange();
+    }
   };
 
   const handleBack = () => setActiveStep(0);
@@ -222,7 +279,7 @@ export default function ProductComponentTab() {
       case 5:
         return (
           <EditComponent
-            category={category}
+            category={category || categories[0]}
             component={component}
             handleSave={handleComponentSave}
             handleDiscard={handleDiscard}
