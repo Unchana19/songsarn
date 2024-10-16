@@ -36,7 +36,7 @@ interface Props {
   handleSave: (
     data: CreateComponentSchema,
     materials: { material: Material; quantity: string }[],
-    file: File | null
+    file: File | null,
   ) => void;
   handleDiscard: () => void;
 }
@@ -54,14 +54,20 @@ export default function EditComponent({
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isValid, isSubmitting },
   } = useForm<CreateComponentSchema>({
     resolver: zodResolver(createComponentSchema),
     mode: "onTouched",
+    defaultValues: component
+      ? {
+          name: component.name,
+          price: component.price.toString(),
+          category: category.id,
+        }
+      : {
+          category: category.id,
+        },
   });
-
-  setValue("category", category?.id);
 
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
     null
@@ -71,6 +77,42 @@ export default function EditComponent({
   const [selectedMaterials, setSelectedMaterials] = useState<
     Array<{ material: Material; quantity: string }>
   >([]);
+
+  const fetchBOM = async () => {
+    if (!component) return;
+
+    setIsLoading(true);
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch(
+        `/api/components/bom-components/${component.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        const bomMaterials = result.materials.map((material: any) => ({
+          material: {
+            id: material.id,
+            name: material.name,
+            unit: material.unit,
+            threshold: material.threshold,
+          },
+          quantity: material.quantity.toString(),
+        }));
+        setSelectedMaterials(bomMaterials);
+      }
+    } catch (error) {
+      console.error("Failed to fetch BOM", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getAvailableMaterials = () => {
     return materials.filter(
@@ -128,6 +170,9 @@ export default function EditComponent({
 
   useEffect(() => {
     fetchMaterials();
+    if (component) {
+      fetchBOM();
+    }
   }, [session]);
 
   const fetchMaterials = async () => {
@@ -216,9 +261,6 @@ export default function EditComponent({
                     height={200}
                     className="object-cover"
                   />
-                  <div className="absolute bottom-3 right-5">
-                    <RiImageEditFill size={25} color="#D4AF37" />
-                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-primary my-20">
@@ -226,6 +268,9 @@ export default function EditComponent({
                   <p>Upload image</p>
                 </div>
               )}
+              <div className="absolute z-10 bottom-3 right-5">
+                <RiImageEditFill size={25} color="#D4AF37" />
+              </div>
             </Card>
             <input
               type="file"
@@ -239,7 +284,7 @@ export default function EditComponent({
             <h3 className="text-xl font-bold">Detail</h3>
             <div className="flex flex-col gap-2">
               <p>Component type</p>
-              <p className="text-primary pl-2">{category?.name}</p>
+              <p className="text-primary pl-2">{category.name}</p>
             </div>
             <div className="flex flex-col gap-2">
               <p>Component name</p>
@@ -250,7 +295,6 @@ export default function EditComponent({
                 placeholder="Enter component name"
                 radius="full"
                 size="lg"
-                value={component?.name}
                 {...register("name")}
                 isInvalid={!!errors.name}
                 errorMessage={errors.name?.message as string}
@@ -265,7 +309,6 @@ export default function EditComponent({
                 placeholder="Enter component price"
                 radius="full"
                 size="lg"
-                value={component?.price.toString()}
                 {...register("price")}
                 isInvalid={!!errors.price}
                 errorMessage={errors.price?.message as string}

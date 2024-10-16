@@ -14,8 +14,6 @@ import { Category } from "@/interfaces/category.interface";
 import { Product } from "@/interfaces/product.interface";
 import { Component } from "@/interfaces/component.interface";
 import { CreateCategorySchema } from "@/lib/schemas/createCategoySchema";
-import { productsAll } from "@/data/product-all";
-import { componentAll } from "@/data/component-all";
 import { Skeleton } from "@nextui-org/skeleton";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@nextui-org/modal";
@@ -34,9 +32,7 @@ export default function ProductComponentTab() {
   const [category, setCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filterCategories, setFilterCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState(productsAll);
   const [product, setProduct] = useState<Product | null>(null);
-  const [components, setComponents] = useState(componentAll);
   const [component, setComponent] = useState<Component | null>(null);
 
   const { isOpen, onOpenChange } = useDisclosure();
@@ -92,10 +88,8 @@ export default function ProductComponentTab() {
   const handleSeeAll = (category: Category, label: string) => {
     setCategory(category);
     if (label === "product") {
-      setProducts(productsAll.filter((p) => p.category === category.id));
       setActiveStep(2);
     } else {
-      setComponents(componentAll.filter((c) => c.category === category.id));
       setActiveStep(3);
     }
   };
@@ -183,9 +177,13 @@ export default function ProductComponentTab() {
   ) => {
     try {
       const formData = new FormData();
+
+      if (component) formData.append("id", component.id);
+
       formData.append("category_id", data.category);
       formData.append("name", data.name);
       formData.append("price", data.price);
+
       const simplifiedMaterials = materials.map((item) => ({
         material_id: item.material.id,
         quantity: item.quantity,
@@ -209,6 +207,29 @@ export default function ProductComponentTab() {
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
+      onOpenChange();
+    }
+  };
+
+  const handleComponentDelete = async (componentId: string) => {
+    try {
+      const response = await fetch(`/api/components?id=${componentId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data?.accessToken}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setMessage("");
+      } else {
+        setMessage(result.message);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error as string);
       onOpenChange();
     }
   };
@@ -250,7 +271,6 @@ export default function ProductComponentTab() {
           <ProductsPage
             label="Product"
             category={category?.name}
-            products={products}
             handleEdit={handleProductEdit}
             handleDelete={handleDelete}
             handleBack={handleBack}
@@ -259,11 +279,10 @@ export default function ProductComponentTab() {
       case 3:
         return (
           <ComponentsPage
-            label="Component"
-            category={category?.name}
-            components={components}
+            label={category?.name || ""}
+            categoryId={category?.id || ""}
             handleEdit={handleComponentEdit}
-            handleDelete={handleDelete}
+            handleDelete={handleComponentDelete}
             handleBack={handleBack}
           />
         );

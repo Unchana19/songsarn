@@ -7,6 +7,7 @@ import { Button } from "@nextui-org/button";
 import { Card, CardHeader, CardBody } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { useDisclosure } from "@nextui-org/modal";
+import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
@@ -15,7 +16,6 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 interface Props {
   label: string;
   category?: string;
-  products: Product[];
   handleEdit: (product: Product | null) => void;
   handleDelete: (productId: string) => void;
   handleBack: () => void;
@@ -24,11 +24,11 @@ interface Props {
 export default function ProductsPage({
   label,
   category,
-  products,
   handleEdit,
   handleDelete,
   handleBack,
 }: Props) {
+  const [products, setProducts] = useState<Product[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
