@@ -2,17 +2,19 @@ import { patternColors } from "@/constants/patternColors";
 import { Button } from "@nextui-org/button";
 
 interface Props {
+  colors: { color: string; label: string }[];
   selectedColor: { color: string; label: string };
   setSelectedColor(color: { color: string; label: string }): void;
 }
 
 export default function PatternColorSelect({
+  colors,
   selectedColor,
   setSelectedColor,
 }: Props) {
   return (
     <div className="flex flex-wrap gap-8 mb-5 p-2">
-      {patternColors.map((color, index) => (
+      {colors.map((color, index) => (
         <div
           key={index}
           className="flex flex-col items-center justify-center gap-2"

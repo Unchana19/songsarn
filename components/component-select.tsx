@@ -1,67 +1,105 @@
+import React from "react";
 import { Select, SelectItem } from "@nextui-org/select";
-import PatternColorSelect from "./pattern-color-select";
-import PrimaryColorSelect from "./primary-color-select";
+import { Button } from "@nextui-org/button";
 import { Component } from "@/interfaces/component.interface";
-import { SetStateAction } from "react";
-import { Category } from "@/interfaces/category.interface";
+import { Color } from "@/interfaces/color.interface";
+import ColorSelect from "./color-select";
 
 interface Props {
-  category: Category;
+  colors: Color[];
   components: Component[];
-  selectedCompoent: string;
-  handleSelectionChange: (e: {
-    target: {
-      value: SetStateAction<string>;
-    };
-  }) => void;
-  selectedPrimaryColor: { color: string; label: string };
-  setSelectedPrimaryColor(color: { color: string; label: string }): void;
-  selectedPatternColor: { color: string; label: string };
-  setSelectedPatternColor(color: { color: string; label: string }): void;
+  selectedComponent: string;
+  handleSelectionChange: (value: string) => void;
+  selectedPrimaryColor: Color | null;
+  setSelectedPrimaryColor: (color: Color | null) => void;
+  selectedPatternColor: Color | null;
+  setSelectedPatternColor: (color: Color | null) => void;
+  onAddComponent: (
+    component: string,
+    primaryColor: Color | null,
+    patternColor: Color | null
+  ) => void;
 }
 
 export default function ComponentSelect({
-  category,
+  colors,
   components,
-  selectedCompoent,
+  selectedComponent,
   handleSelectionChange,
   selectedPrimaryColor,
   setSelectedPrimaryColor,
   selectedPatternColor,
   setSelectedPatternColor,
+  onAddComponent,
 }: Props) {
-  return (
-    <div className="flex gap-2">
-      <div className="flex w-1/6">
-        <p>{category.name}</p>
-      </div>
-      <div className="flex flex-col gap-3 w-5/6">
-        <Select
-          isRequired
-          variant="bordered"
-          color="primary"
-          selectedKeys={[selectedCompoent]}
-          onChange={handleSelectionChange}
-        >
-          {components
-            .filter((component) => component.category === category.id)
-            .map((component) => (
-              <SelectItem key={component.id}>{component.name}</SelectItem>
-            ))}
-        </Select>
+  const handleAddClick = () => {
+    if (selectedComponent && selectedPrimaryColor) {
+      onAddComponent(
+        selectedComponent,
+        selectedPrimaryColor,
+        selectedPatternColor
+      );
+      handleSelectionChange("");
+      setSelectedPrimaryColor(null);
+      setSelectedPatternColor(null);
+    }
+  };
 
+  const isAddButtonDisabled =
+    !selectedComponent || !selectedPrimaryColor || !selectedPatternColor;
+
+  return (
+    <div className="flex flex-col gap-3 w-full">
+      <div>
+        <p className="text-lg font-bold">Components</p>
+      </div>
+      <Select
+        size="lg"
+        radius="full"
+        label="Select Component"
+        labelPlacement="outside"
+        variant="bordered"
+        color="primary"
+        selectedKeys={selectedComponent ? [selectedComponent] : []}
+        onChange={(e) => handleSelectionChange(e.target.value)}
+      >
+        {components.map((component) => (
+          <SelectItem key={component.id} value={component.id}>
+            {component.name}
+          </SelectItem>
+        ))}
+      </Select>
+
+      <div className="mt-3">
         <p>เลือกสีหลัก</p>
-        <PrimaryColorSelect
+        <ColorSelect
+          isPrimary
+          colors={colors}
           selectedColor={selectedPrimaryColor}
           setSelectedColor={setSelectedPrimaryColor}
         />
+      </div>
 
+      <div>
         <p>เลือกสีลาย</p>
-        <PatternColorSelect
+        <ColorSelect
+          isPrimary={false}
+          colors={colors}
           selectedColor={selectedPatternColor}
           setSelectedColor={setSelectedPatternColor}
         />
       </div>
+
+      <Button
+        size="lg"
+        radius="full"
+        color="primary"
+        className="text-white"
+        onPress={handleAddClick}
+        isDisabled={isAddButtonDisabled}
+      >
+        Add Component
+      </Button>
     </div>
   );
 }

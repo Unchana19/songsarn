@@ -15,6 +15,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { BsBox } from "react-icons/bs";
+import ImagePlaceholder from "@/components/image-placeholder";
 
 interface Props {
   label: string;
@@ -180,12 +181,19 @@ export default function ComponentsPage({
             <div key={component.id} className="w-full md:w-1/2 xl:w-1/4 p-5">
               <Card shadow="sm" className="w-full">
                 <CardHeader className="overflow-hidden flex justify-center pt-5">
-                  <Image
-                    src={component.img}
-                    alt={component.name}
-                    height={200}
-                    className="object-cover"
-                  />
+                  {component.img ? (
+                    <Image
+                      src={component.img}
+                      alt={component.name}
+                      height={200}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <ImagePlaceholder
+                      name={component.name}
+                      classNames="w-full h-[200px]"
+                    />
+                  )}
                 </CardHeader>
                 <CardBody className="flex flex-col gap-4">
                   <div className="flex flex-col">

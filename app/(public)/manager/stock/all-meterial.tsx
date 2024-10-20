@@ -96,7 +96,17 @@ export default function AllMeterial({
         <TableBody emptyContent={"No materials to display."}>
           {materials.map((material) => (
             <TableRow key={material.id}>
-              <TableCell>{material.name}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {material.color && (
+                    <div
+                      className="w-4 h-4 rounded-full border-primary border-1"
+                      style={{ backgroundColor: material.color }}
+                    />
+                  )}
+                  {material.name}
+                </div>
+              </TableCell>
               <TableCell>{`${material.quantity} ${material.unit}`}</TableCell>
               <TableCell>{`${material.threshold} ${material.unit}`}</TableCell>
               <TableCell>

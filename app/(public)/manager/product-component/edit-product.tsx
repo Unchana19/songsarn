@@ -1,17 +1,19 @@
 "use client";
 
 import ComponentSelect from "@/components/component-select";
-import { patternColors } from "@/constants/patternColors";
-import { primaryColors } from "@/constants/primaryColors";
-import { componentAll } from "@/data/component-all";
-import { productTypes } from "@/data/product-type";
+import SelectedComponentDetails from "@/components/select-component-detail";
 import { Category } from "@/interfaces/category.interface";
+import { Color } from "@/interfaces/color.interface";
+import { Component } from "@/interfaces/component.interface";
 import { Product } from "@/interfaces/product.interface";
+import { SelectedComponent } from "@/interfaces/select-component";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { Input } from "@nextui-org/input";
-import { SetStateAction, useState } from "react";
+import { Skeleton } from "@nextui-org/skeleton";
+import { useSession } from "next-auth/react";
+import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
 import { RiImageAddFill, RiImageEditFill } from "react-icons/ri";
 
 interface Props {
@@ -27,36 +29,119 @@ export default function EditProduct({
   handleSave,
   handleDiscard,
 }: Props) {
-  const components = componentAll;
+  const session = useSession();
+  const [components, setComponents] = useState<Component[]>([]);
+  const [colors, setColors] = useState<Color[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const baseCategory = productTypes.find((p) => p.name === "ฐานต้น");
-  const [selectedBase, setSelectedBase] = useState<string>(components[0].id);
-  const [selectedBasePrimaryColor, setSelectedBasePrimaryColor] = useState(
-    primaryColors[0]
-  );
-  const [selectedBasePatternColor, setSelectedBasePatternColor] = useState(
-    patternColors[0]
-  );
+  const [selectedComponents, setSelectedComponents] = useState<
+    SelectedComponent[]
+  >([]);
 
-  const bodyCategory = productTypes.find((p) => p.name === "ต้นศาล");
-  const [selectedBody, setSelectedBody] = useState<string>(components[5].id);
-  const [selectedBodyPrimaryColor, setSelectedBodyPrimaryColor] = useState(
-    primaryColors[0]
-  );
-  const [selectedBodyPatternColor, setSelectedBodyPatternColor] = useState(
-    patternColors[0]
-  );
+const [currentComponent, setCurrentComponent] = useState<string>("");
+const [currentPrimaryColor, setCurrentPrimaryColor] = useState<Color | null>(
+  null
+);
+const [currentPatternColor, setCurrentPatternColor] = useState<Color | null>(
+  null
+);
 
-  const handleSelectionBaseChange = (e: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setSelectedBase(e.target.value);
+  useEffect(() => {
+    fetchComponents();
+    fetchColors();
+  }, [session]);
+
+  const fetchComponents = async () => {
+    try {
+      setIsLoading(true);
+      const token = session.data?.accessToken;
+      const response = await fetch("/api/components", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setComponents(result);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSelectionBodyChange = (e: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setSelectedBody(e.target.value);
+  const fetchColors = async () => {
+    try {
+      setIsLoading(true);
+      const token = session.data?.accessToken;
+      const response = await fetch("/api/materials/colors", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setColors(result);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddComponent = (
+    component: string,
+    primaryColor: Color | null,
+    patternColor: Color | null
+  ) => {
+    const newComponent: SelectedComponent = {
+      component,
+      primaryColor,
+      patternColor,
+    };
+    setSelectedComponents([...selectedComponents, newComponent]);
+    setCurrentComponent("");
+    setCurrentPrimaryColor(null);
+    setCurrentPatternColor(null);
+  };
+
+  const handleRemoveComponent = (index: number) => {
+    const updatedComponents = selectedComponents.filter((_, i) => i !== index);
+    setSelectedComponents(updatedComponents);
+  };
+
+  const renderComponentSelects = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col gap-4 w-full">
+          <Skeleton className="h-12 w-full rounded-full" />
+          <Skeleton className="h-12 w-full rounded-full" />
+          <Skeleton className="h-12 w-full rounded-full" />
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <ComponentSelect
+          colors={colors}
+          components={components}
+          selectedComponent={currentComponent}
+          handleSelectionChange={(value) => setCurrentComponent(value)}
+          selectedPrimaryColor={currentPrimaryColor}
+          setSelectedPrimaryColor={setCurrentPrimaryColor}
+          selectedPatternColor={currentPatternColor}
+          setSelectedPatternColor={setCurrentPatternColor}
+          onAddComponent={handleAddComponent}
+        />
+        {selectedComponents.map((selectedComp, index) => (
+          <SelectedComponentDetails
+            key={index}
+            selectedComponent={selectedComp}
+            componentDetails={components.find(
+              (c) => c.id === selectedComp.component
+            )}
+            onRemove={() => handleRemoveComponent(index)}
+          />
+        ))}
+      </>
+    );
   };
 
   return (
@@ -72,7 +157,11 @@ export default function EditProduct({
             className="flex items-center justify-center border-primary border-1 rounded-xl w-full p-5 cursor-pointer"
             isHoverable
           >
-            {product?.img ? (
+            {isLoading ? (
+              <Skeleton className="rounded-lg">
+                <div className="h-48 rounded-lg bg-default-300"></div>
+              </Skeleton>
+            ) : product?.img ? (
               <div>
                 <Image
                   src={product?.img}
@@ -93,53 +182,48 @@ export default function EditProduct({
           </Card>
           <div className="flex flex-col gap-2 mt-5">
             <p>Product type</p>
-            <p className="text-primary pl-2">{category?.name}</p>
+            {isLoading ? (
+              <Skeleton className="h-6 w-1/2 rounded-full" />
+            ) : (
+              <p className="text-primary pl-2">{category?.name}</p>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <p>Product name</p>
-            <Input
-              variant="bordered"
-              color="primary"
-              fullWidth
-              radius="full"
-              size="lg"
-              value={product?.name}
-            />
+            {isLoading ? (
+              <Skeleton className="h-12 w-full rounded-full" />
+            ) : (
+              <Input
+                variant="bordered"
+                color="primary"
+                fullWidth
+                placeholder="Enter product name"
+                radius="full"
+                size="lg"
+                value={product?.name}
+              />
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <p>Product price</p>
-            <Input
-              variant="bordered"
-              color="primary"
-              fullWidth
-              radius="full"
-              size="lg"
-              value={product?.price.toString()}
-            />
+            {isLoading ? (
+              <Skeleton className="h-12 w-full rounded-full" />
+            ) : (
+              <Input
+                variant="bordered"
+                color="primary"
+                fullWidth
+                placeholder="Enter product price"
+                radius="full"
+                size="lg"
+                value={product?.price.toString()}
+              />
+            )}
           </div>
         </div>
-        <div className="flex flex-col gap-5 w-full md:w-5/12">
+        <div className="flex flex-col gap-5 w-full md:w-6/12">
           <div className="flex flex-col gap-3 w-full">
-            <ComponentSelect
-              category={baseCategory!}
-              components={components}
-              selectedCompoent={selectedBase}
-              handleSelectionChange={handleSelectionBaseChange}
-              selectedPrimaryColor={selectedBasePrimaryColor}
-              setSelectedPrimaryColor={setSelectedBasePrimaryColor}
-              selectedPatternColor={selectedBasePatternColor}
-              setSelectedPatternColor={setSelectedBasePatternColor}
-            />
-            <ComponentSelect
-              category={bodyCategory!}
-              components={components}
-              selectedCompoent={selectedBody}
-              handleSelectionChange={handleSelectionBodyChange}
-              selectedPrimaryColor={selectedBodyPrimaryColor}
-              setSelectedPrimaryColor={setSelectedBodyPrimaryColor}
-              selectedPatternColor={selectedBodyPatternColor}
-              setSelectedPatternColor={setSelectedBodyPatternColor}
-            />
+            {renderComponentSelects()}
           </div>
           <div className="flex flex-col w-full mt-10 items-center">
             <div className="flex flex-col w-1/2 gap-2">
@@ -149,10 +233,15 @@ export default function EditProduct({
                 radius="full"
                 fullWidth
                 size="lg"
+                isDisabled={isLoading}
               >
-                <p className="text-white font-bold">Save</p>
+                <p className="text-white">Save</p>
               </Button>
-              <Button onClick={handleDiscard} variant="light">
+              <Button
+                onClick={handleDiscard}
+                variant="light"
+                isDisabled={isLoading}
+              >
                 <p>Discard</p>
               </Button>
             </div>

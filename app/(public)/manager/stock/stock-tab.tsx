@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import TabsSelect from "@/components/tabs-select";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Key, useTransition } from "react";
@@ -26,6 +26,11 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { Material } from "@/interfaces/material.interface";
 import PopupModal from "@/components/popup-modal";
 import AllRequisition from "./all-requisition";
+import { HexColorPicker } from "react-colorful";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
+import { getContrastColor } from "@/utils/get-contrast-color";
+import { Checkbox } from "@nextui-org/checkbox";
+import { cn } from "@nextui-org/theme";
 
 export default function StockTab() {
   const session = useSession();
@@ -37,6 +42,11 @@ export default function StockTab() {
 
   const editModal = useDisclosure();
   const popupModal = useDisclosure();
+
+  const [isColor, setIsColor] = useState(false);
+  const [colorCode, setColorCode] = useState("#000000");
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   const [error, setError] = useState("");
 
@@ -142,11 +152,39 @@ export default function StockTab() {
     fetchRequisitions();
   }, [session]);
 
+  const handleColorChange = (color: SetStateAction<string>) => {
+    setColorCode(color);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      colorPickerRef.current &&
+      !colorPickerRef.current.contains(event.target as Node)
+    ) {
+      setIsColorPickerOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const onSubmit = async (data: CreateMaterialSchema) => {
     try {
       let response;
+      let submissionData;
+
+      if (isColor) {
+        submissionData = { ...data, color: colorCode };
+      } else {
+        submissionData = { ...data };
+      }
+
       if (material) {
-        const dataWithId = { id: material.id, ...data };
+        const dataWithId = { id: material.id, ...submissionData };
         response = await fetch("/api/materials", {
           method: "PATCH",
           headers: {
@@ -162,7 +200,7 @@ export default function StockTab() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.data?.accessToken}`,
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(submissionData),
         });
       }
 
@@ -327,6 +365,60 @@ export default function StockTab() {
                     isInvalid={!!errors.threshold}
                     errorMessage={errors.threshold?.message as string}
                   />
+                  <div>
+                    <p className="text-primary ml-1">Color</p>
+                    <div className="flex gap-5 p-3">
+                      <Checkbox
+                        aria-label="check is color"
+                        classNames={{
+                          base: cn(
+                            "inline-flex w-2/3 max-w-xl bg-content1",
+                            "hover:bg-content2 items-center justify-start",
+                            "cursor-pointer rounded-full gap-2 p-4 border-2 border-transparent",
+                            "data-[selected=true]:border-primary"
+                          ),
+                          label: "w-full",
+                        }}
+                        isSelected={isColor}
+                        onValueChange={setIsColor}
+                      >
+                        Is color
+                      </Checkbox>
+
+                      {isColor && (
+                        <div className="flex items-center gap-4 transition-all duration-300 ease-in-out">
+                          <Popover
+                            isOpen={isColorPickerOpen}
+                            onOpenChange={(open) => setIsColorPickerOpen(open)}
+                          >
+                            <PopoverTrigger>
+                              <Button
+                                className="min-w-[120px] h-12"
+                                radius="full"
+                                size="lg"
+                                style={{
+                                  backgroundColor: colorCode,
+                                  color: getContrastColor(colorCode),
+                                }}
+                                onClick={() => setIsColorPickerOpen(true)}
+                              >
+                                {colorCode}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <div ref={colorPickerRef}>
+                                <HexColorPicker
+                                  color={colorCode}
+                                  onChange={handleColorChange}
+                                />
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="flex justify-center mt-5 w-full">
                     <div className="flex flex-col justify-center items-center gap-3 w-1/3">
                       <Button

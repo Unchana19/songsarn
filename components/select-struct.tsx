@@ -3,7 +3,7 @@ import { Button } from "@nextui-org/button";
 import ProductCardSmallComponent from "./product-card-small";
 import SelectButtonComponent from "./select-button";
 import PatternColorSelect from "./pattern-color-select";
-import PrimaryColorSelect from "./primary-color-select";
+import PrimaryColorSelect from "./color-select";
 
 interface Props {
   typeStruct: string;

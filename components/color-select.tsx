@@ -1,19 +1,23 @@
-import { primaryColors } from "@/constants/primaryColors";
+import { Color } from "@/interfaces/color.interface";
 import { Button } from "@nextui-org/button";
 
 interface Props {
-  selectedColor: { color: string; label: string };
-  setSelectedColor(color: { color: string; label: string }): void;
+  isPrimary: boolean;
+  colors: Color[];
+  selectedColor: Color | null;
+  setSelectedColor(color: Color | null): void;
 }
 
-export default function PrimaryColorSelect({
+export default function ColorSelect({
+  isPrimary,
+  colors,
   selectedColor,
   setSelectedColor,
 }: Props) {
   return (
     <div>
       <div className="flex flex-wrap gap-8 mb-5 p-2">
-        {primaryColors.map((color, index) => (
+        {colors.map((color, index) => (
           <div
             key={index}
             className="flex flex-col items-center justify-center gap-2"
@@ -33,7 +37,7 @@ export default function PrimaryColorSelect({
             <p
               className={`text-sm ${selectedColor == color ? "text-primary" : ""}`}
             >
-              {color.label}
+              {color.name}
             </p>
           </div>
         ))}

@@ -4,4 +4,5 @@ export interface Material {
   quantity: number;
   threshold: number;
   unit: string;
+  color?: string;
 }

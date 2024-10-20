@@ -29,9 +29,9 @@ export default function PopupModal({
           <>
             <ModalHeader></ModalHeader>
             <ModalBody className="flex items-center w-full">
-              <p className="text-lg font-bold">{message}</p>
+              <p className="text-xl font-bold">{message}</p>
             </ModalBody>
-            <ModalFooter className="mb-5 flex flex-col w-1/2">
+            <ModalFooter className="mt-3 flex flex-col w-1/2">
               {buttonTitle && buttonFunction && (
                 <Button
                   fullWidth

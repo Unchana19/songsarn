@@ -390,7 +390,17 @@ export default function EditComponent({
                   <TableBody>
                     {selectedMaterials.map((item, index) => (
                       <TableRow key={index} className="hover:bg-amber-50">
-                        <TableCell>{item.material.name}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {item.material.color && (
+                              <div
+                                className="w-4 h-4 rounded-full border-primary border-1"
+                                style={{ backgroundColor: item.material.color }}
+                              />
+                            )}
+                            {item.material.name}
+                          </div>
+                        </TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{item.material.unit}</TableCell>
                         <TableCell>
