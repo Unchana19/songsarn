@@ -248,6 +248,13 @@ export default function StockTab() {
     setValue("unit", material.unit);
     setValue("quantity", material.quantity.toString());
     setValue("threshold", material.threshold.toString());
+    if (material.color) {
+      setIsColor(true);
+      setColorCode(material.color);
+    } else {
+      setIsColor(false);
+      setColorCode("#000000");
+    }
     editModal.onOpen();
   };
 
@@ -386,7 +393,7 @@ export default function StockTab() {
                       </Checkbox>
 
                       {isColor && (
-                        <div className="flex items-center gap-4 transition-all duration-300 ease-in-out">
+                        <div className="flex items-center gap-4 transition-all duration-300 ease-in-out border-primary border-2 rounded-full">
                           <Popover
                             isOpen={isColorPickerOpen}
                             onOpenChange={(open) => setIsColorPickerOpen(open)}
