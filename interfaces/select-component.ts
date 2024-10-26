@@ -1,7 +1,8 @@
 import { Color } from "./color.interface";
 
 export interface SelectedComponent {
+  bomCategoryId: string;
   component: string;
-  primaryColor: Color | null;
-  patternColor: Color | null;
+  primary_color: Color | null;
+  pattern_color: Color | null;
 }

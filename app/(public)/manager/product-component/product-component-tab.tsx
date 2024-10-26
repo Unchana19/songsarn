@@ -19,6 +19,8 @@ import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@nextui-org/modal";
 import { CreateComponentSchema } from "@/lib/schemas/createComponentSchema";
 import { Material } from "@/interfaces/material.interface";
+import { CreateProductSchema } from "@/lib/schemas/createProductSchema";
+import { SelectedComponent } from "@/interfaces/select-component";
 
 export default function ProductComponentTab() {
   const session = useSession();
@@ -101,12 +103,19 @@ export default function ProductComponentTab() {
 
   const handleCategorySave = async (
     data: CreateCategorySchema,
-    file: File | null
+    file: File | null,
+    componentCategories?: string[]
   ) => {
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("type", data.type);
+      if (componentCategories) {
+        formData.append(
+          "componentCategories",
+          JSON.stringify(componentCategories)
+        );
+      }
       if (category) {
         formData.append("id", category.id);
       }
@@ -161,7 +170,10 @@ export default function ProductComponentTab() {
     setActiveStep(4);
   };
 
-  const handleProductSave = () => {
+  const handleProductSave = (
+    data: CreateProductSchema,
+    selectedComponents: SelectedComponent[]
+  ) => {
     // Implement product save logic
   };
 
@@ -183,6 +195,8 @@ export default function ProductComponentTab() {
       formData.append("category_id", data.category);
       formData.append("name", data.name);
       formData.append("price", data.price);
+      formData.append("color_primary_use", data.color_primary_use);
+      formData.append("color_pattern_use", data.color_pattern_use);
 
       const simplifiedMaterials = materials.map((item) => ({
         material_id: item.material.id,
@@ -289,7 +303,7 @@ export default function ProductComponentTab() {
       case 4:
         return (
           <EditProduct
-            category={category}
+            category={category || categories[0]}
             product={product}
             handleSave={handleProductSave}
             handleDiscard={handleDiscard}

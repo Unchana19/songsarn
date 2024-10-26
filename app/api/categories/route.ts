@@ -19,6 +19,18 @@ export async function POST(req: Request) {
       bodyFormData.append("file", file);
     }
 
+    const componentCategoriesString = formData.get("componentCategories") as
+      | string
+      | null;
+    if (componentCategoriesString) {
+      const componentCategories = JSON.parse(
+        componentCategoriesString
+      ) as string[];
+      componentCategories.forEach((category: string, index) => {
+        bodyFormData.append(`componentCategories[${index}][id]`, category);
+      });
+    }
+
     const response = await fetch(`${process.env.API_URL}/categories`, {
       method: "POST",
       headers: {
@@ -92,6 +104,18 @@ export async function PATCH(req: Request) {
     const file = formData.get("file") as File | null;
     if (file) {
       bodyFormData.append("file", file);
+    }
+
+    const componentCategoriesString = formData.get("componentCategories") as
+      | string
+      | null;
+    if (componentCategoriesString) {
+      const componentCategories = JSON.parse(
+        componentCategoriesString
+      ) as string[];
+      componentCategories.forEach((category: string, index) => {
+        bodyFormData.append(`componentCategories[${index}][id]`, category);
+      });
     }
 
     const response = await fetch(`${process.env.API_URL}/categories`, {

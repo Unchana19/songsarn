@@ -36,7 +36,7 @@ interface Props {
   handleSave: (
     data: CreateComponentSchema,
     materials: { material: Material; quantity: string }[],
-    file: File | null,
+    file: File | null
   ) => void;
   handleDiscard: () => void;
 }
@@ -62,6 +62,8 @@ export default function EditComponent({
       ? {
           name: component.name,
           price: component.price.toString(),
+          color_primary_use: component.color_primary_use.toString(),
+          color_pattern_use: component.color_pattern_use.toString(),
           category: category.id,
         }
       : {
@@ -268,9 +270,11 @@ export default function EditComponent({
                   <p>Upload image</p>
                 </div>
               )}
-              <div className="absolute z-10 bottom-3 right-5">
-                <RiImageEditFill size={25} color="#D4AF37" />
-              </div>
+              {imagePreview !== null ? (
+                <div className="absolute z-10 bottom-3 right-5">
+                  <RiImageEditFill size={25} color="#D4AF37" />
+                </div>
+              ) : null}
             </Card>
             <input
               type="file"
@@ -318,7 +322,36 @@ export default function EditComponent({
         </div>
         <div className="flex flex-col gap-5 w-6/12">
           <h3 className="text-xl font-bold">Material</h3>
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-2">
+            <p>Color primary use</p>
+            <Input
+              variant="bordered"
+              color="primary"
+              fullWidth
+              placeholder="Enter component color primary use"
+              radius="full"
+              size="lg"
+              {...register("color_primary_use")}
+              isInvalid={!!errors.color_primary_use}
+              errorMessage={errors.color_primary_use?.message as string}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p>Color pattern use</p>
+            <Input
+              variant="bordered"
+              color="primary"
+              fullWidth
+              placeholder="Enter component color pattern use"
+              radius="full"
+              size="lg"
+              {...register("color_pattern_use")}
+              isInvalid={!!errors.color_pattern_use}
+              errorMessage={errors.color_pattern_use?.message as string}
+            />
+          </div>
+          <div className="flex flex-col gap-2 w-full">
+            <p>BOM components</p>
             <div className="flex flex-col gap-5">
               <Select
                 size="lg"

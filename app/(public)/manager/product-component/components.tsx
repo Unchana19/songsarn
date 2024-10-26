@@ -16,6 +16,7 @@ import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { BsBox } from "react-icons/bs";
 import ImagePlaceholder from "@/components/image-placeholder";
+import EmptyComponents from "@/components/empty-components";
 
 interface Props {
   label: string;
@@ -121,27 +122,6 @@ export default function ComponentsPage({
     </div>
   );
 
-  const EmptyState = () => (
-    <div className="w-full flex flex-col items-center justify-center py-20">
-      <BsBox size={64} className="text-gray-400 mb-4" />
-      <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-        No Components Found
-      </h2>
-      <p className="text-gray-500 mb-6">
-        There are no components in this category yet.
-      </p>
-      <Button
-        onClick={() => handleEdit(null)}
-        color="primary"
-        radius="full"
-        className="text-white"
-      >
-        <FaPlus />
-        <p>Add New Component</p>
-      </Button>
-    </div>
-  );
-
   return (
     <div>
       <div className="flex items-center gap-10">
@@ -155,7 +135,7 @@ export default function ComponentsPage({
               className="text-white"
             >
               <FaPlus />
-              <p>Add Component</p>
+              <p>Add New Component</p>
             </Button>
           </div>
           <Button
@@ -175,7 +155,21 @@ export default function ComponentsPage({
             .fill(null)
             .map((_, index) => <LoadingSkeleton key={index} />)
         ) : componentsFilter.length === 0 ? (
-          <EmptyState />
+          <EmptyComponents
+            title="No Components Found"
+            subTitle="There are no components in this category yet."
+            button={
+              <Button
+                onClick={() => handleEdit(null)}
+                color="primary"
+                radius="full"
+                className="text-white"
+              >
+                <FaPlus />
+                <p>Add New Component</p>
+              </Button>
+            }
+          />
         ) : (
           componentsFilter.map((component) => (
             <div key={component.id} className="w-full md:w-1/2 xl:w-1/4 p-5">

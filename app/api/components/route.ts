@@ -18,6 +18,8 @@ export async function POST(req: Request) {
     const name = formData.get("name") as string;
     const priceString = formData.get("price") as string;
     const materialsString = formData.get("materials") as string;
+    const colorPrimaryUse = formData.get("color_primary_use") as string;
+    const colorPatternUse = formData.get("color_pattern_use") as string;
 
     const price = parseFloat(priceString);
     if (isNaN(price)) {
@@ -53,6 +55,8 @@ export async function POST(req: Request) {
     requestBody.append("category_id", category_id);
     requestBody.append("name", name);
     requestBody.append("price", price.toString());
+    requestBody.append("color_primary_use", colorPrimaryUse.toString());
+    requestBody.append("color_pattern_use", colorPatternUse.toString());
     materials.forEach((material, index) => {
       requestBody.append(
         `materials[${index}][material_id]`,
@@ -136,6 +140,8 @@ export async function PATCH(req: Request) {
     const name = formData.get("name") as string;
     const priceString = formData.get("price") as string;
     const materialsString = formData.get("materials") as string;
+    const colorPrimaryUse = formData.get("color_primary_use") as string;
+    const colorPatternUse = formData.get("color_pattern_use") as string;
 
     const price = parseFloat(priceString);
     if (isNaN(price)) {
@@ -172,6 +178,8 @@ export async function PATCH(req: Request) {
     requestBody.append("category_id", category_id);
     requestBody.append("name", name);
     requestBody.append("price", price.toString());
+    requestBody.append("color_primary_use", colorPrimaryUse.toString());
+    requestBody.append("color_pattern_use", colorPatternUse.toString());
     materials.forEach((material, index) => {
       requestBody.append(
         `materials[${index}][material_id]`,

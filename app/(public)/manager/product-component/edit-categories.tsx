@@ -18,11 +18,17 @@ import { useSession } from "next-auth/react";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Card } from "@nextui-org/card";
 import { Skeleton } from "@nextui-org/skeleton";
+import ComponentCategoryCard from "@/components/component-category-card";
+import EmptyComponents from "@/components/empty-components";
 
 interface Props {
   label: string;
   category?: Category | null;
-  handleSave: (data: CreateCategorySchema, file: File | null) => void;
+  handleSave: (
+    data: CreateCategorySchema,
+    file: File | null,
+    componentCategories: string[]
+  ) => void;
   handleDiscard: () => void;
 }
 
@@ -32,40 +38,6 @@ const LoadingCard = () => {
       <div className="flex flex-col items-center justify-center w-full h-full gap-4">
         <Skeleton className="w-16 h-16 rounded-full" />
         <Skeleton className="w-3/4 h-4 rounded-lg" />
-      </div>
-    </Card>
-  );
-};
-
-const ComponentCategoryCard = ({
-  category,
-  onRemove,
-}: {
-  category: Category;
-  onRemove: () => void;
-}) => {
-  return (
-    <Card className="w-full p-4 mb-3">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          {category.img && (
-            <Image
-              src={category.img}
-              alt={category.name}
-              className="w-12 h-12 object-cover rounded-lg"
-            />
-          )}
-          <span className="font-medium">{category.name}</span>
-        </div>
-        <Button
-          isIconOnly
-          color="danger"
-          variant="light"
-          onClick={onRemove}
-          className="ml-2"
-        >
-          <RiDeleteBin6Line size={20} />
-        </Button>
       </div>
     </Card>
   );
@@ -93,9 +65,12 @@ export default function EditCategory({
   useEffect(() => {
     if (label === "product") {
       fetchComponentCategories();
+      if (category) {
+        fetchBOM();
+      }
     }
     setValue("type", label.toLowerCase());
-  }, [label, session]);
+  }, [label, category, session]);
 
   const fetchComponentCategories = async () => {
     try {
@@ -110,6 +85,33 @@ export default function EditCategory({
       }
     } catch (error) {
       console.error("Error fetching component categories:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchBOM = async () => {
+    if (!category) return;
+
+    setIsLoading(true);
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch(
+        `/api/categories/bom-categories/${category.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok && Array.isArray(result)) {
+        setSelectedComponentCategories(result);
+      }
+    } catch (error) {
+      console.error("Failed to fetch BOM", error);
     } finally {
       setIsLoading(false);
     }
@@ -161,12 +163,8 @@ export default function EditCategory({
   });
 
   const onSubmit = async (data: CreateCategorySchema) => {
-    // Include selected categories in the form data
-    const formData = {
-      ...data,
-      componentCategories: selectedComponentCategories.map((c) => c.id),
-    };
-    await handleSave(formData, selectedFile);
+    const componentCategories = selectedComponentCategories.map((c) => c.id);
+    await handleSave(data, selectedFile, componentCategories);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,12 +261,12 @@ export default function EditCategory({
         </div>
         <div className="flex flex-col gap-5 items-center w-2/3">
           <div className="flex flex-col gap-3 w-full">
-            <p>{label} category</p>
+            <p>Name</p>
             <Input
               variant="bordered"
               color="primary"
               fullWidth
-              placeholder={`Enter ${label === "product" ? "product" : "component"} category`}
+              placeholder="Enter name category"
               radius="full"
               size="lg"
               defaultValue={category?.name}
@@ -279,10 +277,10 @@ export default function EditCategory({
 
             {label === "product" && (
               <div className="mt-2">
-                <div>
-                  <p>BOM Product</p>
+                <div className="my-2">
+                  <p>BOM product</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-4">
                   <Select
                     size="lg"
                     radius="full"
@@ -307,6 +305,7 @@ export default function EditCategory({
                   </Select>
                   <Button
                     color="primary"
+                    className="text-white"
                     radius="full"
                     onClick={handleAddCategory}
                     isDisabled={!selectedComponentCategory}
@@ -316,15 +315,21 @@ export default function EditCategory({
                 </div>
 
                 <div className="mt-4">
-                  <p className="mb-2">Selected Components:</p>
-                  <div className="max-h-60 overflow-y-auto">
-                    {selectedComponentCategories.map((category) => (
-                      <ComponentCategoryCard
-                        key={category.id}
-                        category={category}
-                        onRemove={() => handleRemoveCategory(category.id)}
+                  <div className="max-h-60">
+                    {selectedComponentCategories.length > 0 ? (
+                      selectedComponentCategories.map((category) => (
+                        <ComponentCategoryCard
+                          key={category.id}
+                          category={category}
+                          onRemove={() => handleRemoveCategory(category.id)}
+                        />
+                      ))
+                    ) : (
+                      <EmptyComponents
+                        title="No BOM product selected"
+                        subTitle="Select BOM product categories from the dropdown above"
                       />
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -338,9 +343,9 @@ export default function EditCategory({
               fullWidth
               size="lg"
               isLoading={isSubmitting}
-              isDisabled={!isValid}
+              isDisabled={!isValid || selectedComponentCategories.length === 0}
             >
-              <p className="text-white font-bold">Save</p>
+              <p className="text-white">Save</p>
             </Button>
             <Button onClick={handleDiscard} variant="light">
               <p>Discard</p>
