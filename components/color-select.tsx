@@ -26,7 +26,7 @@ export default function ColorSelect({
               onClick={() => setSelectedColor(color)}
               style={{ backgroundColor: color.color }}
               className={
-                selectedColor === color
+                selectedColor?.id === color.id
                   ? `border-primary border-3`
                   : `border-gray-400 border-3`
               }
@@ -35,7 +35,7 @@ export default function ColorSelect({
               size="lg"
             ></Button>
             <p
-              className={`text-sm ${selectedColor == color ? "text-primary" : ""}`}
+              className={`text-sm ${selectedColor?.id === color.id ? "text-primary" : ""}`}
             >
               {color.name}
             </p>

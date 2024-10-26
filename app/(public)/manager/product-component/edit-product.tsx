@@ -78,14 +78,18 @@ export default function EditProduct({
   }, [session]);
 
   useEffect(() => {
-    const initialComponents = bomCategories.map((category) => ({
-      bomCategoryId: category.id,
-      component: "",
-      primary_color: null,
-      pattern_color: null,
-    }));
-    setSelectedComponents(initialComponents);
-  }, [bomCategories]);
+    if (bomCategories.length > 0 && product) {
+      fetchBOMProducts();
+    } else if (bomCategories.length > 0) {
+      const initialComponents = bomCategories.map((category) => ({
+        category_id: category.id,
+        component: "",
+        primary_color: null,
+        pattern_color: null,
+      }));
+      setSelectedComponents(initialComponents);
+    }
+  }, [bomCategories, product]);
 
   const fetchComponents = async () => {
     try {
@@ -129,6 +133,30 @@ export default function EditProduct({
     }
   };
 
+  const fetchBOMProducts = async () => {
+    if (!product) return;
+
+    setIsLoading(true);
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch(`/api/products/bom-products/${product.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setSelectedComponents(result);
+      }
+    } catch (error) {
+      console.error("Failed to fetch BOM", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchColors = async () => {
     try {
       setIsLoading(true);
@@ -159,7 +187,8 @@ export default function EditProduct({
       ? {
           category: category.id,
           name: product.name,
-          price: "0",
+          detail: product.detail,
+          price: product.price.toString(),
         }
       : {
           category: category.id,
@@ -198,7 +227,7 @@ export default function EditProduct({
   ) => {
     setSelectedComponents((prev) => {
       return prev.map((item) => {
-        if (item.bomCategoryId === categoryId) {
+        if (item.category_id === categoryId) {
           return {
             ...item,
             component: componentId,
@@ -211,8 +240,11 @@ export default function EditProduct({
     });
   };
 
-  const onSubmit = async (data: CreateProductSchema) => {
+  useEffect(() => {
     setValue("price", calculateTotalPrice().toString());
+  }, [selectedComponents, setValue]);
+
+  const onSubmit = async (data: CreateProductSchema) => {
     await handleSave(data, selectedComponents, selectedFile);
   };
 
@@ -237,7 +269,7 @@ export default function EditProduct({
             (c) => c.category_id === bomCategory.id
           );
           const selectedComponent = selectedComponents.find(
-            (sc) => sc.bomCategoryId === bomCategory.id
+            (sc) => sc.category_id === bomCategory.id
           );
 
           return (
@@ -400,7 +432,7 @@ export default function EditProduct({
 
                       return (
                         <div
-                          key={selection.bomCategoryId}
+                          key={selection.category_id}
                           className="flex justify-between text-small text-default-600"
                         >
                           <span>{component.name}</span>

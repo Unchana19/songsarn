@@ -206,7 +206,7 @@ export default function ProductComponentTab() {
       if (file) formData.append("file", file);
 
       const response = await fetch("/api/products", {
-        method: component ? "PATCH" : "POST",
+        method: product ? "PATCH" : "POST",
         headers: { Authorization: `Bearer ${session.data?.accessToken}` },
         body: formData,
       });

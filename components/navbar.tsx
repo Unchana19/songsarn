@@ -34,6 +34,7 @@ import { Avatar } from "@nextui-org/avatar";
 import { Skeleton } from "@nextui-org/skeleton";
 import { User } from "@/interfaces/user.interface";
 import { SearchIcon } from "./icons/search-icon";
+import { Image } from "@nextui-org/image";
 
 export default function NavbarComponent() {
   const { data: session, status } = useSession();
@@ -143,7 +144,7 @@ export default function NavbarComponent() {
         />
         <NavbarBrand>
           <Link href="/" className="font-bold text-inherit">
-            Songsarn
+            <Image src="/logo/songsarn-logo.png" height={65} />
           </Link>
         </NavbarBrand>
       </NavbarContent>

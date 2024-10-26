@@ -100,6 +100,73 @@ export async function GET(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const formData = await req.formData();
+    const token = req.headers.get("authorization")?.split(" ")[1] || null;
+
+    const productData = {
+      id: formData.get("id"),
+      category_id: formData.get("category_id"),
+      name: formData.get("name"),
+      detail: formData.get("detail"),
+      price: formData.get("price"),
+    };
+
+    const bodyFormData = new FormData();
+    bodyFormData.append("id", productData.id as string);
+    bodyFormData.append("category_id", productData.category_id as string);
+    bodyFormData.append("name", productData.name as string);
+    bodyFormData.append("detail", productData.detail as string);
+    bodyFormData.append("price", productData.price as string);
+
+    const file = formData.get("file") as File | null;
+    if (file) {
+      bodyFormData.append("file", file);
+    }
+
+    const componentsString = formData.get("components") as string;
+    if (componentsString) {
+      let components: ComponentItem[];
+      components = JSON.parse(componentsString);
+      components.forEach((component, index) => {
+        bodyFormData.append(`components[${index}][id]`, component.id);
+        bodyFormData.append(
+          `components[${index}][primary_color]`,
+          component.primary_color
+        );
+        bodyFormData.append(
+          `components[${index}][pattern_color]`,
+          component.pattern_color
+        );
+      });
+    }
+
+    const response = await fetch(`${process.env.API_URL}/products`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: bodyFormData,
+    });
+
+    if (!response.ok) {
+      const result = await response.json();
+      return NextResponse.json(
+        { message: result.message },
+        { status: response.status }
+      );
+    }
+
+    return NextResponse.json({ status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);

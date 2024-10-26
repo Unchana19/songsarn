@@ -67,10 +67,8 @@ const ComponentSelectItem = ({ component }: { component: Component }) => {
         <ComponentPlaceholder />
       )}
       <div className="flex flex-col gap-1">
-        <span className="text-medium font-semibold">
-          {component.name}
-        </span>
-        <span className="text-small font-medium text-primary">
+        <span className="text-medium font-semibold">{component.name}</span>
+        <span className="text-small font-medium">
           {formatNumberWithComma(component.price)}
         </span>
       </div>
@@ -103,10 +101,12 @@ export default function ComponentSelect({
         radius="full"
         variant="bordered"
         color="primary"
-        selectedKeys={selectedComponent ? [selectedComponent] : []}
+        selectedKeys={
+          selectedComponent ? new Set([selectedComponent]) : new Set()
+        }
         onChange={(e) => handleSelectionChange(e.target.value)}
         classNames={{
-          trigger: "h-[86px] py-2 transition-colors shadow-small",
+          trigger: "h-[86px] bg-white py-2 transition-colors shadow-small",
           value: "pl-1",
           popoverContent: "min-w-[300px] p-1 m-1 border-1 border-default-200",
           listboxWrapper: "p-1",
@@ -137,7 +137,7 @@ export default function ComponentSelect({
                   {item.textValue}
                 </span>
                 {selectedComponentObj && (
-                  <span className="text-small font-medium text-primary">
+                  <span className="text-small font-medium">
                     {formatNumberWithComma(selectedComponentObj.price)}
                   </span>
                 )}
