@@ -73,13 +73,10 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const token = req.headers.get("authorization")?.split(" ")[1] || null;
-
     const response = await fetch(`${process.env.API_URL}/products`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     });
 

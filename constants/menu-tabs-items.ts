@@ -3,7 +3,6 @@ import { FaPencil } from "react-icons/fa6";
 import { MdTipsAndUpdates } from "react-icons/md";
 
 export const menuItemsCustomer = [
-  { label: "Shop by catalog", icon: FaBookOpen, href: "/catalog" },
   { label: "Create your own shrine", icon: FaPencil, href: "/create-shrine" },
   { label: "My order", icon: FaInbox, href: "/my-order" },
   { label: "Checking delivery price", icon: FaTruck, href: "/delivery-price" },

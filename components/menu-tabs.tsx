@@ -18,6 +18,8 @@ import {
 import { useSession } from "next-auth/react";
 import { MenuItems } from "@/types";
 import { Skeleton } from "@nextui-org/skeleton";
+import { Category } from "@/interfaces/category.interface";
+import { useState, useEffect } from "react";
 
 export default function MenuTabsComponent() {
   const pathname = usePathname();
@@ -25,7 +27,29 @@ export default function MenuTabsComponent() {
   const { data: session, status } = useSession();
   const isManager = session?.role === "manager";
 
-  if (status === "loading") {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/categories/product-categories");
+      const result = await response.json();
+      if (response.ok) {
+        setCategories(result);
+      }
+    } catch (error) {
+      console.error("Error fetching product categories:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  if (status === "loading" || isLoading) {
     return (
       <div className="md:flex gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
         <div className="flex gap-2">
@@ -43,6 +67,14 @@ export default function MenuTabsComponent() {
   } else {
     menuItems = menuItemsCustomer;
   }
+
+  const dropdownItems = [
+    { key: "", label: "All products" },
+    ...categories.map((category) => ({
+      key: category.id,
+      label: category.name,
+    })),
+  ];
 
   return (
     <div className="md:flex w-full justify-center gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
@@ -62,16 +94,13 @@ export default function MenuTabsComponent() {
               </Button>
             </DropdownTrigger>
             <DropdownMenu
-              aria-label="Action event example"
+              aria-label="Product categories"
               onAction={(key) => router.push(`/all-products/${key}`)}
+              items={dropdownItems}
             >
-              <DropdownItem key="">All products</DropdownItem>
-              <DropdownItem key="brahma-shrine">ศาลพระพรหม</DropdownItem>
-              <DropdownItem key="spirit-house">ศาลพระภูมิ</DropdownItem>
-              <DropdownItem key="shrine">ศาลเจ้าที่</DropdownItem>
-              <DropdownItem key="grandparent-shrine">ศาลตายาย</DropdownItem>
-              <DropdownItem key="table">โต๊ะหน้าศาล</DropdownItem>
-              <DropdownItem key="equipment">อุปกรณ์ประกอบหน้าศาล</DropdownItem>
+              {(item) => (
+                <DropdownItem key={item.key}>{item.label}</DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
         )}

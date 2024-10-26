@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import ProductTypeCardComponent from "@/components/product-type-card";
+import ProductTypeCardComponent from "@/components/categoy-card";
 import { ProductType } from "@/types";
 import { productTypes } from "@/data/product-type";
 

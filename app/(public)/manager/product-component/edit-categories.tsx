@@ -215,9 +215,9 @@ export default function EditCategory({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <h3>
+        <h3 className="font-bold text-lg">
           {category
-            ? "Edit"
+            ? `Edit ${label === "product" ? "product" : "component"} category`
             : `New ${label === "product" ? "product" : "component"} category`}
         </h3>
       </div>
@@ -238,7 +238,7 @@ export default function EditCategory({
               className="hidden"
             />
             {previewUrl || category?.img ? (
-              <div className="relative">
+              <div className="flex items-center justify-center">
                 <Image
                   src={previewUrl || category?.img}
                   alt={category?.name || "Preview"}

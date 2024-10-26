@@ -272,7 +272,7 @@ export default function EditComponent({
               )}
               {imagePreview !== null ? (
                 <div className="absolute z-10 bottom-3 right-5">
-                  <RiImageEditFill size={25} color="#D4AF37" />
+                  <RiImageEditFill size={30} color="#D4AF37" />
                 </div>
               ) : null}
             </Card>

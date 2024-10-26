@@ -1,20 +1,17 @@
+import { Product } from "@/interfaces/product.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { ReactNode } from "react";
 
 interface Props {
-  image: string;
-  price: number;
-  name: string;
+  product: Product;
   isTopSeller?: boolean;
   cardButton: ReactNode;
 }
 
-export default function ProductCardSmallComponent({
-  image,
-  price,
-  name,
+export default function ProductCardSmall({
+  product,
   isTopSeller,
   cardButton,
 }: Props) {
@@ -27,15 +24,17 @@ export default function ProductCardSmallComponent({
           </div>
         )}
         <Image
-          src={image}
+          src={product.img}
           className="object-cover z-0"
-          width={150}
-          alt={name}
+          height={250}
+          alt={product.name}
         />
       </CardHeader>
       <CardBody className="flex flex-col gap-2">
-        <p>{name}</p>
-        <h3 className="text-lg font-bold">{formatNumberWithComma(price)}</h3>
+        <p>{product.name}</p>
+        <h3 className="text-lg font-bold">
+          {formatNumberWithComma(product.price)}
+        </h3>
       </CardBody>
       <CardFooter className="flex gap-2">{cardButton}</CardFooter>
     </Card>
