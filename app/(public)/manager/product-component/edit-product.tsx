@@ -16,10 +16,10 @@ import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
 import { Image } from "@nextui-org/image";
-import { Input } from "@nextui-org/input";
+import { Input, Textarea } from "@nextui-org/input";
 import { Skeleton } from "@nextui-org/skeleton";
 import { useSession } from "next-auth/react";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RiImageAddFill, RiImageEditFill } from "react-icons/ri";
 
@@ -335,7 +335,7 @@ export default function EditProduct({
             <h3 className="text-lg font-bold">Detail</h3>
           </div>
           <div className="flex flex-col gap-2 mt-2">
-            <p>Product type</p>
+            <p>Product categoy</p>
             {isLoading ? (
               <Skeleton className="h-6 w-1/2 rounded-full" />
             ) : (
@@ -361,6 +361,29 @@ export default function EditProduct({
             )}
           </div>
           <div className="flex flex-col gap-2">
+            <p>Product detail</p>
+            {isLoading ? (
+              <Skeleton className="h-32 w-full rounded-2xl" />
+            ) : (
+              <Textarea
+                variant="bordered"
+                color="primary"
+                fullWidth
+                placeholder="Enter product detail..."
+                radius="lg"
+                minRows={4}
+                maxRows={8}
+                classNames={{
+                  input: "resize-none py-3 px-4 text-md",
+                  inputWrapper: "min-h-[120px] shadow-sm",
+                }}
+                {...register("detail")}
+                isInvalid={!!errors.detail}
+                errorMessage={errors.detail?.message as string}
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
             <p>Total price</p>
             {isLoading ? (
               <Skeleton className="h-12 w-full rounded-full" />
@@ -374,16 +397,13 @@ export default function EditProduct({
                         (c) => c.id === selection.component
                       );
                       if (!component) return null;
-                      const category = bomCategories.find(
-                        (cat) => cat.id === selection.bomCategoryId
-                      );
 
                       return (
                         <div
                           key={selection.bomCategoryId}
                           className="flex justify-between text-small text-default-600"
                         >
-                          <span>{category?.name}</span>
+                          <span>{component.name}</span>
                           <span>{formatNumberWithComma(component.price)}</span>
                         </div>
                       );

@@ -22,6 +22,17 @@ import { Material } from "@/interfaces/material.interface";
 import { CreateProductSchema } from "@/lib/schemas/createProductSchema";
 import { SelectedComponent } from "@/interfaces/select-component";
 
+const useStepChange = (initialStep: number) => {
+  const [activeStep, setActiveStepState] = useState(initialStep);
+
+  const setActiveStep = (step: number) => {
+    setActiveStepState(step);
+    window.scrollTo({ top: 0 });
+  };
+
+  return [activeStep, setActiveStep] as const;
+};
+
 export default function ProductComponentTab() {
   const session = useSession();
   const searchParams = useSearchParams();
@@ -30,7 +41,7 @@ export default function ProductComponentTab() {
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
 
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useStepChange(0);
   const [category, setCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filterCategories, setFilterCategories] = useState<Category[]>([]);
@@ -170,12 +181,72 @@ export default function ProductComponentTab() {
     setActiveStep(4);
   };
 
-  const handleProductSave = (
+  const handleProductSave = async (
     data: CreateProductSchema,
-    selectedComponents: SelectedComponent[]
+    selectedComponents: SelectedComponent[],
+    file: File | null
   ) => {
-    // Implement product save logic
+    try {
+      const formData = new FormData();
+
+      if (product) formData.append("id", product.id);
+
+      formData.append("category_id", data.category);
+      formData.append("name", data.name);
+      formData.append("detail", data.detail);
+      formData.append("price", data.price);
+
+      const simplifiedComponents = selectedComponents.map((item) => ({
+        id: item.component,
+        primary_color: item.primary_color?.id,
+        pattern_color: item.pattern_color?.id,
+      }));
+      formData.append("components", JSON.stringify(simplifiedComponents));
+
+      if (file) formData.append("file", file);
+
+      const response = await fetch("/api/products", {
+        method: component ? "PATCH" : "POST",
+        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+        body: formData,
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setActiveStep(2);
+      } else {
+        setMessage(result.message as string);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+      onOpenChange();
+    }
   };
+
+  const handleProductDelete = async (productId: string) => {
+    try {
+      const response = await fetch(`/api/products?id=${productId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data?.accessToken}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setMessage("");
+      } else {
+        setMessage(result.message);
+        onOpenChange();
+      }
+    } catch (error) {
+      setMessage(error as string);
+      onOpenChange();
+    }
+  };
+
+  const handleProductDiscard = () => setActiveStep(2);
 
   const handleComponentEdit = (component: Component | null) => {
     setComponent(component);
@@ -248,6 +319,8 @@ export default function ProductComponentTab() {
     }
   };
 
+  const handleComponentDiscard = () => setActiveStep(3);
+
   const handleBack = () => setActiveStep(0);
 
   const renderContent = () => {
@@ -283,10 +356,10 @@ export default function ProductComponentTab() {
       case 2:
         return (
           <ProductsPage
-            label="Product"
-            category={category?.name}
+            label={category?.name || ""}
+            categoryId={category?.id || ""}
             handleEdit={handleProductEdit}
-            handleDelete={handleDelete}
+            handleDelete={handleProductDelete}
             handleBack={handleBack}
           />
         );
@@ -306,7 +379,7 @@ export default function ProductComponentTab() {
             category={category || categories[0]}
             product={product}
             handleSave={handleProductSave}
-            handleDiscard={handleDiscard}
+            handleDiscard={handleProductDiscard}
           />
         );
       case 5:
@@ -315,7 +388,7 @@ export default function ProductComponentTab() {
             category={category || categories[0]}
             component={component}
             handleSave={handleComponentSave}
-            handleDiscard={handleDiscard}
+            handleDiscard={handleComponentDiscard}
           />
         );
       default:

@@ -53,7 +53,7 @@ export default function ComponentsPage({
     if (componentToDelete) {
       handleDelete(componentToDelete);
       setComponentToDelete(null);
-      await fetchComponents();
+      fetchComponents();
       onOpenChange();
     }
   };
