@@ -1,8 +1,8 @@
-import { ProductCustomize, ProductFinished } from "@/app/favorite/favorite-tab";
+import { OrderLine } from "@/interfaces/order-line.interface";
 
-export const calTotal = (products: ProductCustomize[] | ProductFinished[]) => {
-  return (products as ProductCustomize[]).reduce(
-    (total, product) => total + product.price * product.amount,
+export const calTotal = (orderLines: OrderLine[]) => {
+  return orderLines.reduce(
+    (total, orderLine) => total + orderLine.price * orderLine.quantity,
     0
   );
 };

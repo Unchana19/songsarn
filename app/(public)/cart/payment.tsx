@@ -6,16 +6,16 @@ import { FiTruck } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { BsBank2 } from "react-icons/bs";
 import { MdOutlinePayment, MdOutlineQrCodeScanner } from "react-icons/md";
-import { ProductFinished } from "../favorite/favorite-tab";
 import { Image } from "@nextui-org/image";
 import { useState } from "react";
+import { OrderLine } from "@/interfaces/order-line.interface";
 
 interface Props {
-  products: ProductFinished[];
+  orderLines: OrderLine[]
   prevPage(page: number): void;
 }
 
-export default function PaymentPage({ products, prevPage }: Props) {
+export default function PaymentPage({ orderLines, prevPage }: Props) {
   const [paymentMethod, setPaymentMethod] = useState("mobile");
   const deliveryCost = 500;
 
@@ -113,7 +113,7 @@ export default function PaymentPage({ products, prevPage }: Props) {
               <p className="text-primary">Include delivery price</p>
             </div>
             <h3 className="font-bold text-xl">
-              {formatNumberWithComma(calTotal(products) + deliveryCost)}
+              {formatNumberWithComma(calTotal(orderLines) + deliveryCost)}
             </h3>
           </div>
           <Divider className="my-4" />
@@ -137,9 +137,9 @@ export default function PaymentPage({ products, prevPage }: Props) {
 
           <Divider className="my-8" />
 
-          <p className="font-bold text-lg">Products</p>
+          <p className="font-bold text-lg">orderLines</p>
           <div className="flex flex-col items-center">
-            {products.map((product) => {
+            {orderLines.map((product) => {
               const isImage = product.type === "finished";
 
               return (

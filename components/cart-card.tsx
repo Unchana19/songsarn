@@ -1,56 +1,89 @@
-import { ProductFinished } from "@/app/favorite/favorite-tab";
+import { OrderLine } from "@/interfaces/order-line.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
+import { ButtonGroup, Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { Image } from "@nextui-org/image";
-import { FaCartPlus } from "react-icons/fa";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
 interface Props {
-  product: ProductFinished;
-  isImage?: boolean;
+  orderLine: OrderLine;
+  increateQuantityOrder?: (id: string) => void;
+  decreateQuantityOrder?: (id: string) => void;
+  deleteOrder?: (id: string) => void;
 }
 
-export default function CartCardComponent({ product, isImage }: Props) {
+export default function CartCard({
+  orderLine,
+  increateQuantityOrder,
+  decreateQuantityOrder,
+  deleteOrder,
+}: Props) {
   return (
     <div>
-      <div className="flex items-center justify-evenly">
-        {isImage && (
+      <div className="flex justify-evenly">
+        <div className="w-4/12 flex justify-center px-1">
+          <Image
+            src={orderLine.img}
+            height={150}
+            width={250}
+            className="object-cover"
+          />
+        </div>
+
+        <div className="w-6/12 flex flex-col px-3 gap-5">
           <div>
-            <Image src={product.image} width={200} />
+            <p className="font-bold text-xl">{orderLine.name}</p>
           </div>
-        )}
-        <div className={`flex flex-col gap-4 ${isImage ? "w-2/3" : "w-full"}`}>
-          <div className="flex flex-col md:flex-row md:justify-between">
-            <h3 className="font-bold text-lg">
-              {isImage ? product.name : `Custom order no.${product.id}`}
-            </h3>
-            <h3 className="font-bold text-lg">
-              {formatNumberWithComma(product.price)}
-            </h3>
+          <div>
+            <p>Price per unit: {formatNumberWithComma(orderLine.price)}</p>
           </div>
-          <p>{isImage ? product.size : product.name}</p>
-          <div className="flex gap-4">
-            <div className="flex border-2 border-primary rounded-3xl items-center gap-2">
-              <Button isIconOnly variant="light" radius="full">
-                <p className="text-xl">-</p>
-              </Button>
-              <p className="px-3">{product.amount}</p>
-              <Button isIconOnly variant="light" radius="full">
-                <p>+</p>
+          {(decreateQuantityOrder && increateQuantityOrder && deleteOrder) ? (
+            <div className="flex items-center gap-3">
+              <div className="border-primary border-1.5 rounded-full p-1 w-48">
+                <ButtonGroup className="flex justify-between">
+                  <Button
+                    onClick={() => decreateQuantityOrder(orderLine.id)}
+                    isIconOnly
+                    radius="full"
+                    variant="light"
+                    className="text-2xl"
+                  >
+                    -
+                  </Button>
+                  <div>{orderLine.quantity}</div>
+                  <Button
+                    onClick={() => increateQuantityOrder(orderLine.id)}
+                    isIconOnly
+                    radius="full"
+                    variant="light"
+                    className="text-xl"
+                  >
+                    +
+                  </Button>
+                </ButtonGroup>
+              </div>
+              <Button
+                onClick={() => deleteOrder(orderLine.id)}
+                color="primary"
+                variant="light"
+                isIconOnly
+                radius="full"
+              >
+                <RiDeleteBin5Line size={20} />
               </Button>
             </div>
-            <Button isIconOnly color="primary" radius="full">
-              <FaCartPlus color="white" size={20} />
-            </Button>
-            {!isImage && (
-              <Button color="primary" radius="full">
-                <p className="text-white">Detail</p>
-              </Button>
-            )}
-          </div>
+          ) : <div>
+            <p>QTY: {orderLine.quantity}</p>
+            </div>}
+        </div>
+
+        <div className="w-2/12 flex flex-col justify-between items-end">
+          <p className="font-bold text-lg">
+            {formatNumberWithComma(orderLine.price * orderLine.quantity)}
+          </p>
         </div>
       </div>
-      <Divider className={`${isImage ? "my-10" : "my-20"}`} />
+      <Divider className="my-10" />
     </div>
   );
 }
