@@ -75,7 +75,7 @@ export default function PaymentPage({
       });
       const result = await response.json();
       if (response.ok) {
-        router.push(`cpo/detail/${result.id}`);
+        router.push(`my-order/detail/${result.id}`);
       } else {
       }
     } catch (error) {

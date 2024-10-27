@@ -7,6 +7,8 @@ import { OrderLine } from "@/interfaces/order-line.interface";
 import CartCard from "@/components/cart-card";
 import { calTotal } from "@/utils/cal-total";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
+import EmptyComponents from "@/components/empty-components";
+import Link from "next/link";
 
 interface Props {
   orderLines: OrderLine[];
@@ -79,17 +81,37 @@ export default function CartSummaryPage({
       <h3 className="font-bold text-xl mb-10">Your cart</h3>
       <div className="flex flex-col md:flex-row w-full">
         <div className="md:w-1/2">
-          <div>
-            {orderLines.map((orderLine: OrderLine) => (
-              <CartCard
-                key={orderLine.id}
-                orderLine={orderLine}
-                increateQuantityOrder={increateQuantityOrder}
-                decreateQuantityOrder={decreateQuantityOrder}
-                deleteOrder={deleteOrder}
+          {orderLines.length > 0 ? (
+            <div>
+              {orderLines.map((orderLine: OrderLine) => (
+                <CartCard
+                  key={orderLine.id}
+                  orderLine={orderLine}
+                  increateQuantityOrder={increateQuantityOrder}
+                  decreateQuantityOrder={decreateQuantityOrder}
+                  deleteOrder={deleteOrder}
+                />
+              ))}
+            </div>
+          ) : (
+            <div>
+              <EmptyComponents
+                title="Your cart is empty"
+                subTitle="Let's enjoy to songsarn shop"
+                button={
+                  <Button
+                    as={Link}
+                    href="/all-products"
+                    color="primary"
+                    radius="full"
+                    className="text-white px-10"
+                  >
+                    Go to shop
+                  </Button>
+                }
               />
-            ))}
-          </div>
+            </div>
+          )}
         </div>
         <div className="md:w-1/2 flex mt-10">
           <div className="w-full flex flex-col items-center">
