@@ -16,7 +16,7 @@ import {
 } from "@nextui-org/modal";
 import { Input, Textarea } from "@nextui-org/input";
 import { OrderLine } from "@/interfaces/order-line.interface";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Skeleton } from "@nextui-org/skeleton";
 import CartCard from "@/components/cart-card";
 import { setAddressPOSchema } from "@/lib/schemas/setAddressPOSchema";
@@ -24,6 +24,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { Spinner } from "@nextui-org/spinner";
+import { useSession } from "next-auth/react";
+import { FormData } from "./page";
 
 const defaultCenter = {
   lat: 13.7563,
@@ -36,18 +38,11 @@ interface Location {
   address?: string;
 }
 
-interface FormData {
-  name?: string;
-  phone_number?: string;
-  address?: string;
-  delivery_price: number;
-  lat?: number;
-  lng?: number;
-}
-
 interface Props {
   orderLines: OrderLine[];
   userId: string;
+  formData: FormData;
+  setFormData: Dispatch<SetStateAction<FormData>>;
   prevPage(page: number): void;
   nextPage(page: number): void;
 }
@@ -55,21 +50,17 @@ interface Props {
 export default function DeliveryAddressPage({
   orderLines,
   userId,
+  formData,
+  setFormData,
   prevPage,
   nextPage,
 }: Props) {
+  const session = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
   const [modalKey, setModalKey] = useState(0);
-  const [formData, setFormData] = useState<FormData>({
-    phone_number: "",
-    address: "",
-    delivery_price: 0,
-    lat: undefined,
-    lng: undefined,
-  });
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const { isLoaded } = useJsApiLoader({
@@ -103,6 +94,7 @@ export default function DeliveryAddressPage({
           lat: userData.lat || null,
           lng: userData.lng || null,
           delivery_price: 0,
+          payment_method: "qr",
         };
         setFormData(initialData);
         if (userData.lat && userData.lng) {
@@ -219,7 +211,7 @@ export default function DeliveryAddressPage({
         });
 
         const currentPhoneNumber = watch("phone_number");
-        
+
         setFormData((prev) => ({
           ...prev,
           address: addressInfo.address,
@@ -277,7 +269,7 @@ export default function DeliveryAddressPage({
     prevPage(1);
   };
 
-  const continueToPayment = () => {
+  const continueToPayment = async () => {
     nextPage(1);
   };
 

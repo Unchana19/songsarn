@@ -118,6 +118,7 @@ export default function CartSummaryPage({
                 size="lg"
                 startContent={<MdOutlinePayments color="white" size={20} />}
                 onClick={() => goToCheckOut()}
+                isDisabled={orderLines.length === 0}
               >
                 <p className="text-white">Go to checkout</p>
               </Button>

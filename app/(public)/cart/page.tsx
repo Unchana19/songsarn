@@ -7,11 +7,29 @@ import PaymentPage from "./payment";
 import { useSession } from "next-auth/react";
 import { OrderLine } from "@/interfaces/order-line.interface";
 
+export interface FormData {
+  name?: string;
+  phone_number?: string;
+  address?: string;
+  delivery_price: number;
+  lat?: number;
+  lng?: number;
+  payment_method?: string;
+}
+
 export default function CartPage() {
   const session = useSession();
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData>({
+    phone_number: "",
+    address: "",
+    delivery_price: 0,
+    lat: undefined,
+    lng: undefined,
+    payment_method: "qr",
+  });
 
   const fetchOrderLines = async () => {
     try {
@@ -137,12 +155,22 @@ export default function CartPage() {
           <DeliveryAddressPage
             orderLines={orderLines}
             userId={session.data?.userId || ""}
+            formData={formData}
+            setFormData={setFormData}
             prevPage={prevPage}
             nextPage={nextPage}
           />
         );
       case 2:
-        return <PaymentPage orderLines={orderLines} prevPage={prevPage} />;
+        return (
+          <PaymentPage
+            userId={session.data?.userId || ""}
+            formData={formData}
+            setFormData={setFormData}
+            orderLines={orderLines}
+            prevPage={prevPage}
+          />
+        );
       default:
         return "unknow step";
     }

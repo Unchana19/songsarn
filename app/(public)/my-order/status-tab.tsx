@@ -1,22 +1,20 @@
+import EmptyComponents from "@/components/empty-components";
 import TabsSelect from "@/components/tabs-select";
+import { CPOGetAll } from "@/interfaces/cpo-get-all.interface";
+import { formatId } from "@/utils/format-id";
+import { getStatusCpo } from "@/utils/get-status-cpo";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@nextui-org/button";
+import { Chip } from "@nextui-org/chip";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useTransition } from "react";
-
-export interface OrderStatus {
-  id: string;
-  paymentStatus: string;
-  quantity: number;
-  price: number;
-  stataus: string;
-}
+import { Key, useTransition, useMemo } from "react";
 
 interface Props {
-  orderStatus: OrderStatus[];
+  cpos: CPOGetAll[];
 }
 
-export default function StatusTab({ orderStatus }: Props) {
+export default function StatusTab({ cpos }: Props) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -27,6 +25,23 @@ export default function StatusTab({ orderStatus }: Props) {
     { id: "completed", label: "Completed" },
   ];
 
+  const filteredCPOs = useMemo(() => {
+    const currentTab = searchParams.get("type") || "process";
+    return cpos.filter((cpo) => {
+      if (currentTab === "process") {
+        return [
+          "NEW",
+          "PENDING_PAYMENT",
+          "PAID",
+          "PROCESSING",
+          "SHIPPING",
+        ].includes(cpo.status);
+      } else {
+        return ["DELIVERED", "CANCELED"].includes(cpo.status);
+      }
+    });
+  }, [cpos, searchParams]);
+
   const handleTabChange = (key: Key) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
@@ -35,10 +50,29 @@ export default function StatusTab({ orderStatus }: Props) {
     });
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "NEW":
+      case "PROCESSING":
+      case "SHIPPING":
+        return "primary";
+      case "PENDING_PAYMENT":
+        return "warning";
+      case "PAID":
+      case "DELIVERED":
+        return "success";
+      case "CANCELED":
+        return "danger";
+      default:
+        return "default";
+    }
+  };
+
   return (
     <div className="mb-40">
       <h3 className="font-bold text-xl mb-5">My orders</h3>
       <TabsSelect
+        size="lg"
         tabs={tabs}
         handleTabChange={handleTabChange}
         isPending={isPending}
@@ -49,43 +83,73 @@ export default function StatusTab({ orderStatus }: Props) {
         {tabs.map((tab) => {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
-            <div>
-              {orderStatus.length > 0 ? (
+            <div key={tab.id}>
+              {filteredCPOs.length > 0 ? (
                 <div className="my-5 flex flex-col gap-10">
-                  {orderStatus.map((order) => (
-                    <div className="flex flex-col md:flex-row md:justify-around border-1 border-primary rounded-3xl p-5 gap-5">
+                  {filteredCPOs.map((order) => (
+                    <Link
+                      href={`/my-order/detail/${order.id}`}
+                      key={order.id}
+                      className="flex flex-col md:flex-row md:justify-between border-1 border-primary/30 hover:border-primary transition-colors duration-200 rounded-3xl p-5 gap-5"
+                    >
                       <div className="flex flex-col">
-                        <p className="font-bold text-lg mb-1">
-                          Order no.{order.id}
+                        <p className="font-bold text-lg mb-1 font-mono">
+                          {formatId("PO", order.id)}
                         </p>
-                        <p>
-                          Payment status:{" "}
-                          <span className="text-success">
-                            {order.paymentStatus}
-                          </span>
-                        </p>
-                        <p>Quantity: {order.quantity}</p>
-                        <p>
-                          Total amount(Baht):{" "}
-                          {formatNumberWithComma(order.price)}
-                        </p>
+                        <div className="space-y-2">
+                          <p className="flex items-center gap-2">
+                            Payment status:{" "}
+                            <Chip
+                              size="sm"
+                              variant="flat"
+                              color={order.paid_date ? "success" : "warning"}
+                            >
+                              {order.paid_date ? "Completed" : "Not paid"}
+                            </Chip>
+                          </p>
+                          <p>Quantity: {order.quantity}</p>
+                          <p className="font-medium">
+                            Total amount:{" "}
+                            <span className="text-primary">
+                              {formatNumberWithComma(order.total_price)}
+                            </span>
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-center">
-                        <p>
+                        <p className="flex items-center gap-2">
                           Status:{" "}
-                          <span className="text-primary">{order.stataus}</span>
+                          <Chip
+                            size="sm"
+                            variant="flat"
+                            color={getStatusColor(order.status)}
+                          >
+                            {getStatusCpo(order.status)}
+                          </Chip>
                         </p>
                       </div>
                       <div className="flex items-center justify-center">
-                        <Button color="primary" className="rounded-3xl px-10">
-                          <p className="text-white">Detail</p>
+                        <Button
+                          color="primary"
+                          className="rounded-full px-10 font-medium text-white"
+                        >
+                          Detail
                         </Button>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
-                <div>No order for this filter</div>
+                <div className="mt-10">
+                  <EmptyComponents
+                    title={`No ${tab.id === "process" ? "processing" : "completed"} orders`}
+                    subTitle={
+                      tab.id === "process"
+                        ? "You don't have any orders being processed at the moment"
+                        : "You haven't completed any orders yet"
+                    }
+                  />
+                </div>
               )}
             </div>
           ) : null;
