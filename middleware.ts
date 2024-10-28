@@ -9,6 +9,12 @@ export default async function middleware(req: NextRequestWithAuth) {
 
   const path = req.nextUrl.pathname;
 
+  if (path === "/") {
+    if (isAuthenticated && isManager) {
+      return NextResponse.redirect(new URL("/manager/dashboard", req.url));
+    }
+  }
+
   const authRoutes = ["/login", "/sign-up"];
 
   const isAuthRoute = authRoutes.some((route) => path.startsWith(route));

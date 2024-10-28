@@ -1,8 +1,9 @@
 "use client";
 
-import { History } from "@/interfaces/history.interface";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { Transaction } from "@/interfaces/transaction.interface";
+import TransactionTab from "./transaction-tap";
 
 interface Props {
   searchParams: { type: string };
@@ -10,26 +11,24 @@ interface Props {
 
 export default function TransactionPage({ searchParams }: Props) {
   const session = useSession();
-  const [histories, setHistories] = useState<History[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const filteredHistory = useMemo(() => {
-    return histories.filter((history) => {
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
       switch (searchParams.type) {
-        case "customer":
-          return history.type === "CPO";
         case "material":
-          return history.type === "MPO";
+          return transaction.type === "mpo";
         default:
-          return false;
+          return transaction.type === "cpo";
       }
     });
-  }, [histories, searchParams.type]);
+  }, [transactions, searchParams.type]);
 
-  const fetchHistories = async () => {
+  const fetchTransactions = async () => {
     try {
       const token = session.data?.accessToken;
-      const response = await fetch("/api/history", {
+      const response = await fetch("/api/transactions", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -38,7 +37,7 @@ export default function TransactionPage({ searchParams }: Props) {
 
       const result = await response.json();
       if (response.ok) {
-        setHistories(result);
+        setTransactions(result);
       }
     } catch (error) {
     } finally {
@@ -47,12 +46,15 @@ export default function TransactionPage({ searchParams }: Props) {
   };
 
   useEffect(() => {
-    fetchHistories();
+    fetchTransactions();
   }, [session]);
 
   return (
     <div>
-      
+      <TransactionTab
+        transactions={filteredTransactions}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

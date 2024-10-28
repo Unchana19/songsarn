@@ -16,6 +16,8 @@ import {
   TableBody,
 } from "@nextui-org/table";
 import { formatId } from "@/utils/format-id";
+import { getHistoryStatus } from "@/utils/get-history-status";
+import Link from "next/link";
 interface Props {
   histories: History[];
   isLoading: boolean;
@@ -35,12 +37,10 @@ export default function HistoryTab({ histories, isLoading }: Props) {
   const filteredHistory = useMemo(() => {
     return histories.filter((history) => {
       switch (currentTab) {
-        case "customer":
-          return history.type === "CPO";
         case "material":
           return history.type === "MPO";
         default:
-          return false;
+          return history.type === "CPO";
       }
     });
   }, [histories, currentTab]);
@@ -51,25 +51,6 @@ export default function HistoryTab({ histories, isLoading }: Props) {
     startTransition(() => {
       router.push(`${pathname}?type=${newTab}`);
     });
-  };
-
-  const getStatusColor = (
-    status: string
-  ): "success" | "primary" | "secondary" | "warning" | "danger" => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "success";
-      case "in process":
-        return "primary";
-      case "ready to delivery":
-        return "secondary";
-      case "waiting for payment":
-        return "warning";
-      case "cancelled":
-        return "danger";
-      default:
-        return "primary";
-    }
   };
 
   const columns = [
@@ -127,7 +108,12 @@ export default function HistoryTab({ histories, isLoading }: Props) {
           {(history) => {
             const date = new Date(history.date_time);
             return (
-              <TableRow key={history.id}>
+              <TableRow
+                key={history.id}
+                className="cursor-pointer hover:bg-primary-100"
+                as={Link}
+                href={`/manager/purchase-order/detail/${history.type === "CPO" ? "cpo" : "mpo"}/${history.po_id}`}
+              >
                 <TableCell>
                   {formatId(
                     history.type === "CPO" ? "CPO" : "MPO",
@@ -136,11 +122,10 @@ export default function HistoryTab({ histories, isLoading }: Props) {
                 </TableCell>
                 <TableCell>
                   <Chip
-                    color={getStatusColor(history.status)}
+                    color={getHistoryStatus(history.status).color}
                     variant="flat"
-                    size="sm"
                   >
-                    {history.status}
+                    {getHistoryStatus(history.status, history.type).label}
                   </Chip>
                 </TableCell>
                 <TableCell>{format(date, "dd MMM yyyy")}</TableCell>

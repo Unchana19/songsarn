@@ -1,6 +1,14 @@
-import { FaBookOpen, FaBoxes, FaFileInvoice, FaHistory, FaInbox, FaMoneyBillWave, FaTruck, FaWarehouse } from "react-icons/fa";
+import {
+  FaBoxes,
+  FaFileInvoice,
+  FaHistory,
+  FaInbox,
+  FaMoneyBillWave,
+  FaTruck,
+  FaWarehouse,
+} from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
-import { MdTipsAndUpdates } from "react-icons/md";
+import { MdSpaceDashboard, MdTipsAndUpdates } from "react-icons/md";
 
 export const menuItemsCustomer = [
   { label: "Create your own shrine", icon: FaPencil, href: "/create-shrine" },
@@ -10,6 +18,11 @@ export const menuItemsCustomer = [
 ];
 
 export const menuItemsManager = [
+  {
+    label: "Dashboard",
+    icon: MdSpaceDashboard,
+    href: "/manager/dashboard",
+  },
   {
     label: "Product & Component",
     icon: FaBoxes,

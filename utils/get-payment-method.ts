@@ -4,7 +4,9 @@ export const getPaymentMethod = (method: string) => {
       return "Promptpay QR code";
     case "mobile":
       return "Mobile banking";
+    case "cash":
+      return "Cash";
     default:
-      return "Update date";
+      return "Unknown";
   }
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import TabsSelect from "@/components/tabs-select";
-import { History } from "@/interfaces/history.interface";
 import { usePathname, useRouter } from "next/navigation";
 import { Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
@@ -16,12 +15,16 @@ import {
   TableBody,
 } from "@nextui-org/table";
 import { formatId } from "@/utils/format-id";
+import { Transaction } from "@/interfaces/transaction.interface";
+import { formatNumberWithComma } from "@/utils/num-with-comma";
+import { getPaymentMethod } from "@/utils/get-payment-method";
+import Link from "next/link";
 interface Props {
-  histories: History[];
+  transactions: Transaction[];
   isLoading: boolean;
 }
 
-export default function TransactionTab({ histories, isLoading }: Props) {
+export default function TransactionTab({ transactions, isLoading }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -32,18 +35,18 @@ export default function TransactionTab({ histories, isLoading }: Props) {
     { id: "material", label: "Material" },
   ];
 
-  const filteredHistory = useMemo(() => {
-    return histories.filter((history) => {
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
       switch (currentTab) {
         case "customer":
-          return history.type === "CPO";
+          return transaction.type === "cpo";
         case "material":
-          return history.type === "MPO";
+          return transaction.type === "mpo";
         default:
           return false;
       }
     });
-  }, [histories, currentTab]);
+  }, [transactions, currentTab]);
 
   const handleTabChange = (key: Key) => {
     const newTab = key.toString();
@@ -73,10 +76,12 @@ export default function TransactionTab({ histories, isLoading }: Props) {
   };
 
   const columns = [
-    { key: "purchaseOrderId", label: "PURCHASE ORDER ID" },
-    { key: "status", label: "STATUS" },
+    { key: "transaction_id", label: "TRANSACTION ID" },
+    { key: "po_id", label: "PURCHASE ORDER ID" },
     { key: "date", label: "DATE" },
     { key: "time", label: "TIME" },
+    { key: "payment_method", label: "METHOD" },
+    { key: "amount", label: "AMOUNT" },
   ];
 
   const LoadingRow = () => (
@@ -91,7 +96,7 @@ export default function TransactionTab({ histories, isLoading }: Props) {
 
   return (
     <div className="mb-40 space-y-5">
-      <h3 className="font-bold text-xl">History</h3>
+      <h3 className="font-bold text-xl">transaction</h3>
       <TabsSelect
         tabs={tabs}
         handleTabChange={handleTabChange}
@@ -102,7 +107,9 @@ export default function TransactionTab({ histories, isLoading }: Props) {
       />
 
       <Table
-        aria-label="History table"
+        color="primary"
+        isHeaderSticky
+        aria-label="transaction table"
         classNames={{
           wrapper: "min-h-[400px]",
         }}
@@ -113,8 +120,8 @@ export default function TransactionTab({ histories, isLoading }: Props) {
           )}
         </TableHeader>
         <TableBody
-          items={filteredHistory}
-          emptyContent={!isLoading && "No history records found"}
+          items={filteredTransactions}
+          emptyContent={!isLoading && "No transaction records found"}
           loadingContent={
             <div className="space-y-3">
               {[...Array(5)].map((_, index) => (
@@ -124,27 +131,31 @@ export default function TransactionTab({ histories, isLoading }: Props) {
           }
           isLoading={isLoading}
         >
-          {(history) => {
-            const date = new Date(history.date_time);
+          {(transaction) => {
+            const date = new Date(transaction.create_date_time);
             return (
-              <TableRow key={history.id}>
+              <TableRow
+                key={transaction.id}
+                className="cursor-pointer hover:bg-primary-100"
+                as={Link}
+                href={`/manager/purchase-order/detail/${transaction.type === "cpo" ? "cpo" : "mpo"}/${transaction.po_id}`}
+              >
+                <TableCell>{formatId("T", transaction.id)}</TableCell>
                 <TableCell>
                   {formatId(
-                    history.type === "CPO" ? "CPO" : "MPO",
-                    history.po_id
+                    transaction.type === "cpo" ? "CPO" : "MPO",
+                    transaction.po_id
                   )}
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    color={getStatusColor(history.status)}
-                    variant="flat"
-                    size="sm"
-                  >
-                    {history.status}
-                  </Chip>
                 </TableCell>
                 <TableCell>{format(date, "dd MMM yyyy")}</TableCell>
                 <TableCell>{format(date, "HH:mm")}</TableCell>
+                <TableCell>
+                  {getPaymentMethod(transaction.payment_method)}
+                </TableCell>
+                <TableCell className="text-primary">
+                  {transaction.type === "cpo" ? "" : "-"}
+                  {formatNumberWithComma(transaction.amount)}
+                </TableCell>
               </TableRow>
             );
           }}

@@ -17,12 +17,10 @@ export default function HistoryPage({ searchParams }: Props) {
   const filteredHistory = useMemo(() => {
     return histories.filter((history) => {
       switch (searchParams.type) {
-        case "customer":
-          return history.type === "CPO";
         case "material":
           return history.type === "MPO";
         default:
-          return false;
+          return history.type === "CPO";
       }
     });
   }, [histories, searchParams.type]);
