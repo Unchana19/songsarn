@@ -1,6 +1,6 @@
 import { Spinner } from "@nextui-org/spinner";
 import { Tabs, Tab } from "@nextui-org/tabs";
-import { Key } from "react";
+import { Key } from "@react-types/shared";
 
 interface Props {
   tabs: { id: string; label: string }[];
@@ -8,6 +8,7 @@ interface Props {
   isPending: boolean;
   size: "sm" | "md" | "lg";
   variant: "solid" | "bordered" | "light" | "underlined";
+  selectedKey?: Key | null | undefined;
 }
 
 export default function TabsSelect({
@@ -16,10 +17,12 @@ export default function TabsSelect({
   isPending,
   size,
   variant,
+  selectedKey,
 }: Props) {
   return (
     <div className={`${size === "lg" ? "max-w-xl" : "max-w-3xl"} w-full`}>
       <Tabs
+        selectedKey={selectedKey}
         variant={variant}
         radius="full"
         aria-label="Status tabs"

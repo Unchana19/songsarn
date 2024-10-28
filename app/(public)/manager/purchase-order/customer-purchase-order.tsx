@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import TabsSelect from "@/components/tabs-select";
 import { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useTransition, useMemo, useState } from "react";
+import { Key, useTransition, useMemo, useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
 import { Chip } from "@nextui-org/chip";
 import EmptyComponents from "@/components/empty-components";
@@ -19,11 +19,13 @@ import { getCPOMaterialStatus } from "@/utils/get-cpo-material-stataus";
 import { useSession } from "next-auth/react";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@nextui-org/modal";
+
 interface Props {
   cpos: ManagerCPOGetAll[];
+  fetchCPOs: () => void;
 }
 
-export default function CustomerPurchaseOrder({ cpos }: Props) {
+export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -32,6 +34,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
   const [cpoId, setCPOId] = useState("");
   const [message, setMessage] = useState("");
   const actionModal = useDisclosure();
+  const [currentTab, setCurrentTab] = useState("paid");
 
   const tabs = [
     { id: "paid", label: "Paid" },
@@ -41,8 +44,14 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
     { id: "completed", label: "Completed" },
   ];
 
+  useEffect(() => {
+    const status = searchParams.get("status");
+    if (status) {
+      setCurrentTab(status);
+    }
+  }, [searchParams]);
+
   const filteredCPOs = useMemo(() => {
-    const currentTab = searchParams.get("status") || "paid";
     return cpos.filter((cpo) => {
       switch (currentTab) {
         case "paid":
@@ -50,22 +59,22 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
         case "in-process":
           return cpo.status === "PROCESSING";
         case "ready-to-delivery":
-          return cpo.status === "READY_TO_DELIVERY";
+          return cpo.status === "FINISHED PROCESS";
         case "on-delivery":
-          return cpo.status === "SHIPPING";
+          return cpo.status === "ON DELIVERY";
         case "completed":
-          return ["DELIVERED", "CANCELED"].includes(cpo.status);
+          return cpo.status === "COMPLETED";
         default:
           return false;
       }
     });
-  }, [cpos, searchParams]);
+  }, [cpos, currentTab]);
 
   const handleTabChange = (key: Key) => {
+    const newTab = key.toString();
+    setCurrentTab(newTab);
     startTransition(() => {
-      const params = new URLSearchParams(searchParams);
-      params.set("status", key.toString());
-      router.replace(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?type=customer&status=${newTab}`);
     });
   };
 
@@ -76,14 +85,81 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
         {
           method: "PATCH",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${session.data?.accessToken}`,
           },
         }
       );
       const result = await response.json();
       if (response.ok) {
-        router.refresh();
-      } else {
+        fetchCPOs();
+        actionModal.onClose();
+        router.push("/manager/purchase-order?type=customer&status=in-process");
+      }
+    } catch (error) {}
+  };
+
+  const finishedProcessCPO = async (id: string) => {
+    try {
+      const response = await fetch(
+        `/api/customer-purchase-orders/manager/finished-process/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data?.accessToken}`,
+          },
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        fetchCPOs();
+        actionModal.onClose();
+        router.push(
+          "/manager/purchase-order?type=customer&status=ready-to-delivery"
+        );
+      }
+    } catch (error) {}
+  };
+
+  const deliveryCPO = async (id: string) => {
+    try {
+      const response = await fetch(
+        `/api/customer-purchase-orders/manager/delivery/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data?.accessToken}`,
+          },
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        fetchCPOs();
+        actionModal.onClose();
+        router.push("/manager/purchase-order?type=customer&status=on-delivery");
+      }
+    } catch (error) {}
+  };
+
+  const deliveryCompletedCPO = async (id: string) => {
+    try {
+      const response = await fetch(
+        `/api/customer-purchase-orders/manager/completed/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data?.accessToken}`,
+          },
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        fetchCPOs();
+        actionModal.onClose();
+        router.push("/manager/purchase-order?type=customer&status=completed");
       }
     } catch (error) {}
   };
@@ -91,7 +167,13 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
   const handleActionConfirm = () => {
     switch (message) {
       case "process":
-        processCPO(cpoId);
+        return processCPO(cpoId);
+      case "finished process":
+        return finishedProcessCPO(cpoId);
+      case "delivery":
+        return deliveryCPO(cpoId);
+      case "completed":
+        return deliveryCompletedCPO(cpoId);
       default:
         return;
     }
@@ -110,11 +192,12 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
         isPending={isPending}
         variant="solid"
         size="md"
+        selectedKey={currentTab}
       />
 
       <div>
         {tabs.map((tab) => {
-          const isSelected = searchParams.get("status") === tab.id;
+          const isSelected = currentTab === tab.id;
           return isSelected ? (
             <div key={tab.id} className="flex flex-col gap-5 mt-5">
               {filteredCPOs.length > 0 ? (
@@ -245,32 +328,34 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
                           <Button
                             color="primary"
                             className="rounded-full font-medium text-white"
-                            onClick={() => router.push(`/cpo/${order.id}`)}
                           >
                             Detail
                           </Button>
-                          <Button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setMessage(
-                                getActionButtonCPO(
-                                  order.status
-                                ).toLocaleLowerCase()
-                              );
-                              handleAction(order.id);
-                            }}
-                            color="primary"
-                            variant="bordered"
-                            className="rounded-full font-medium"
-                            endContent={<FaArrowRightLong />}
-                            isDisabled={
-                              order.status === "PAID" &&
-                              order.material_status === "insufficient_materials"
-                            }
-                          >
-                            {getActionButtonCPO(order.status)}
-                          </Button>
+                          {currentTab !== "completed" && (
+                            <Button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setMessage(
+                                  getActionButtonCPO(
+                                    order.status
+                                  ).toLocaleLowerCase()
+                                );
+                                handleAction(order.id);
+                              }}
+                              color="primary"
+                              variant="bordered"
+                              className="rounded-full font-medium flex items-center"
+                              isDisabled={
+                                order.status === "PAID" &&
+                                order.material_status ===
+                                  "insufficient_materials"
+                              }
+                            >
+                              {getActionButtonCPO(order.status)}
+                              <FaArrowRightLong />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

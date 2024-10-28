@@ -29,7 +29,7 @@ export default function StatusTab({ cpos }: Props) {
     const currentTab = searchParams.get("type") || "process";
     return cpos.filter((cpo) => {
       if (currentTab === "process") {
-        return ["NEW", "PAID", "PROCESSING", "SHIPPING"].includes(cpo.status);
+        return ["NEW", "PAID", "PROCESSING", "ON DELIVERY"].includes(cpo.status);
       } else {
         return ["DELIVERED", "CANCELED"].includes(cpo.status);
       }
@@ -76,7 +76,6 @@ export default function StatusTab({ cpos }: Props) {
                           <p className="flex items-center gap-2">
                             Payment status:{" "}
                             <Chip
-                              size="sm"
                               variant="flat"
                               color={
                                 order.paid_date_time ? "success" : "warning"
@@ -98,7 +97,6 @@ export default function StatusTab({ cpos }: Props) {
                         <p className="flex items-center gap-2">
                           Status:{" "}
                           <Chip
-                            size="sm"
                             variant="flat"
                             color="primary"
                           >

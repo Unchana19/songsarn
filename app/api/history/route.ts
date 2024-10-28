@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
     const response = await fetch(
-      `${process.env.API_URL}/customer-purchase-orders/manager/process/${params.id}`,
+      `${process.env.API_URL}/history`,
       {
-        method: "PATCH",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -19,7 +16,6 @@ export async function PATCH(
     );
 
     const result = await response.json();
-    console.log(result);
     if (!response.ok) {
       return NextResponse.json(
         { message: result.message },

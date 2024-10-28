@@ -1,11 +1,13 @@
 export const getActionButtonCPO = (status: string) => {
     switch (status) {
       case "PAID":
-        return "Process"
+        return "Process";
       case "PROCESSING":
-        return "Finished"
-      case "READY_TO_DELIVERY":
-        return "Delivery"
+        return "Finished process";
+      case "FINISHED PROCESS":
+        return "Delivery";
+      case "ON DELIVERY":
+        return "Completed";
       default:
         return "Unknown";
     }

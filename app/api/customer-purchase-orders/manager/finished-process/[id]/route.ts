@@ -8,7 +8,7 @@ export async function PATCH(
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
     const response = await fetch(
-      `${process.env.API_URL}/customer-purchase-orders/manager/process/${params.id}`,
+      `${process.env.API_URL}/customer-purchase-orders/manager/finished-process/${params.id}`,
       {
         method: "PATCH",
         headers: {

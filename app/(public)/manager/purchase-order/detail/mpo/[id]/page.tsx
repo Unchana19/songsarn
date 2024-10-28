@@ -175,11 +175,12 @@ export default function MaterialPurchaseOrderDetial({ params }: Props) {
               className="max-w-xs"
               onChange={handleSelectionChange}
             >
-              {paymentMethod.map((payment) => (
-                <SelectItem value={payment} key={payment}>
-                  {payment}
-                </SelectItem>
-              ))}
+              <SelectItem value="Cash" key="cash">
+                Cash
+              </SelectItem>
+              <SelectItem value="Mobile banking" key="mobile">
+                Mobile banking
+              </SelectItem>
             </Select>
           </div>
         )}
@@ -245,11 +246,7 @@ export default function MaterialPurchaseOrderDetial({ params }: Props) {
           <p>Save</p>
         </Button>
       </div>
-      <PopupModal
-        message={error}
-        isOpen={isOpen}
-        onClose={onOpenChange}
-      />
+      <PopupModal message={error} isOpen={isOpen} onClose={onOpenChange} />
     </form>
   );
 }

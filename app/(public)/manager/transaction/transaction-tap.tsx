@@ -21,7 +21,7 @@ interface Props {
   isLoading: boolean;
 }
 
-export default function HistoryTab({ histories, isLoading }: Props) {
+export default function TransactionTab({ histories, isLoading }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();

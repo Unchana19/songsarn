@@ -90,7 +90,7 @@ export default function PurchaseOrderTab() {
         return isLoading ? (
           <SkeletonLoading />
         ) : (
-          <CustomerPurchaseOrder cpos={cpos} />
+          <CustomerPurchaseOrder cpos={cpos} fetchCPOs={fetchCPOs} />
         );
 
       case "Material":
