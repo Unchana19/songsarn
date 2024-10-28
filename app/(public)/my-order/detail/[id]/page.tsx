@@ -55,6 +55,38 @@ export default function OrderDetailPage() {
     }
   };
 
+  const testPayment = async () => {
+    try {
+      const data = {
+        cpoId: cpo?.cpo.id,
+        amount: cpo?.cpo.total_price,
+      };
+      setError(null);
+      setIsLoading(true);
+      const token = session.data?.accessToken;
+      const response = await fetch(`/api/payments/test-payment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch order details");
+      }
+
+      const result = await response.json();
+      fetchCpo();
+      router.refresh();
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      setError("Failed to load order details. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -132,7 +164,7 @@ export default function OrderDetailPage() {
               <span>{cpo.cpo.delivery_date}</span>
             </div>
             {showPaymentButton && (
-              <div className="pt-4">
+              <div className="pt-4 space-y-4">
                 <Button
                   color="primary"
                   size="lg"
@@ -140,6 +172,14 @@ export default function OrderDetailPage() {
                   onPress={() => setIsPaymentModalOpen(true)}
                 >
                   Pay now
+                </Button>
+                <Button
+                  color="danger"
+                  size="lg"
+                  className="w-full text-white text-lg"
+                  onPress={testPayment}
+                >
+                  Test payment
                 </Button>
               </div>
             )}

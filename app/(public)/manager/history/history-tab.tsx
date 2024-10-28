@@ -125,7 +125,7 @@ export default function HistoryTab({ histories, isLoading }: Props) {
                     color={getHistoryStatus(history.status).color}
                     variant="flat"
                   >
-                    {getHistoryStatus(history.status, history.type).label}
+                    {getHistoryStatus(history.status).label}
                   </Chip>
                 </TableCell>
                 <TableCell>{format(date, "dd MMM yyyy")}</TableCell>

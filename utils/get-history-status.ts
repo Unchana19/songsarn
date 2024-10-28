@@ -4,8 +4,7 @@ interface StatusConfig {
 }
 
 export const getHistoryStatus = (
-  status: string,
-  type?: string
+  status: string
 ): StatusConfig => {
   switch (status.toLowerCase()) {
     case "completed":
@@ -34,17 +33,10 @@ export const getHistoryStatus = (
         color: "primary",
       };
     case "new":
-      if (type === "CPO") {
-        return {
-          label: "Waiting for payment",
-          color: "warning",
-        };
-      } else {
-        return {
-          label: "Purchase",
-          color: "primary",
-        };
-      }
+      return {
+        label: "Purchase",
+        color: "primary",
+      };
     case "cancelled":
       return {
         label: "Cancelled",

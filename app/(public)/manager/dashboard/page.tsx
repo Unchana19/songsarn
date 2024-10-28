@@ -111,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-primary-400">
+        <Card className="p-4 bg-primary">
           <p className="text-white mb-2">Total Revenue</p>
           <h3 className="text-2xl font-bold text-white mb-2">
             {formatNumberWithComma(dashboardData.summary.revenue.current)}
