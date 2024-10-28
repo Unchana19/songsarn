@@ -8,7 +8,7 @@ export async function GET(
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
     const response = await fetch(
-      `${process.env.API_URL}/customer-purchase-orders/detail/${params.id}`,
+      `${process.env.API_URL}/customer-purchase-orders/manager/detail/${params.id}`,
       {
         method: "GET",
         headers: {

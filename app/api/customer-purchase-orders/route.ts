@@ -60,7 +60,6 @@ export async function GET(req: Request) {
       );
     }
 
-    console.log(result);
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     return NextResponse.json(

@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
     const response = await fetch(
-      `${process.env.API_URL}/customer-purchase-orders/detail/${params.id}`,
+      `${process.env.API_URL}/customer-purchase-orders/manager`,
       {
         method: "GET",
         headers: {

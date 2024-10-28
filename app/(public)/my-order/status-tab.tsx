@@ -29,13 +29,7 @@ export default function StatusTab({ cpos }: Props) {
     const currentTab = searchParams.get("type") || "process";
     return cpos.filter((cpo) => {
       if (currentTab === "process") {
-        return [
-          "NEW",
-          "PENDING_PAYMENT",
-          "PAID",
-          "PROCESSING",
-          "SHIPPING",
-        ].includes(cpo.status);
+        return ["NEW", "PAID", "PROCESSING", "SHIPPING"].includes(cpo.status);
       } else {
         return ["DELIVERED", "CANCELED"].includes(cpo.status);
       }
@@ -48,24 +42,6 @@ export default function StatusTab({ cpos }: Props) {
       params.set("type", key.toString());
       router.replace(`${pathname}?${params.toString()}`);
     });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "NEW":
-      case "PROCESSING":
-      case "SHIPPING":
-        return "primary";
-      case "PENDING_PAYMENT":
-        return "warning";
-      case "PAID":
-      case "DELIVERED":
-        return "success";
-      case "CANCELED":
-        return "danger";
-      default:
-        return "default";
-    }
   };
 
   return (
@@ -102,9 +78,11 @@ export default function StatusTab({ cpos }: Props) {
                             <Chip
                               size="sm"
                               variant="flat"
-                              color={order.paid_date ? "success" : "warning"}
+                              color={
+                                order.paid_date_time ? "success" : "warning"
+                              }
                             >
-                              {order.paid_date ? "Completed" : "Not paid"}
+                              {order.paid_date_time ? "Completed" : "Not paid"}
                             </Chip>
                           </p>
                           <p>Quantity: {order.quantity}</p>
@@ -122,7 +100,7 @@ export default function StatusTab({ cpos }: Props) {
                           <Chip
                             size="sm"
                             variant="flat"
-                            color={getStatusColor(order.status)}
+                            color="primary"
                           >
                             {getStatusCpo(order.status)}
                           </Chip>

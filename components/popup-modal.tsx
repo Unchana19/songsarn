@@ -24,7 +24,7 @@ export default function PopupModal({
 }: Props) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose}>
-      <ModalContent className="flex items-center">
+      <ModalContent className="flex items-center pb-3">
         {(onClose) => (
           <>
             <ModalHeader></ModalHeader>

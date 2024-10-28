@@ -25,7 +25,7 @@ interface Props {
   params: { id: string };
 }
 
-export default function PurchaseOrderDetial({ params }: Props) {
+export default function MaterialPurchaseOrderDetial({ params }: Props) {
   const { id } = params;
   const session = useSession();
 

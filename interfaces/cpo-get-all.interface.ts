@@ -3,5 +3,5 @@ export interface CPOGetAll {
   status: string;
   quantity: number;
   total_price: number;
-  paid_date?: Date;
+  paid_date_time?: Date;
 }

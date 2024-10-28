@@ -11,6 +11,7 @@ import {
   ModalFooter,
 } from "@nextui-org/modal";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export default function PaymentModal({
   onSuccess,
 }: PaymentModalProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -125,6 +127,7 @@ export default function PaymentModal({
       // Close modal after 3 seconds on success
       setTimeout(() => {
         onClose();
+        router.push('/my-order')
       }, 3000);
     } catch (error) {
       setVerificationStatus("error");
@@ -260,6 +263,7 @@ export default function PaymentModal({
               >
                 Refresh QR Code
               </Button>
+              {renderVerificationStatus()}
             </div>
 
             {/* Upload Slip Section */}

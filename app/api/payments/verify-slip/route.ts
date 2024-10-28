@@ -30,15 +30,15 @@ export async function POST(req: Request) {
       }
     );
 
+    const result = await response.json();
     if (!response.ok) {
-      const result = await response.json();
       return NextResponse.json(
         { message: result.message },
         { status: response.status }
       );
     }
 
-    return NextResponse.json({ status: 200 });
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Something went wrong" },

@@ -166,7 +166,7 @@ export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
                     <div className="flex flex-col gap-3">
                       <Button
                         as={Link}
-                        href={`/manager/purchase-order/detail/${mpo.id}`}
+                        href={`/manager/purchase-order/detail/mpo/${mpo.id}`}
                         color="primary"
                         radius="full"
                         className="text-white"

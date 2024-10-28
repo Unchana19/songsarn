@@ -8,6 +8,7 @@ import CustomerPurchaseOrder from "./customer-purchase-order";
 import MaterialPurchaseOrder from "./material-purchase-order";
 import { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
 import { useSession } from "next-auth/react";
+import { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
 
 export default function PurchaseOrderTab() {
   const session = useSession();
@@ -20,7 +21,8 @@ export default function PurchaseOrderTab() {
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
 
-  const [mpo, setMpo] = useState<MPOGetAll[] | null>(null);
+  const [mpo, setMpo] = useState<MPOGetAll[]>([]);
+  const [cpos, setCPOs] = useState<ManagerCPOGetAll[]>([]);
 
   const fetchMpo = async () => {
     try {
@@ -43,8 +45,30 @@ export default function PurchaseOrderTab() {
     }
   };
 
+  const fetchCPOs = async () => {
+    try {
+      const token = session.data?.accessToken;
+      const response = await fetch("/api/customer-purchase-orders/manager", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setCPOs(result);
+      }
+    } catch (error) {
+      setError("Failed to fetch materials");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMpo();
+    fetchCPOs();
   }, [session]);
 
   const tabs = [
@@ -63,7 +87,11 @@ export default function PurchaseOrderTab() {
   const getStepContent = (label: string) => {
     switch (label) {
       case "Customer":
-        return isLoading ? <SkeletonLoading /> : <CustomerPurchaseOrder />;
+        return isLoading ? (
+          <SkeletonLoading />
+        ) : (
+          <CustomerPurchaseOrder cpos={cpos} />
+        );
 
       case "Material":
         return isLoading ? (
@@ -92,11 +120,7 @@ export default function PurchaseOrderTab() {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
             <div className="mt-5">
-              {isLoading ? (
-                <SkeletonLoading />
-              ) : (
-                getStepContent(tab.label)
-              )}
+              {isLoading ? <SkeletonLoading /> : getStepContent(tab.label)}
             </div>
           ) : null;
         })}
