@@ -15,7 +15,7 @@ export const getHistoryStatus = (
     case "paid":
       return {
         label: "Paid",
-        color: "success",
+        color: "primary",
       };
     case "processing":
       return {

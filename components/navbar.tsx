@@ -20,7 +20,7 @@ import {
   FaPencil,
   FaTruck,
 } from "react-icons/fa6";
-import { MdOutlineFavorite, MdTipsAndUpdates } from "react-icons/md";
+import { MdTipsAndUpdates } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
@@ -114,20 +114,25 @@ export default function NavbarComponent() {
             <Avatar
               as="button"
               className="transition-transform"
-              src={
-                user?.img ??
-                `https://songsarn-project.s3.ap-southeast-1.amazonaws.com/default-profile.jpg`
-              }
+              src={user?.img ?? "/default-profile/default-profile.jpg"}
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
+            <DropdownItem
+              as={Link}
+              href="/profile"
+              key="profile"
+              color="primary"
+            >
+              <p className="text-black">Edit profile</p>
+            </DropdownItem>
             <DropdownItem
               onClick={() => signOut()}
               key="logout"
               className="text-danger"
               color="danger"
             >
-              <p>Log Out</p>
+              <p>Log out</p>
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
@@ -166,17 +171,6 @@ export default function NavbarComponent() {
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
-            <Button
-              as={Link}
-              href="/favorite"
-              color="primary"
-              isDisabled={pathname === "/favorite"}
-              className="opacity-100"
-              isIconOnly
-              variant={pathname === "/favorite" ? "flat" : "light"}
-            >
-              <MdOutlineFavorite size={20} color="#D4AF37" />
-            </Button>
             <Button
               as={Link}
               href="/cart"
