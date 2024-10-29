@@ -96,7 +96,7 @@ export default function TransactionTab({ transactions, isLoading }: Props) {
 
   return (
     <div className="mb-40 space-y-5">
-      <h3 className="font-bold text-xl">transaction</h3>
+      <h3 className="font-bold text-xl">Transaction</h3>
       <TabsSelect
         tabs={tabs}
         handleTabChange={handleTabChange}

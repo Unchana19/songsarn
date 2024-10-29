@@ -497,7 +497,6 @@ function SkeletonLoading() {
 export default function StockTab() {
   return (
     <div className="mb-40 w-full">
-      <h3 className="font-bold text-xl mb-5">Stock</h3>
       <Suspense
         fallback={
           <div className="flex flex-col gap-5">

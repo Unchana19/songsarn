@@ -11,10 +11,11 @@ import { useDisclosure } from "@nextui-org/modal";
 import { FaPlus } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import EmptyComponents from "@/components/empty-components";
 
 interface Props {
   label: string;
-  categories: Category[] | null;
+  categories: Category[];
   handleSeeAll: (category: Category, label: string) => void;
   handleEdit: (category: Category | null) => void;
   handleDelete: (categoryId: string) => void;
@@ -57,7 +58,7 @@ export default function CategoriesPage({
           <p>Add category</p>
         </Button>
       </div>
-      <div className="flex flex-wrap mt-5 justify-start">
+      {categories?.length > 0 ? <div className="flex flex-wrap mt-5 justify-start">
         {categories?.map((category) => (
           <div key={category.id} className="w-full md:w-1/2 xl:w-1/4 p-5">
             <Card shadow="sm" className="w-full">
@@ -111,7 +112,7 @@ export default function CategoriesPage({
             </Card>
           </div>
         ))}
-      </div>
+      </div> : <EmptyComponents title={"Category is empty"} subTitle={"Let's create category"} />}
       <PopupModal
         message={"Are you sure to delete this category?"}
         isOpen={isOpen}
