@@ -70,7 +70,7 @@ export default function StatusTab({ cpos }: Props) {
                     >
                       <div className="flex flex-col">
                         <p className="font-bold text-lg mb-1 font-mono">
-                          {formatId("PO", order.id)}
+                          {formatId("CPO", order.id)}
                         </p>
                         <div className="space-y-2">
                           <p className="flex items-center gap-2">

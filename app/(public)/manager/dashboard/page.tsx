@@ -115,7 +115,7 @@ export default function DashboardPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-clip-text text-primary">
             Dashboard Overview
           </h1>
           <p className="text-default-500">Track your business performance</p>
@@ -308,9 +308,10 @@ export default function DashboardPage() {
               </p>
             </div>
             <Button
+              as={Link}
               color="primary"
               variant="light"
-              href="/stock"
+              href="/manager/stock"
               className="font-medium"
             >
               View All
@@ -366,8 +367,7 @@ export default function DashboardPage() {
                 (sum, item) => sum + item.total,
                 0
               )
-            )}{" "}
-            Baht
+            )}
           </Chip>
         </div>
 
@@ -496,9 +496,10 @@ export default function DashboardPage() {
               </p>
             </div>
             <Button
+              as={Link}
               color="primary"
               variant="light"
-              href="/transactions"
+              href="/manager/transaction"
               className="font-medium"
             >
               View All
@@ -573,9 +574,10 @@ export default function DashboardPage() {
               </p>
             </div>
             <Button
+              as={Link}
               color="primary"
               variant="light"
-              href="/products"
+              href="/manager/product-component"
               className="font-medium"
             >
               View All
@@ -646,9 +648,10 @@ export default function DashboardPage() {
             <p className="text-default-500 text-sm">Recent customer orders</p>
           </div>
           <Button
+            as={Link}
             color="primary"
             variant="light"
-            href="/orders"
+            href="/manager/purchase-order"
             className="font-medium"
           >
             View All

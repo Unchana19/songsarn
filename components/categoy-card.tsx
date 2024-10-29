@@ -17,7 +17,7 @@ export default function CategoryCard({
 }: Props) {
   return (
     <Card
-      className={`h-120 min-w-40 cursor-pointer p-1 ${isSelected && "border-4 border-primary"}`}
+      className={`h-120 w-60 cursor-pointer p-1 ${isSelected && "border-2 border-primary"}`}
       shadow="none"
       isHoverable
     >

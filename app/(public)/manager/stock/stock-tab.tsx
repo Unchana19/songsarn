@@ -386,6 +386,7 @@ export default function StockTab() {
                           ),
                           label: "w-full",
                         }}
+                        isDisabled={material !== null}
                         isSelected={isColor}
                         onValueChange={setIsColor}
                       >
@@ -403,6 +404,7 @@ export default function StockTab() {
                                 className="min-w-[120px] h-12"
                                 radius="full"
                                 size="lg"
+                                isDisabled={material !== null}
                                 style={{
                                   backgroundColor: colorCode,
                                   color: getContrastColor(colorCode),

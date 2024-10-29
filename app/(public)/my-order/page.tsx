@@ -5,6 +5,9 @@ import StatusTab from "./status-tab";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@nextui-org/spinner";
+import EmptyComponents from "@/components/empty-components";
+import { Button } from "@nextui-org/button";
+import Link from "next/link";
 
 interface Props {
   searchParams: { type: string };
@@ -13,7 +16,7 @@ interface Props {
 export default function MyOrderPage({ searchParams }: Props) {
   const session = useSession();
   const [cpos, setCPOs] = useState<CPOGetAll[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCPOs = async () => {
@@ -65,8 +68,16 @@ export default function MyOrderPage({ searchParams }: Props) {
 
   if (session.status === "unauthenticated") {
     return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <p className="text-danger">Please login to view your orders</p>
+      <div className="flex items-center justify-center">
+        <EmptyComponents
+          title={"Please login to view your orders"}
+          subTitle={"Your order is empty"}
+          button={
+            <Button as={Link} href="/login" radius="full" color="primary" className="px-10">
+              Login
+            </Button>
+          }
+        />
       </div>
     );
   }

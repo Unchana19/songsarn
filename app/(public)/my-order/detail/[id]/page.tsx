@@ -120,16 +120,21 @@ export default function OrderDetailPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="font-bold text-xl">Order detail</h1>
+        </div>
+        <div className="flex items-center gap-4"></div>
         <Button
-          isIconOnly
-          variant="light"
-          onPress={() => router.back()}
-          className="text-default-600"
+          color="primary"
+          radius="full"
+          variant="bordered"
+          onPress={() => router.push('/my-order')}
+          className="px-8"
         >
           <FaArrowLeftLong />
+          <h1 className="">Back</h1>
         </Button>
-        <h1 className="text-xl font-bold">Order detail</h1>
       </div>
 
       {/* Order Information */}
@@ -139,7 +144,7 @@ export default function OrderDetailPage() {
           <div className="bg-default-50 p-6 rounded-xl space-y-4">
             <div className="flex justify-between items-center">
               <span className="font-semibold">Purchase order ID</span>
-              <span className="font-mono">{formatId("PO", cpo.cpo.id)}</span>
+              <span className="font-mono">{formatId("CPO", cpo.cpo.id)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="font-semibold">Payment status</span>

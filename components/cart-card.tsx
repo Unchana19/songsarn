@@ -4,6 +4,7 @@ import { ButtonGroup, Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { Image } from "@nextui-org/image";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import ImagePlaceholder from "./image-placeholder";
 
 interface Props {
   orderLine: OrderLine;
@@ -22,12 +23,19 @@ export default function CartCard({
     <div>
       <div className="flex justify-evenly">
         <div className="w-4/12 flex justify-center px-1">
-          <Image
-            src={orderLine.img}
-            height={150}
-            width={250}
-            className="object-cover"
-          />
+          {orderLine.img ? (
+            <Image
+              src={orderLine.img}
+              height={150}
+              width={250}
+              className="object-cover"
+            />
+          ) : (
+            <ImagePlaceholder
+              name={orderLine.name.slice(0, 4)}
+              classNames={"w-full"}
+            />
+          )}
         </div>
 
         <div className="w-6/12 flex flex-col px-3 gap-5">
@@ -37,7 +45,7 @@ export default function CartCard({
           <div>
             <p>Price per unit: {formatNumberWithComma(orderLine.price)}</p>
           </div>
-          {(decreateQuantityOrder && increateQuantityOrder && deleteOrder) ? (
+          {decreateQuantityOrder && increateQuantityOrder && deleteOrder ? (
             <div className="flex items-center gap-3">
               <div className="border-primary border-1.5 rounded-full p-1 w-48">
                 <ButtonGroup className="flex justify-between">
@@ -72,9 +80,11 @@ export default function CartCard({
                 <RiDeleteBin5Line size={20} />
               </Button>
             </div>
-          ) : <div>
-            <p>QTY: {orderLine.quantity}</p>
-            </div>}
+          ) : (
+            <div>
+              <p>QTY: {orderLine.quantity}</p>
+            </div>
+          )}
         </div>
 
         <div className="w-2/12 flex flex-col justify-between items-end">

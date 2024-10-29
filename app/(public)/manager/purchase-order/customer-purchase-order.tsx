@@ -210,7 +210,7 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
                     <div className="flex flex-col md:flex-row justify-between gap-5">
                       <div className="space-y-2">
                         <p className="font-bold font-mono">
-                          {formatId("PO", order.id)}
+                          {formatId("CPO", order.id)}
                         </p>
                         <p className="flex items-center gap-2">
                           Payment status:{" "}

@@ -1,39 +1,39 @@
 "use client";
 
 import PopupModal from "@/components/popup-modal";
-import { paymentMethod } from "@/constants/paymentMethod";
 import { MPOGetOne } from "@/interfaces/mpo-get-one.interface";
 import {
   updateMPOSchema,
   UpdateMPOSchema,
 } from "@/lib/schemas/updateMPOSchema";
 import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
+import { formatId } from "@/utils/format-id";
+import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
 import { Input } from "@nextui-org/input";
 import { useDisclosure } from "@nextui-org/modal";
 import { Select, SelectItem } from "@nextui-org/select";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Chip } from "@nextui-org/chip";
+import { Spinner } from "@nextui-org/spinner";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { Card, CardBody, CardHeader } from "@nextui-org/card";
 
 interface Props {
   params: { id: string };
 }
 
-export default function MaterialPurchaseOrderDetial({ params }: Props) {
+export default function MaterialPurchaseOrderDetail({ params }: Props) {
   const { id } = params;
   const session = useSession();
-
   const [isLoading, setIsLoading] = useState(true);
   const [mpo, setMpo] = useState<MPOGetOne | null>(null);
   const [selected, setSelected] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [error, setError] = useState("");
 
@@ -46,12 +46,6 @@ export default function MaterialPurchaseOrderDetial({ params }: Props) {
     resolver: zodResolver(updateMPOSchema),
     mode: "onTouched",
   });
-
-  const handleSelectionChange = (e: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setSelected(e.target.value);
-  };
 
   useEffect(() => {
     fetchMpo();
@@ -80,14 +74,7 @@ export default function MaterialPurchaseOrderDetial({ params }: Props) {
     }
   };
 
-  const calculateTotalPrice = (
-    materials: {
-      material_name: string;
-      material_quantity: number;
-      material_unit: string;
-      material_price?: number;
-    }[]
-  ) => {
+  const calculateTotalPrice = (materials: any[]) => {
     const total = materials.reduce((sum, material) => {
       const price = material.material_price || 0;
       return sum + price;
@@ -124,128 +111,158 @@ export default function MaterialPurchaseOrderDetial({ params }: Props) {
     } catch (error) {}
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Spinner size="lg" color="primary" />
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-      <div className="flex justify-between">
-        <h3 className="text-lg font-bold">Purchase order detail</h3>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="container mx-auto px-4 py-6"
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="font-bold text-xl">Material Purchase Order Detail</h1>
         <Button
           as={Link}
-          href="/manager/purchase-order"
+          href="/manager/purchase-order?type=material"
           variant="bordered"
           color="primary"
           radius="full"
-          className="text-black"
+          className="px-8"
         >
           <FaArrowLeftLong />
-          <p>Back</p>
+          Back
         </Button>
       </div>
-      <div className="flex w-full mt-10">
-        <div className="flex flex-col w-3/6 md:w-3/12 text-primary gap-8">
-          <p>Supplier</p>
-          <p>Purchase date and time</p>
-          <p>Receive date and time</p>
-          <p className="mt-1">Payment method</p>
+
+      {/* Main Content Grid */}
+      <div className="grid gap-8 md:grid-cols-2">
+        {/* Left Column - Order Details */}
+        <div className="space-y-6">
+          {/* Order Information */}
+          <Card>
+            <CardBody className="p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Purchase order ID</span>
+                <span className="font-mono">{formatId("MPO", id)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Supplier</span>
+                <span>{mpo?.supplier}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Purchase date</span>
+                <span>
+                  {mpo && convertTimestampToDateTime(mpo.create_date_time)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Receive date</span>
+                <span>
+                  {mpo?.receive_date_time
+                    ? convertTimestampToDateTime(mpo.receive_date_time)
+                    : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Payment method</span>
+                <Select
+                  color="primary"
+                  variant="bordered"
+                  placeholder="Select a method"
+                  selectedKeys={[selected]}
+                  className="max-w-xs"
+                  onChange={(e) => setSelected(e.target.value)}
+                >
+                  <SelectItem value="Cash" key="cash">
+                    Cash
+                  </SelectItem>
+                  <SelectItem value="Mobile banking" key="mobile">
+                    Mobile banking
+                  </SelectItem>
+                </Select>
+              </div>
+            </CardBody>
+          </Card>
         </div>
-        {isLoading ? (
-          <div className="flex flex-col w-3/6 md:w-4/12 gap-8">
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-full" />
-          </div>
-        ) : (
-          <div className="flex flex-col w-3/6 md:w-4/12 gap-8">
-            <p>{mpo?.supplier}</p>
-            <p>
-              {mpo ? convertTimestampToDateTime(mpo?.create_date_time) : ""}
-            </p>
-            <p>
-              {mpo
-                ? mpo?.receive_date_time
-                  ? convertTimestampToDateTime(mpo?.receive_date_time)
-                  : "-"
-                : ""}
-            </p>
-            <Select
+
+        {/* Right Column - Materials and Summary */}
+        <div className="space-y-6">
+          {/* Materials List */}
+          <Card>
+            <CardHeader>
+              <h3 className="font-semibold text-lg">
+                Materials ({mpo?.materials.length})
+              </h3>
+            </CardHeader>
+            <CardBody className="p-6">
+              {mpo?.materials.map((material, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-lg mb-4 border border-default-200"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-medium">{material.material_name}</p>
+                      <p className="text-sm text-default-600">
+                        {material.material_quantity} {material.material_unit}
+                      </p>
+                    </div>
+                    <div>
+                      <Input
+                        fullWidth
+                        color="primary"
+                        variant="bordered"
+                        placeholder="Enter price"
+                        defaultValue={material.material_price?.toString() || ""}
+                        {...register(`materials.${index}.material_price`)}
+                        isInvalid={!!errors.materials?.[index]?.material_price}
+                        errorMessage={
+                          errors.materials?.[index]?.material_price
+                            ?.message as string
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          {/* Summary */}
+          <Card>
+            <CardBody className="p-6">
+              <div className="flex justify-between items-center text-lg font-semibold">
+                <span>Total Amount</span>
+                <span className="text-primary">
+                  {totalPrice === 0 ? "-" : formatNumberWithComma(totalPrice)}
+                </span>
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Save Button */}
+          <div className="flex justify-center">
+            <Button
+              type="submit"
               color="primary"
-              variant="bordered"
-              placeholder="Select a method"
-              selectedKeys={[selected]}
-              className="max-w-xs"
-              onChange={handleSelectionChange}
+              size="lg"
+              radius="full"
+              className="px-20 text-white text-lg"
+              isDisabled={selected === "" || !isValid}
+              isLoading={isSubmitting}
             >
-              <SelectItem value="Cash" key="cash">
-                Cash
-              </SelectItem>
-              <SelectItem value="Mobile banking" key="mobile">
-                Mobile banking
-              </SelectItem>
-            </Select>
-          </div>
-        )}
-      </div>
-      <Divider className="my-10" />
-      <div className="flex w-full">
-        <div className="flex flex-col w-3/12 gap-8">
-          <p className="text-primary">Material name</p>
-          {mpo?.materials.map((m) => <p className="my-2">{m.material_name}</p>)}
-        </div>
-        <div className="flex flex-col w-3/12 gap-8">
-          <p className="text-primary">Quantity</p>
-          {mpo?.materials.map((m) => (
-            <p className="my-2">{m.material_quantity}</p>
-          ))}
-        </div>
-        <div className="flex flex-col w-3/12 gap-8">
-          <p className="text-primary">Unit</p>
-          {mpo?.materials.map((m) => <p className="my-2">{m.material_unit}</p>)}
-        </div>
-        <div className="flex flex-col w-3/12 gap-8">
-          <p className="text-primary">Price</p>
-          {mpo?.materials.map((m, index) => (
-            <div className="flex w-full">
-              <Input
-                fullWidth
-                color="primary"
-                variant="bordered"
-                placeholder="Enter price"
-                defaultValue={m.material_price?.toString() || ""}
-                {...register(`materials.${index}.material_price`)}
-                isInvalid={!!errors.materials?.[index]?.material_price}
-                errorMessage={
-                  errors.materials?.[index]?.material_price?.message as string
-                }
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      <Divider className="mt-10 mb-5" />
-      <div className="flex flex-col gap-10">
-        <p className="text-primary">Summary</p>
-        <div className="flex w-full font-bold">
-          <div className="flex w-1/4">
-            <p>Total price</p>
-          </div>
-          <div className="flex w-3/4">
-            <p>{totalPrice === 0 ? "-" : totalPrice}</p>
+              Save Changes
+            </Button>
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center mt-10">
-        <Button
-          type="submit"
-          color="primary"
-          size="lg"
-          radius="full"
-          className="px-20 text-white text-lg"
-          isDisabled={selected === "" || !isValid}
-          isLoading={isSubmitting}
-        >
-          <p>Save</p>
-        </Button>
-      </div>
+
       <PopupModal message={error} isOpen={isOpen} onClose={onOpenChange} />
     </form>
   );

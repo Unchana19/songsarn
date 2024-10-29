@@ -29,10 +29,10 @@ const SelectedComponentDetails: React.FC<Props> = ({
               className="w-6 h-6 rounded-full border-2 border-gray-300"
               style={{
                 backgroundColor:
-                  selectedComponent.primaryColor?.color || "transparent",
+                  selectedComponent.primary_color?.color || "transparent",
               }}
               title={
-                selectedComponent.primaryColor?.name ||
+                selectedComponent.primary_color?.name ||
                 "No primary color selected"
               }
             />
@@ -40,10 +40,10 @@ const SelectedComponentDetails: React.FC<Props> = ({
               className="w-6 h-6 rounded-full border-2 border-gray-300"
               style={{
                 backgroundColor:
-                  selectedComponent.patternColor?.color || "transparent",
+                  selectedComponent.pattern_color?.color || "transparent",
               }}
               title={
-                selectedComponent.patternColor?.name ||
+                selectedComponent.pattern_color?.name ||
                 "No pattern color selected"
               }
             />

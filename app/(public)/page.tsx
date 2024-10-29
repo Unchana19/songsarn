@@ -7,6 +7,7 @@ import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import BenefitsSection from "@/components/benefit-section";
 
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -76,7 +77,7 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <Image
-              src="/shrine/sarnpraprom.png"
+              src="/home/top.png"
               className="w-full h-auto object-cover rounded-2xl shadow-2xl"
               height={400}
             />
@@ -130,7 +131,7 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <Image
-              src="/home/guardian.png"
+              src="/home/protect.png"
               className="w-full h-auto object-cover rounded-2xl"
               height={400}
             />
@@ -158,46 +159,7 @@ export default function HomePage() {
       </motion.div>
 
       {/* Delivery Section */}
-      <motion.div
-        className="my-12 sm:my-24"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
-          <motion.div
-            className="w-full md:w-1/2 space-y-4 sm:space-y-6 text-center md:text-left"
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-              Delivery And
-              <br className="hidden sm:block" />
-              Installation Service
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600">
-              บริการจัดส่งทั่วประเทศ ขนส่งสินค้าทุกชิ้นอย่างระมัดระวัง
-              รับประกันความปลอดภัยของสินค้า บริการติดตั้งฟรี โดยทีมช่างมืออาชีพ
-            </p>
-          </motion.div>
-          <motion.div
-            className="w-full md:w-1/2"
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src="/home/truck.png"
-              className="w-full h-auto object-cover rounded-2xl"
-              height={300}
-            />
-          </motion.div>
-        </div>
-      </motion.div>
+      <BenefitsSection />
 
       {/* Sticky Contact Button for Mobile */}
       <div className="fixed bottom-6 right-6 md:hidden z-50">

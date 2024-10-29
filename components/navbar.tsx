@@ -35,6 +35,11 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { User } from "@/interfaces/user.interface";
 import { SearchIcon } from "./icons/search-icon";
 import { Image } from "@nextui-org/image";
+import {
+  menuItemsManager,
+  menuItemsCustomer,
+} from "@/constants/menu-tabs-items";
+import { MenuItems } from "@/types";
 
 export default function NavbarComponent() {
   const { data: session, status } = useSession();
@@ -42,6 +47,14 @@ export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isLoading = status === "loading";
+  const isManager = session?.role === "manager";
+
+  let menuItems: MenuItems[];
+  if (isManager) {
+    menuItems = menuItemsManager;
+  } else {
+    menuItems = menuItemsCustomer;
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,19 +76,6 @@ export default function NavbarComponent() {
 
     fetchUser();
   }, [status, session]);
-
-  const menuItems = [
-    { label: "All products", icon: FaShoppingBag, href: "/all-products" },
-    { label: "Shop by catalog", icon: FaBookOpen, href: "/catalog" },
-    { label: "Create your own shrine", icon: FaPencil, href: "/create-shrine" },
-    { label: "My order", icon: FaInbox, href: "/my-order" },
-    {
-      label: "Checking delivery price",
-      icon: FaTruck,
-      href: "/delivery-price",
-    },
-    { label: "Tips", icon: MdTipsAndUpdates, href: "/tips" },
-  ];
 
   const renderAuthUI = () => {
     if (isLoading) {
@@ -163,18 +163,6 @@ export default function NavbarComponent() {
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="start">
-        <NavbarItem>
-          <Input
-            color="primary"
-            placeholder="Find your favorite shrine"
-            radius="full"
-            startContent={
-              <SearchIcon className="text-amber/50 mb-0.5 text-[#D4AF37] pointer-events-none flex-shrink-0" />
-            }
-            type="text"
-            variant="bordered"
-          />
-        </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
