@@ -3,7 +3,7 @@ import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { FiTruck } from "react-icons/fi";
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
-import { MdOutlinePayment } from "react-icons/md";
+import { MdOutlinePayment, MdSearch } from "react-icons/md";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { calTotal } from "@/utils/cal-total";
 import {
@@ -16,16 +16,23 @@ import {
 } from "@nextui-org/modal";
 import { Input, Textarea } from "@nextui-org/input";
 import { OrderLine } from "@/interfaces/order-line.interface";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Skeleton } from "@nextui-org/skeleton";
 import CartCard from "@/components/cart-card";
 import { setAddressPOSchema } from "@/lib/schemas/setAddressPOSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import {
+  Autocomplete,
+  GoogleMap,
+  Marker,
+  StandaloneSearchBox,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import { Spinner } from "@nextui-org/spinner";
 import { useSession } from "next-auth/react";
 import { FormData } from "./page";
+import { SearchBox } from "@/components/google-map-search-box";
 
 const defaultCenter = {
   lat: 13.7563,
@@ -47,6 +54,7 @@ interface Props {
   nextPage(page: number): void;
 }
 
+
 export default function DeliveryAddressPage({
   orderLines,
   userId,
@@ -60,6 +68,12 @@ export default function DeliveryAddressPage({
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
+  const [searchBox, setSearchBox] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [autoComplete, setAutoComplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
   const [modalKey, setModalKey] = useState(0);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
@@ -144,6 +158,57 @@ export default function DeliveryAddressPage({
       }
     }
   }, [isOpen, formData, reset]);
+
+  const autocompleteOptions = {
+    componentRestrictions: { country: "th" },
+    fields: ["formatted_address", "geometry", "name"],
+  };
+
+  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+    if (!place.geometry || !place.geometry.location) return;
+
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    const address = place.formatted_address;
+
+    console.log("Selected place:", { lat, lng, address }); // Debug log
+
+    setSelectedLocation({
+      lat,
+      lng,
+      address,
+    });
+
+    setValue("lat", lat, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue("lng", lng, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue("address", address || "", {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+
+    const currentPhoneNumber = watch("phone_number");
+    setFormData((prev) => ({
+      ...prev,
+      address: address || "",
+      phone_number: currentPhoneNumber || prev.phone_number,
+      lat,
+      lng,
+    }));
+
+    if (map) {
+      map.panTo({ lat, lng });
+      map.setZoom(17);
+    }
+  };
 
   const getAddressFromLatLng = async (lat: number, lng: number) => {
     try {
@@ -431,6 +496,12 @@ export default function DeliveryAddressPage({
                     errorMessage={errors.phone_number?.message as string}
                   />
 
+                  {isLoaded && (
+                    <div className="w-full">
+                      <SearchBox onPlaceSelect={handlePlaceSelect} />
+                    </div>
+                  )}
+
                   <div className="w-full h-[400px] rounded-lg overflow-hidden">
                     {!isLoaded ? (
                       <div className="w-full h-full flex items-center justify-center">
@@ -442,6 +513,13 @@ export default function DeliveryAddressPage({
                         center={selectedLocation || defaultCenter}
                         zoom={13}
                         onClick={handleMapClick}
+                        onLoad={setMap}
+                        options={{
+                          streetViewControl: false,
+                          mapTypeControl: false,
+                          fullscreenControl: false,
+                          zoomControl: true,
+                        }}
                       >
                         {selectedLocation && (
                           <Marker

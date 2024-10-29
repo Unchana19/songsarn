@@ -127,6 +127,14 @@ export default function NavbarComponent() {
               <p className="text-black">Edit profile</p>
             </DropdownItem>
             <DropdownItem
+              as={Link}
+              href="/address"
+              key="address"
+              color="primary"
+            >
+              <p className="text-black">Address</p>
+            </DropdownItem>
+            <DropdownItem
               onClick={() => signOut()}
               key="logout"
               className="text-danger"
@@ -176,7 +184,7 @@ export default function NavbarComponent() {
               href="/cart"
               color="primary"
               isDisabled={pathname === "/cart"}
-              className="opacity-100"
+              className={`opacity-100 ${pathname === "/cart" ? "border-1 border-primary" : ""}`}
               isIconOnly
               variant={pathname === "/cart" ? "flat" : "light"}
             >

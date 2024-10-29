@@ -31,7 +31,7 @@ export default function StatusTab({ cpos }: Props) {
       if (currentTab === "process") {
         return ["NEW", "PAID", "PROCESSING", "ON DELIVERY"].includes(cpo.status);
       } else {
-        return ["DELIVERED", "CANCELED"].includes(cpo.status);
+        return ["COMPLETED", "CANCELED"].includes(cpo.status);
       }
     });
   }, [cpos, searchParams]);

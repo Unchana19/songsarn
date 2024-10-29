@@ -120,7 +120,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-xl mx-auto">
-        <Card shadow="none" className="">
+        <Card shadow="sm" className="">
           <CardHeader className="flex flex-col gap-2 px-8 pt-8">
             <h1 className="text-2xl font-bold">Profile Settings</h1>
             <p className="text-default-500">Manage your account information</p>
@@ -212,7 +212,7 @@ export default function ProfilePage() {
                   <Button
                     type="submit"
                     color="primary"
-                    className="flex-1 font-medium"
+                    className="flex-1 font-medium text-white"
                     size="lg"
                     isLoading={isSubmitting}
                     isDisabled={!isDirty || !isValid}
