@@ -1,6 +1,6 @@
 "use client";
 
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { SetStateAction, Suspense, useEffect, useRef, useState } from "react";
 import TabsSelect from "@/components/tabs-select";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Key, useTransition } from "react";
@@ -32,7 +32,7 @@ import { getContrastColor } from "@/utils/get-contrast-color";
 import { Checkbox } from "@nextui-org/checkbox";
 import { cn } from "@nextui-org/theme";
 
-export default function StockTab() {
+function StockContent() {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -484,13 +484,31 @@ export default function StockTab() {
     </div>
   );
 }
-
 function SkeletonLoading() {
   return (
     <div className="flex flex-col gap-5">
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
+    </div>
+  );
+}
+
+export default function StockTab() {
+  return (
+    <div className="mb-40 w-full">
+      <h3 className="font-bold text-xl mb-5">Stock</h3>
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-5">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        }
+      >
+        <StockContent />
+      </Suspense>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import TabsSelect from "@/components/tabs-select";
 import { Skeleton } from "@nextui-org/skeleton";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -10,17 +11,16 @@ import { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
 import { useSession } from "next-auth/react";
 import { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
 
-export default function PurchaseOrderTab() {
+// Separate client component for the main content
+function PurchaseOrderContent() {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   const [error, setError] = useState("");
-
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
-
   const [mpo, setMpo] = useState<MPOGetAll[]>([]);
   const [cpos, setCPOs] = useState<ManagerCPOGetAll[]>([]);
 
@@ -67,9 +67,11 @@ export default function PurchaseOrderTab() {
   };
 
   useEffect(() => {
-    fetchMpo();
-    fetchCPOs();
-  }, [session]);
+    if (session.data?.accessToken) {
+      fetchMpo();
+      fetchCPOs();
+    }
+  }, [session.data?.accessToken]);
 
   const tabs = [
     { id: "customer", label: "Customer" },
@@ -105,6 +107,10 @@ export default function PurchaseOrderTab() {
     }
   };
 
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="mb-40 w-full">
       <TabsSelect
@@ -112,15 +118,15 @@ export default function PurchaseOrderTab() {
         handleTabChange={handleTabChange}
         isPending={isPending}
         variant="bordered"
-        size={"lg"}
+        size="lg"
       />
 
       <div>
         {tabs.map((tab) => {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
-            <div className="mt-5">
-              {isLoading ? <SkeletonLoading /> : getStepContent(tab.label)}
+            <div key={tab.id} className="mt-5">
+              {getStepContent(tab.label)}
             </div>
           ) : null;
         })}
@@ -136,5 +142,14 @@ function SkeletonLoading() {
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
     </div>
+  );
+}
+
+// Main component wrapped with Suspense
+export default function PurchaseOrderTab() {
+  return (
+    <Suspense fallback={<SkeletonLoading />}>
+      <PurchaseOrderContent />
+    </Suspense>
   );
 }

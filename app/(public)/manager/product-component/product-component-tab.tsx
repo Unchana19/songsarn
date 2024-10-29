@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -33,7 +34,18 @@ const useStepChange = (initialStep: number) => {
   return [activeStep, setActiveStep] as const;
 };
 
-export default function ProductComponentTab() {
+// Loading component
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="w-3/4 h-8 rounded-lg" />
+      <Skeleton className="w-full h-64 rounded-lg" />
+    </div>
+  );
+}
+
+// Main content component
+function ProductComponentContent() {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -57,8 +69,10 @@ export default function ProductComponentTab() {
   ];
 
   useEffect(() => {
-    fetchCategories();
-  }, [session]);
+    if (session.data?.accessToken) {
+      fetchCategories();
+    }
+  }, [session.data?.accessToken]);
 
   useEffect(() => {
     const type = searchParams.get("type") || "product";
@@ -98,239 +112,234 @@ export default function ProductComponentTab() {
     });
   };
 
-  const handleSeeAll = (category: Category, label: string) => {
-    setCategory(category);
-    if (label === "product") {
-      setActiveStep(2);
-    } else {
-      setActiveStep(3);
-    }
-  };
+ const handleSeeAll = (category: Category, label: string) => {
+   setCategory(category);
+   if (label === "product") {
+     setActiveStep(2);
+   } else {
+     setActiveStep(3);
+   }
+ };
 
-  const handleCategoryEdit = (category: Category | null) => {
-    setCategory(category || null);
-    setActiveStep(1);
-  };
+ const handleCategoryEdit = (category: Category | null) => {
+   setCategory(category || null);
+   setActiveStep(1);
+ };
 
-  const handleCategorySave = async (
-    data: CreateCategorySchema,
-    file: File | null,
-    componentCategories?: string[]
-  ) => {
-    try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("type", data.type);
-      if (componentCategories) {
-        formData.append(
-          "componentCategories",
-          JSON.stringify(componentCategories)
-        );
-      }
-      if (category) {
-        formData.append("id", category.id);
-      }
-      if (file) formData.append("file", file);
+ const handleCategorySave = async (
+   data: CreateCategorySchema,
+   file: File | null,
+   componentCategories?: string[]
+ ) => {
+   try {
+     const formData = new FormData();
+     formData.append("name", data.name);
+     formData.append("type", data.type);
+     if (componentCategories) {
+       formData.append(
+         "componentCategories",
+         JSON.stringify(componentCategories)
+       );
+     }
+     if (category) {
+       formData.append("id", category.id);
+     }
+     if (file) formData.append("file", file);
 
-      const response = await fetch("/api/categories", {
-        method: category ? "PATCH" : "POST",
-        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
-        body: formData,
-      });
-      const result = await response.json();
-      if (response.ok) {
-        await fetchCategories();
-        setActiveStep(0);
-      } else {
-        setMessage(result.message as string);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
-      onOpenChange();
-    }
-  };
+     const response = await fetch("/api/categories", {
+       method: category ? "PATCH" : "POST",
+       headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+       body: formData,
+     });
+     const result = await response.json();
+     if (response.ok) {
+       await fetchCategories();
+       setActiveStep(0);
+     } else {
+       setMessage(result.message as string);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error instanceof Error ? error.message : String(error));
+     onOpenChange();
+   }
+ };
 
-  const handleDelete = async (categoryId: string) => {
-    try {
-      const response = await fetch(`/api/categories?id=${categoryId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-      });
+ const handleDelete = async (categoryId: string) => {
+   try {
+     const response = await fetch(`/api/categories?id=${categoryId}`, {
+       method: "DELETE",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${session.data?.accessToken}`,
+       },
+     });
 
-      const result = await response.json();
-      if (response.ok) {
-        await fetchCategories();
-      } else {
-        setMessage(result.message as string);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
-      onOpenChange();
-    }
-  };
+     const result = await response.json();
+     if (response.ok) {
+       await fetchCategories();
+     } else {
+       setMessage(result.message as string);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error instanceof Error ? error.message : String(error));
+     onOpenChange();
+   }
+ };
 
-  const handleDiscard = () => setActiveStep(0);
+ const handleDiscard = () => setActiveStep(0);
 
-  const handleProductEdit = (product: Product | null) => {
-    setProduct(product);
-    setActiveStep(4);
-  };
+ const handleProductEdit = (product: Product | null) => {
+   setProduct(product);
+   setActiveStep(4);
+ };
 
-  const handleProductSave = async (
-    data: CreateProductSchema,
-    selectedComponents: SelectedComponent[],
-    file: File | null
-  ) => {
-    try {
-      const formData = new FormData();
+ const handleProductSave = async (
+   data: CreateProductSchema,
+   selectedComponents: SelectedComponent[],
+   file: File | null
+ ) => {
+   try {
+     const formData = new FormData();
 
-      if (product) formData.append("id", product.id);
+     if (product) formData.append("id", product.id);
 
-      formData.append("category_id", data.category);
-      formData.append("name", data.name);
-      formData.append("detail", data.detail);
-      formData.append("price", data.price);
+     formData.append("category_id", data.category);
+     formData.append("name", data.name);
+     formData.append("detail", data.detail);
+     formData.append("price", data.price);
 
-      const simplifiedComponents = selectedComponents.map((item) => ({
-        id: item.component,
-        primary_color: item.primary_color?.id,
-        pattern_color: item.pattern_color?.id,
-      }));
-      formData.append("components", JSON.stringify(simplifiedComponents));
+     const simplifiedComponents = selectedComponents.map((item) => ({
+       id: item.component,
+       primary_color: item.primary_color?.id,
+       pattern_color: item.pattern_color?.id,
+     }));
+     formData.append("components", JSON.stringify(simplifiedComponents));
 
-      if (file) formData.append("file", file);
+     if (file) formData.append("file", file);
 
-      const response = await fetch("/api/products", {
-        method: product ? "PATCH" : "POST",
-        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
-        body: formData,
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setActiveStep(2);
-      } else {
-        setMessage(result.message as string);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
-      onOpenChange();
-    }
-  };
+     const response = await fetch("/api/products", {
+       method: product ? "PATCH" : "POST",
+       headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+       body: formData,
+     });
+     const result = await response.json();
+     if (response.ok) {
+       setActiveStep(2);
+     } else {
+       setMessage(result.message as string);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error instanceof Error ? error.message : String(error));
+     onOpenChange();
+   }
+ };
 
-  const handleProductDelete = async (productId: string) => {
-    try {
-      const response = await fetch(`/api/products?id=${productId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-      });
+ const handleProductDelete = async (productId: string) => {
+   try {
+     const response = await fetch(`/api/products?id=${productId}`, {
+       method: "DELETE",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${session.data?.accessToken}`,
+       },
+     });
 
-      const result = await response.json();
-      if (response.ok) {
-        setMessage("");
-      } else {
-        setMessage(result.message);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error as string);
-      onOpenChange();
-    }
-  };
+     const result = await response.json();
+     if (response.ok) {
+       setMessage("");
+     } else {
+       setMessage(result.message);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error as string);
+     onOpenChange();
+   }
+ };
 
-  const handleProductDiscard = () => setActiveStep(2);
+ const handleProductDiscard = () => setActiveStep(2);
 
-  const handleComponentEdit = (component: Component | null) => {
-    setComponent(component);
-    setActiveStep(5);
-  };
+ const handleComponentEdit = (component: Component | null) => {
+   setComponent(component);
+   setActiveStep(5);
+ };
 
-  const handleComponentSave = async (
-    data: CreateComponentSchema,
-    materials: { material: Material; quantity: string }[],
-    file: File | null
-  ) => {
-    try {
-      const formData = new FormData();
+ const handleComponentSave = async (
+   data: CreateComponentSchema,
+   materials: { material: Material; quantity: string }[],
+   file: File | null
+ ) => {
+   try {
+     const formData = new FormData();
 
-      if (component) formData.append("id", component.id);
+     if (component) formData.append("id", component.id);
 
-      formData.append("category_id", data.category);
-      formData.append("name", data.name);
-      formData.append("price", data.price);
-      formData.append("color_primary_use", data.color_primary_use);
-      formData.append("color_pattern_use", data.color_pattern_use);
+     formData.append("category_id", data.category);
+     formData.append("name", data.name);
+     formData.append("price", data.price);
+     formData.append("color_primary_use", data.color_primary_use);
+     formData.append("color_pattern_use", data.color_pattern_use);
 
-      const simplifiedMaterials = materials.map((item) => ({
-        material_id: item.material.id,
-        quantity: item.quantity,
-      }));
-      formData.append("materials", JSON.stringify(simplifiedMaterials));
+     const simplifiedMaterials = materials.map((item) => ({
+       material_id: item.material.id,
+       quantity: item.quantity,
+     }));
+     formData.append("materials", JSON.stringify(simplifiedMaterials));
 
-      if (file) formData.append("file", file);
+     if (file) formData.append("file", file);
 
-      const response = await fetch("/api/components", {
-        method: component ? "PATCH" : "POST",
-        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
-        body: formData,
-      });
-      const result = await response.json();
-      if (response.ok) {
-        await fetchCategories();
-        setActiveStep(3);
-      } else {
-        setMessage(result.message as string);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
-      onOpenChange();
-    }
-  };
+     const response = await fetch("/api/components", {
+       method: component ? "PATCH" : "POST",
+       headers: { Authorization: `Bearer ${session.data?.accessToken}` },
+       body: formData,
+     });
+     const result = await response.json();
+     if (response.ok) {
+       await fetchCategories();
+       setActiveStep(3);
+     } else {
+       setMessage(result.message as string);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error instanceof Error ? error.message : String(error));
+     onOpenChange();
+   }
+ };
 
-  const handleComponentDelete = async (componentId: string) => {
-    try {
-      const response = await fetch(`/api/components?id=${componentId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-      });
+ const handleComponentDelete = async (componentId: string) => {
+   try {
+     const response = await fetch(`/api/components?id=${componentId}`, {
+       method: "DELETE",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${session.data?.accessToken}`,
+       },
+     });
 
-      const result = await response.json();
-      if (response.ok) {
-        setMessage("");
-      } else {
-        setMessage(result.message);
-        onOpenChange();
-      }
-    } catch (error) {
-      setMessage(error as string);
-      onOpenChange();
-    }
-  };
+     const result = await response.json();
+     if (response.ok) {
+       setMessage("");
+     } else {
+       setMessage(result.message);
+       onOpenChange();
+     }
+   } catch (error) {
+     setMessage(error as string);
+     onOpenChange();
+   }
+ };
 
-  const handleComponentDiscard = () => setActiveStep(3);
+ const handleComponentDiscard = () => setActiveStep(3);
 
-  const handleBack = () => setActiveStep(0);
+ const handleBack = () => setActiveStep(0);
 
   const renderContent = () => {
     if (isLoading) {
-      return (
-        <div className="space-y-4">
-          <Skeleton className="w-3/4 h-8 rounded-lg" />
-          <Skeleton className="w-full h-64 rounded-lg" />
-        </div>
-      );
+      return <LoadingSkeleton />;
     }
 
     switch (activeStep) {
@@ -409,5 +418,14 @@ export default function ProductComponentTab() {
       <div className="mt-8">{renderContent()}</div>
       <PopupModal message={message} isOpen={isOpen} onClose={onOpenChange} />
     </div>
+  );
+}
+
+// Main component wrapped with Suspense
+export default function ProductComponentTab() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <ProductComponentContent />
+    </Suspense>
   );
 }

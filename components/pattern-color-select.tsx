@@ -1,4 +1,3 @@
-import { patternColors } from "@/constants/patternColors";
 import { Button } from "@nextui-org/button";
 
 interface Props {
