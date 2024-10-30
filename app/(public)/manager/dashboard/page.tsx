@@ -630,7 +630,7 @@ export default function DashboardPage() {
                     <span className="text-default-700 font-medium">
                       {formatNumberWithComma(product.price)}
                     </span>
-                    <span className="text-default-500">•</span>
+                    <span className="text-default-600">•</span>
                     <Chip size="sm" color="danger" variant="flat">
                       {product.days_without_sale_text}
                     </Chip>
