@@ -628,7 +628,7 @@ export default function DashboardPage() {
 
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="text-default-700 font-medium">
-                      {formatNumberWithComma(product.price)} ฿
+                      {formatNumberWithComma(product.price)}
                     </span>
                     <span className="text-default-500">•</span>
                     <Chip size="sm" color="danger" variant="flat">
