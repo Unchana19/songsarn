@@ -559,7 +559,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   {transaction.type === "cpo" ? "+" : "-"}
-                  {formatNumberWithComma(transaction.amount)} ฿
+                  {formatNumberWithComma(transaction.amount)}
                 </div>
               </div>
             ))}
