@@ -343,7 +343,11 @@ export default function EditCategory({
               fullWidth
               size="lg"
               isLoading={isSubmitting}
-              isDisabled={!isValid || selectedComponentCategories.length === 0}
+              isDisabled={
+                !isValid ||
+                (label === "product" &&
+                  selectedComponentCategories.length === 0)
+              }
             >
               <p className="text-white">Save</p>
             </Button>
