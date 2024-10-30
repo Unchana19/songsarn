@@ -8,14 +8,22 @@ import ProductCardSmall from "@/components/product-card-small";
 import { Button } from "@nextui-org/button";
 import { FaCartPlus } from "react-icons/fa";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useDisclosure } from "@nextui-org/modal";
+import PopupModal from "@/components/popup-modal";
 
 export default function ProductCategoryPage() {
+  const session = useSession();
   const params = useParams();
   const category_id = params.category_id as string;
 
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const fetchCategory = async () => {
     try {
@@ -56,6 +64,57 @@ export default function ProductCategoryPage() {
     fetchProducts();
   }, [category_id]);
 
+  const handleAddToCart = async (product: Product) => {
+    if (session.status === "authenticated" && session.data?.userId) {
+      await addToCart(product);
+    } else {
+      setModalMessage("Please login to add items to cart");
+      onOpen();
+    }
+  };
+
+  const addToCart = async (product: Product) => {
+    if (isAddingToCart) return;
+
+    setIsAddingToCart(true);
+
+    try {
+      if (!session.data?.userId) {
+        setModalMessage("Unable to add to cart. Please try again.");
+        onOpen();
+        return;
+      }
+
+      const data = {
+        product_id: product.id,
+        order_id: session.data.userId,
+      };
+
+      const response = await fetch("/api/carts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data.accessToken}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setModalMessage("Product added to cart successfully!");
+      } else {
+        setModalMessage("Failed to add product to cart");
+      }
+      onOpen();
+    } catch (error) {
+      setModalMessage("An error occurred. Please try again.");
+      onOpen();
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div className="">
       <h3 className="font-bold text-lg">{category?.name}</h3>
@@ -80,11 +139,13 @@ export default function ProductCategoryPage() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          handleAddToCart(product);
                         }}
                         radius="full"
                         className="z-10"
                         isIconOnly
                         color="primary"
+                        isLoading={isAddingToCart}
                       >
                         <FaCartPlus color="white" size={20} />
                       </Button>
@@ -103,6 +164,11 @@ export default function ProductCategoryPage() {
           </div>
         )}
       </div>
+      <PopupModal
+        message={modalMessage}
+        isOpen={isOpen}
+        onClose={onOpenChange}
+      />
     </div>
   );
 }
