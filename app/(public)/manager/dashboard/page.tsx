@@ -165,7 +165,9 @@ export default function DashboardPage() {
                 {Math.abs(dashboardData.summary.revenue.percentageChange)}%
               </span>
             </div>
-            <span className="text-black/80 text-sm">vs last {timeframe}</span>
+            <span className="text-black/80 text-sm">
+              from {timeframe === "day" ? "yesterday" : `last ${timeframe}`}
+            </span>
           </div>
         </Card>
 
@@ -220,7 +222,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <span className="text-default-500 text-sm">
-              vs last {timeframe}
+              from {timeframe === "day" ? "yesterday" : `last ${timeframe}`}
             </span>
           </div>
         </Card>
@@ -248,7 +250,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <span className="text-default-500 text-sm">
-              vs last {timeframe}
+              from {timeframe === "day" ? "yesterday" : `last ${timeframe}`}
             </span>
           </div>
         </Card>
