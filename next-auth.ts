@@ -32,6 +32,11 @@ export const authOptions: NextAuthOptions = {
 
           const data = await response.json();
 
+          console.log("Auth Response:", {
+            status: response.status,
+            data: data,
+          });
+
           if (!response.ok) {
             throw new Error(data.message || "Authentication failed");
           }
@@ -43,7 +48,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: data.id,
             email: data.email,
-            role: data.role,
+            role: data.role || "customer",
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
           };
