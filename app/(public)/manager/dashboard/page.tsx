@@ -192,7 +192,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <span className="text-default-500 text-sm">
-              vs last {timeframe}
+              from {timeframe === "day" ? "yesterday" : `last ${timeframe}`}
             </span>
           </div>
         </Card>
