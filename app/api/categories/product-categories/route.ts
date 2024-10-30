@@ -3,21 +3,12 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   try {
     const response = await fetch(
-      `${process.env.API_URL}/categories/product-categories`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      `${process.env.API_URL}/categories/product-categories`
     );
 
     const result = await response.json();
     if (!response.ok) {
-      return NextResponse.json(
-        { message: result.message },
-        { status: response.status }
-      );
+      return NextResponse.json(result, { status: 400 });
     }
 
     return NextResponse.json(result, { status: 200 });

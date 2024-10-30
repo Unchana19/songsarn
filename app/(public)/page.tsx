@@ -38,6 +38,10 @@ export default function HomePage() {
     transition: { duration: 0.6 },
   };
 
+  if (isLoading) {
+    return <div></div>;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
