@@ -326,8 +326,9 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
                       <div className="flex flex-col justify-center w-full md:w-1/6">
                         <div className="flex flex-col gap-2">
                           <Button
+                            isDisabled
                             color="primary"
-                            className="rounded-full font-medium text-white"
+                            className="rounded-full font-medium text-white opacity-100"
                           >
                             Detail
                           </Button>

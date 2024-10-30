@@ -26,7 +26,7 @@ export default async function middleware(req: NextRequestWithAuth) {
     return NextResponse.next();
   }
 
-  const protectedRoutes = ["/profile", "/settings"];
+  const protectedRoutes = ["/profile", "/my-order", "/create-shrine"];
 
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
