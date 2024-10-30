@@ -98,7 +98,7 @@ export default function CustomerPurchaseOrderDetailPage({ params }: Props) {
             <div className="bg-default-50 p-6 rounded-xl space-y-4">
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Purchase order ID</span>
-                <span className="font-mono">{formatId("PO", cpo.id)}</span>
+                <span className="font-mono">{formatId("CPO", cpo.id)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Status</span>
