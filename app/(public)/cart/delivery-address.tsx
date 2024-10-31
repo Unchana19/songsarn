@@ -3,7 +3,7 @@ import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { FiTruck } from "react-icons/fi";
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
-import { MdOutlinePayment, MdSearch } from "react-icons/md";
+import { MdOutlinePayment } from "react-icons/md";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { calTotal } from "@/utils/cal-total";
 import {
@@ -16,21 +16,14 @@ import {
 } from "@nextui-org/modal";
 import { Input, Textarea } from "@nextui-org/input";
 import { OrderLine } from "@/interfaces/order-line.interface";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Skeleton } from "@nextui-org/skeleton";
 import CartCard from "@/components/cart-card";
 import { setAddressPOSchema } from "@/lib/schemas/setAddressPOSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Autocomplete,
-  GoogleMap,
-  Marker,
-  StandaloneSearchBox,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { Spinner } from "@nextui-org/spinner";
-import { useSession } from "next-auth/react";
 import { FormData } from "./page";
 import { SearchBox } from "@/components/google-map-search-box";
 
@@ -54,7 +47,6 @@ interface Props {
   nextPage(page: number): void;
 }
 
-
 export default function DeliveryAddressPage({
   orderLines,
   userId,
@@ -63,17 +55,11 @@ export default function DeliveryAddressPage({
   prevPage,
   nextPage,
 }: Props) {
-  const session = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );
-  const [searchBox, setSearchBox] =
-    useState<google.maps.places.Autocomplete | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [autoComplete, setAutoComplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
   const [modalKey, setModalKey] = useState(0);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
@@ -112,6 +98,18 @@ export default function DeliveryAddressPage({
         };
         setFormData(initialData);
         if (userData.lat && userData.lng) {
+          const deliveryData = await calculateDeliveryPrice(
+            userData.lat,
+            userData.lng
+          );
+
+          const submitData = {
+            ...initialData,
+            delivery_price: deliveryData.fee,
+          };
+
+          setFormData(submitData);
+
           setSelectedLocation({
             lat: userData.lat,
             lng: userData.lng,
@@ -159,19 +157,12 @@ export default function DeliveryAddressPage({
     }
   }, [isOpen, formData, reset]);
 
-  const autocompleteOptions = {
-    componentRestrictions: { country: "th" },
-    fields: ["formatted_address", "geometry", "name"],
-  };
-
   const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
     if (!place.geometry || !place.geometry.location) return;
 
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
     const address = place.formatted_address;
-
-    console.log("Selected place:", { lat, lng, address }); // Debug log
 
     setSelectedLocation({
       lat,
@@ -290,26 +281,30 @@ export default function DeliveryAddressPage({
     }
   };
 
+  const calculateDeliveryPrice = async (lat: number, lng: number) => {
+    const deliveryResponse = await fetch("/api/delivery", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        destinationLat: lat,
+        destinationLng: lng,
+      }),
+    });
+
+    if (!deliveryResponse.ok) {
+      throw new Error("Failed to calculate delivery fee");
+    }
+
+    return await deliveryResponse.json();
+  };
+
   const onSubmit = async (data: setAddressPOSchema) => {
     try {
       if (!selectedLocation) return;
 
-      const deliveryResponse = await fetch("/api/delivery", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          destinationLat: selectedLocation.lat,
-          destinationLng: selectedLocation.lng,
-        }),
-      });
-
-      if (!deliveryResponse.ok) {
-        throw new Error("Failed to calculate delivery fee");
-      }
-
-      const deliveryData = await deliveryResponse.json();
+      const deliveryData = await calculateDeliveryPrice(data.lat, data.lng);
 
       const submitData = {
         ...formData,
@@ -478,7 +473,7 @@ export default function DeliveryAddressPage({
         size="3xl"
       >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <form onSubmit={handleSubmit(onSubmit)}>
               <ModalHeader className="flex flex-col gap-1">
                 {hasAddress ? "Edit address" : "Add address"}

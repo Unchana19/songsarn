@@ -10,6 +10,8 @@ import { Spinner } from "@nextui-org/spinner";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import PaymentModal from "@/components/payment-modal";
+import { Image } from "@nextui-org/image";
+import ImagePlaceholder from "@/components/image-placeholder";
 
 export default function OrderDetailPage() {
   const session = useSession();
@@ -129,7 +131,7 @@ export default function OrderDetailPage() {
           color="primary"
           radius="full"
           variant="bordered"
-          onPress={() => router.push('/my-order')}
+          onPress={() => router.push("/my-order")}
           className="px-8"
         >
           <FaArrowLeftLong />
@@ -228,11 +230,18 @@ export default function OrderDetailPage() {
                   key={product.id}
                   className="flex gap-4 p-4 bg-white rounded-lg"
                 >
-                  <img
-                    src={product.image || "/api/placeholder/100/100"}
-                    alt={product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+                  {product.image ? (
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <ImagePlaceholder
+                      name={product.name}
+                      classNames={"w-20 h-20"}
+                    />
+                  )}
                   <div className="flex-1">
                     <h4 className="font-medium">{product.name}</h4>
                     <p className="text-sm text-default-600">

@@ -1,7 +1,8 @@
-import { refreshAccessToken } from "@/lib/refresh-token";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { refreshAccessToken } from "./app/api/auth/refresh-token/route";
+import { signOut } from "next-auth/react";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -31,11 +32,6 @@ export const authOptions: NextAuthOptions = {
           });
 
           const data = await response.json();
-
-          console.log("Auth Response:", {
-            status: response.status,
-            data: data,
-          });
 
           if (!response.ok) {
             throw new Error(data.message || "Authentication failed");
@@ -121,9 +117,9 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async session({ session, token }: { session: any; token: any }) {
-      if (token.error) {
-        session.error = token.error;
-        return session;
+      if (token.error === "RefreshTokenError") {
+        await signOut({ callbackUrl: "/auth/signin" });
+        return { ...session, error: "RefreshTokenError" };
       }
 
       session.accessToken = token.accessToken;

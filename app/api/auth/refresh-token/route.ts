@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 export async function refreshAccessToken(token: any) {
   try {
     if (!token.refreshToken) {
@@ -24,17 +26,20 @@ export async function refreshAccessToken(token: any) {
       throw new Error("New access token is missing");
     }
 
-    return {
-      ...token,
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken ?? token.refreshToken,
-      accessTokenExpires: Date.now() + (data.expiresIn ?? 3600) * 1000,
-    };
+    return NextResponse.json(
+      {
+        ...token,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken ?? token.refreshToken,
+        accessTokenExpires: Date.now() + (data.expiresIn ?? 3600) * 1000,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Token refresh error:", error);
-    return {
+    return NextResponse.json({
       ...token,
       error: "RefreshAccessTokenError",
-    };
+    });
   }
 }

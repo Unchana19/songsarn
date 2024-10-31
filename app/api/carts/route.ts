@@ -3,13 +3,12 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    console.log(JSON.stringify(data));
     const token = req.headers.get("authorization")?.split(" ")[1] || null;
 
     const response = await fetch(`${process.env.API_URL}/carts`, {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
@@ -50,10 +49,12 @@ export async function GET(req: Request) {
     const result = await response.json();
     if (!response.ok) {
       return NextResponse.json(
-        { message: result.message },
+        { message: "Carts is empty" },
         { status: response.status }
       );
     }
+
+    console.log(result);
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
