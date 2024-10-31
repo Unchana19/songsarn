@@ -1,8 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { refreshAccessToken } from "./app/api/auth/refresh-token/route";
 import { signOut } from "next-auth/react";
+import { refreshAccessToken } from "./utils/refresh-token";
 
 export const authOptions: NextAuthOptions = {
   providers: [
