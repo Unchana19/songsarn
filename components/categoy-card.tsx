@@ -17,7 +17,7 @@ export default function CategoryCard({
 }: Props) {
   return (
     <Card
-      className={`h-120 w-60 cursor-pointer p-1 ${isSelected && "border-2 border-primary"}`}
+      className={`h-full w-60 cursor-pointer p-1 ${isSelected && "border-2 border-primary"}`}
       shadow="none"
       isHoverable
     >
@@ -49,16 +49,9 @@ export default function CategoryCard({
             <p className="text-black text-center">{category.name}</p>
           </Button>
         ) : (
-          <Button
-            size="lg"
-            radius="full"
-            color="primary"
-            variant="bordered"
-            className="opacity-100"
-            isDisabled
-          >
-            <p className="text-black text-center">{category.name}</p>
-          </Button>
+          <div className="my-4">
+            <p className="text-primary text-lg text-center">{category.name}</p>
+          </div>
         )}
       </CardFooter>
     </Card>

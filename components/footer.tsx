@@ -1,4 +1,3 @@
-import { Divider } from "@nextui-org/divider";
 import { Image } from "@nextui-org/image";
 import { FaPhoneAlt } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
@@ -6,9 +5,8 @@ import { MdEmail } from "react-icons/md";
 
 export default function FooterComponent() {
   return (
-    <footer className="flex px-5 pt-10 pb-40 gap-10 w-full max-w-6xl justify-center">
-      <div className="w-full flex flex-col">
-        <Divider className="my-5" />
+    <footer className="flex px-5 pt-10 pb-40 gap-10 w-full justify-center bg-default-50">
+      <div className="w-full flex flex-col items-center max-w-7xl">
         <div className="md:flex-row md:gap-16 flex flex-col gap-8">
           <div className="flex flex-col gap-4 max-w-64">
             <h2 className="text-lg text-primary font-bold">Contact</h2>

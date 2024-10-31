@@ -28,7 +28,7 @@ const BenefitsSection = () => {
   ];
 
   return (
-    <div className="py-16 bg-gradient-to-b from-white to-gray-50">
+    <div className="py-16">
       <div className="max-w-7xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -36,10 +36,10 @@ const BenefitsSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl lg:text-5xl font-bold text-primary mb-4">
             บริการของเรา
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-xl">
             มั่นใจในคุณภาพและบริการที่เหนือระดับ
           </p>
         </motion.div>
@@ -53,7 +53,7 @@ const BenefitsSection = () => {
               transition={{ duration: 0.6, delay: index * 0.2 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full hover:shadow-xl transition-shadow duration-300">
+              <Card shadow="sm" className="h-full hover:shadow-xl transition-shadow duration-300 shadow-primary">
                 <CardBody className="flex flex-col items-center text-center p-6">
                   <div className="mb-6 text-primary">{benefit.icon}</div>
                   <h3 className="text-xl font-semibold mb-4">
