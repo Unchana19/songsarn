@@ -12,17 +12,8 @@ import {
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
-import {
-  FaBasketShopping,
-  FaBookOpen,
-  FaInbox,
-  FaPencil,
-  FaTruck,
-} from "react-icons/fa6";
-import { MdTipsAndUpdates } from "react-icons/md";
+import { FaBasketShopping } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
-import { FaShoppingBag } from "react-icons/fa";
 import { signOut, useSession } from "next-auth/react";
 import {
   Dropdown,
@@ -33,7 +24,6 @@ import {
 import { Avatar } from "@nextui-org/avatar";
 import { Skeleton } from "@nextui-org/skeleton";
 import { User } from "@/interfaces/user.interface";
-import { SearchIcon } from "./icons/search-icon";
 import { Image } from "@nextui-org/image";
 import {
   menuItemsManager,
@@ -76,6 +66,10 @@ export default function NavbarComponent() {
 
     fetchUser();
   }, [status, session]);
+
+  if (pathname === "/login" || pathname === "/sign-up") {
+    return null;
+  }
 
   const renderAuthUI = () => {
     if (isLoading) {
@@ -162,8 +156,10 @@ export default function NavbarComponent() {
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="start">
-      </NavbarContent>
+      <NavbarContent
+        className="hidden sm:flex gap-4"
+        justify="start"
+      ></NavbarContent>
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">

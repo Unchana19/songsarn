@@ -118,7 +118,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }: { session: any; token: any }) {
       if (token.error === "RefreshTokenError") {
-        await signOut({ callbackUrl: "/auth/signin" });
+        await signOut({ callbackUrl: "/login" });
         return { ...session, error: "RefreshTokenError" };
       }
 
@@ -130,7 +130,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/login",
     error: "/auth/error",
   },
   session: {

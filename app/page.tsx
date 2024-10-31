@@ -9,8 +9,10 @@ import { motion } from "framer-motion";
 import BenefitsSection from "@/components/home/benefit-section";
 import CustomShrineSection from "@/components/home/custom-section";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { useSession } from "next-auth/react";
 
 export default function HomePage() {
+  const session = useSession();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +33,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [session]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
