@@ -176,7 +176,7 @@ export default function ProductDetailPage() {
             <h2 className="text-xl font-semibold mb-4">Components</h2>
             <div className="space-y-4">
               {product?.components?.map((comp, index) => (
-                <Card key={index} className="bg-default-50">
+                <Card shadow="sm" key={index} className="bg-default-50">
                   <CardBody className="p-4">
                     <div className="flex gap-4">
                       {comp.component.img ? (

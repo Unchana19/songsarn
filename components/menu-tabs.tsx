@@ -89,7 +89,7 @@ export default function MenuTabsComponent() {
                 }
               >
                 <FaShoppingBag />
-                <p>Shop products</p>
+                <p>All products</p>
                 <RiArrowDropDownLine size={25} />
               </Button>
             </DropdownTrigger>

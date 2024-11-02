@@ -177,7 +177,7 @@ export default function AllProductsPage() {
                   radius="full"
                   className="text-white"
                 >
-                  <p>See all {category.name}</p>
+                  <p className="text-wrap">See all {category.name}</p>
                 </Button>
               </div>
               <div className="flex flex-wrap justify-start min-h-[200px]">

@@ -46,7 +46,7 @@ export default function CategoryCard({
             className="opacity-100"
             isDisabled
           >
-            <p className="text-black text-center">{category.name}</p>
+            <p className="text-black text-center text-wrap">{category.name}</p>
           </Button>
         ) : (
           <div className="my-4">

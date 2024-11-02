@@ -143,7 +143,7 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-primary to-primary-600">
+        <Card className="p-6 bg-gradient-to-br from-primary-300 to-primary-600">
           <p className="text-black/80 text-sm">Total Revenue</p>
           <h3 className="text-3xl font-bold text-black mt-2 mb-4">
             {formatNumberWithComma(dashboardData.summary.revenue.current)}
@@ -683,7 +683,7 @@ export default function DashboardPage() {
                         {getHistoryStatus(order.status).label}
                       </Chip>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <Chip
                         size="sm"
                         variant="flat"

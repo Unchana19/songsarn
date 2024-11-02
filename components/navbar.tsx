@@ -30,6 +30,7 @@ import {
   menuItemsCustomer,
 } from "@/constants/menu-tabs-items";
 import { MenuItems } from "@/types";
+import { FaShoppingBag } from "react-icons/fa";
 
 export default function NavbarComponent() {
   const { data: session, status } = useSession();
@@ -179,6 +180,25 @@ export default function NavbarComponent() {
         {renderAuthUI()}
       </NavbarContent>
       <NavbarMenu>
+        {!isManager && (
+          <NavbarMenuItem>
+            <Button
+              fullWidth
+              as={Link}
+              href="/all-products"
+              key="all-products"
+              isDisabled={pathname === "/all-products"}
+              className="opacity-100"
+              variant={pathname === "/all-products" ? "flat" : "light"}
+              color={pathname === "/all-products" ? "primary" : "default"}
+            >
+              <div className="flex w-full items-center gap-4">
+                <FaShoppingBag />
+                <p>All products</p>
+              </div>
+            </Button>
+          </NavbarMenuItem>
+        )}
         {menuItems.map((menu, index) => (
           <NavbarMenuItem key={`${menu}-${index}`}>
             <Button
