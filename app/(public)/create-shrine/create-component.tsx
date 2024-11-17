@@ -248,7 +248,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
                       handleComponentSelect(category.id, component)
                     }
                   >
-                    <CardBody className="p-0 aspect-square">
+                    <CardBody className="p-0 aspect-square flex justify-center">
                       {component.img ? (
                         <Image
                           src={component.img}
@@ -271,7 +271,6 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
                         <span className="text-primary font-semibold">
                           {formatNumberWithComma(component.price)}
                         </span>
-                        <span className="text-tiny text-default-500">THB</span>
                       </div>
                     </CardFooter>
                   </Card>
@@ -330,7 +329,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
           );
         })}
         {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t z-100">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="flex flex-col">
