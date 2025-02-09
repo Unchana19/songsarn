@@ -1,62 +1,20 @@
 "use client";
 
-import { CPOGetAll } from "@/interfaces/cpo-get-all.interface";
 import StatusTab from "./status-tab";
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@heroui/spinner";
 import EmptyComponents from "@/components/empty-components";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import { useFetchCPOsByUserIdQuery } from "@/store";
 
-interface Props {
-  searchParams: { type: string };
-}
-
-export default function MyOrderPage({ searchParams }: Props) {
+export default function MyOrderPage() {
   const session = useSession();
-  const [cpos, setCPOs] = useState<CPOGetAll[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchCPOs = async () => {
-    if (!session.data?.userId || !session.data?.accessToken) {
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch(
-        `/api/customer-purchase-orders?id=${session.data.userId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${session.data.accessToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setCPOs(result);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-      setError("Failed to load orders. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (session.status === "authenticated") {
-      fetchCPOs();
-    }
-  }, [session.status]);
+  const {data: cpos, isLoading} = useFetchCPOsByUserIdQuery({
+    userId: session.data?.userId,
+    accessToken: session.data?.accessToken,
+  });
 
   if (session.status === "loading" || isLoading) {
     return (

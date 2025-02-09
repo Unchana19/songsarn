@@ -2,7 +2,9 @@
 
 import ImagePlaceholder from "@/components/image-placeholder";
 import PopupModal from "@/components/popup-modal";
-import { ProductDetail } from "@/interfaces/product-detail.interface";
+import type { ProductDetail } from "@/interfaces/product-detail.interface";
+import type { Product } from "@/interfaces/product.interface";
+import { useAddToCartMutation, useFetchProductByIdQuery } from "@/store";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
@@ -12,7 +14,7 @@ import { useDisclosure } from "@heroui/modal";
 import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
 
@@ -21,75 +23,39 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const [product, setProduct] = useState<ProductDetail | null>();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: product, isLoading } = useFetchProductByIdQuery(id);
 
+  const [addToCart, results] = useAddToCartMutation();
   const [modalMessage, setModalMessage] = useState("");
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const fetchProduct = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/products/find-by-id?id=${id}`);
-      const result = await response.json();
-      if (response.ok) {
-        setProduct(result);
-      }
-    } catch (error) {
-      console.error("Error fetching product:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
 
   const handleBack = () => {
     router.back();
   };
 
-  const addToCart = async () => {
-    if (isAddingToCart) return;
-
-    setIsAddingToCart(true);
-
-    try {
-      if (!session.data?.userId) {
-        return;
+  const handleAddToCart = async (product: Product) => {
+    if (
+      session.status === "authenticated" &&
+      session.data?.userId &&
+      session.data?.accessToken
+    ) {
+      try {
+        addToCart({
+          userId: session.data.userId,
+          productId: product.id,
+          accessToken: session.data.accessToken,
+        });
+      } catch (error) {
+        setModalMessage("An error occurred. Please try again.");
+        onOpen();
+      } finally {
+        setModalMessage("Product added to cart successfully");
+        onOpen();
       }
-
-      const data = {
-        product_id: product?.id,
-        order_id: session.data.userId,
-      };
-
-      const response = await fetch("/api/carts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data.accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setModalMessage("Product added to cart successfully!");
-      } else {
-        setModalMessage("Failed to add product to cart");
-      }
+    } else {
+      setModalMessage("Please login to add items to cart");
       onOpen();
-    } catch (error) {
-      setModalMessage("An error occurred. Please try again.");
-      onOpen();
-    } finally {
-      setIsAddingToCart(false);
     }
   };
 
@@ -103,7 +69,7 @@ export default function ProductDetailPage() {
         <div className="flex justify-around mt-5">
           <div className="flex w-5/12">
             <Skeleton className="rounded-lg">
-              <div className="h-[300px] w-[400px]"></div>
+              <div className="h-[300px] w-[400px]" />
             </Skeleton>
           </div>
           <div className="flex w-6/12">
@@ -128,7 +94,7 @@ export default function ProductDetailPage() {
           radius="full"
           variant="bordered"
           className="text-black"
-          onClick={handleBack}
+          onPress={handleBack}
         >
           <FaArrowLeftLong />
           <p>Back</p>
@@ -175,50 +141,54 @@ export default function ProductDetailPage() {
           <div>
             <h2 className="text-xl font-semibold mb-4">Components</h2>
             <div className="space-y-4">
-              {product?.components?.map((comp, index) => (
-                <Card shadow="sm" key={index} className="bg-default-50">
+              {product?.components.map((product: ProductDetail) => (
+                <Card
+                  shadow="sm"
+                  key={product.component.id}
+                  className="bg-default-50"
+                >
                   <CardBody className="p-4">
                     <div className="flex gap-4">
-                      {comp.component.img ? (
+                      {product.component.img ? (
                         <Image
-                          src={comp.component.img}
-                          alt={comp.component.name}
+                          src={product.component.img}
+                          alt={product.component.name}
                           className="w-24 h-24 rounded-lg object-cover"
                         />
                       ) : (
                         <ImagePlaceholder
-                          name={comp.component.name.slice(0, 2)}
+                          name={product.component.name.slice(0, 2)}
                           classNames={"w-24 h-24"}
                         />
                       )}
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg mb-2">
-                          {comp.component.name}
+                          {product.component.name}
                         </h3>
                         <div className="grid grid-cols-2 gap-4">
-                          {comp.primary_color && (
+                          {product.primary_color && (
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
                                 style={{
-                                  backgroundColor: comp.primary_color.color,
+                                  backgroundColor: product.primary_color.color,
                                 }}
                               />
                               <span className="text-sm">
-                                สีหลัก: {comp.primary_color.name}
+                                สีหลัก: {product.primary_color.name}
                               </span>
                             </div>
                           )}
-                          {comp.pattern_color && (
+                          {product.pattern_color && (
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
                                 style={{
-                                  backgroundColor: comp.pattern_color.color,
+                                  backgroundColor: product.pattern_color.color,
                                 }}
                               />
                               <span className="text-sm">
-                                สีลาย: {comp.pattern_color.name}
+                                สีลาย: {product.pattern_color.name}
                               </span>
                             </div>
                           )}
@@ -239,9 +209,9 @@ export default function ProductDetailPage() {
               size="lg"
               color="primary"
               className="w-full text-white font-medium"
-              onClick={addToCart}
+              onPress={() => handleAddToCart(product)}
               startContent={<FaCartPlus size={20} />}
-              isLoading={isAddingToCart}
+              isLoading={results.isLoading}
             >
               Add to Cart
             </Button>

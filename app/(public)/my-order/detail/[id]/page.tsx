@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@heroui/button";
@@ -12,80 +12,38 @@ import { getStatusCpo } from "@/utils/get-status-cpo";
 import PaymentModal from "@/components/payment-modal";
 import { Image } from "@heroui/image";
 import ImagePlaceholder from "@/components/image-placeholder";
+import { useFetchCPOByIdQuery, useTestPaymentsMutation } from "@/store";
 
 export default function OrderDetailPage() {
   const session = useSession();
-  const params = useParams();
   const router = useRouter();
-  const [cpo, setCPO] = useState<CPOGetOne | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const params = useParams();
+  const cpoId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const {
+    data: cpo,
+    error,
+    isLoading,
+  } = useFetchCPOByIdQuery({
+    id: cpoId,
+    accessToken: session.data?.accessToken,
+  });
+
+  const [testPayment, results] = useTestPaymentsMutation();
+
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (session.status === "authenticated") {
-      fetchCpo();
-    }
-  }, [session.status]);
-
-  const fetchCpo = async () => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch(
-        `/api/customer-purchase-orders/${params.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch order details");
-      }
-
-      const result = await response.json();
-      setCPO(result);
-    } catch (error) {
-      console.error("Error fetching order:", error);
-      setError("Failed to load order details. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const testPayment = async () => {
+  const handleTestPayment = async () => {
     try {
       const data = {
         cpoId: cpo?.cpo.id,
         amount: cpo?.cpo.total_price,
       };
-      setError(null);
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch(`/api/payments/test-payment`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch order details");
-      }
-
-      const result = await response.json();
-      fetchCpo();
-      router.refresh();
+      await testPayment({ data, accessToken: session.data?.accessToken });
     } catch (error) {
       console.error("Error fetching order:", error);
-      setError("Failed to load order details. Please try again.");
     } finally {
-      setIsLoading(false);
+      router.push("/my-order");
     }
   };
 
@@ -100,10 +58,7 @@ export default function OrderDetailPage() {
   if (error) {
     return (
       <div className="min-h-[400px] flex flex-col items-center justify-center gap-4">
-        <p className="text-danger">{error}</p>
-        <Button color="primary" onPress={fetchCpo}>
-          Try Again
-        </Button>
+        <p className="text-danger">Error</p>
       </div>
     );
   }
@@ -126,7 +81,7 @@ export default function OrderDetailPage() {
         <div>
           <h1 className="font-bold text-xl">Order detail</h1>
         </div>
-        <div className="flex items-center gap-4"></div>
+        <div className="flex items-center gap-4" />
         <Button
           color="primary"
           radius="full"
@@ -184,7 +139,8 @@ export default function OrderDetailPage() {
                   color="danger"
                   size="lg"
                   className="w-full text-white text-lg"
-                  onPress={testPayment}
+                  onPress={handleTestPayment}
+                  isLoading={results.isLoading}
                 >
                   Test payment
                 </Button>
@@ -225,7 +181,7 @@ export default function OrderDetailPage() {
               Products ({cpo.order_lines.length})
             </h3>
             <div className="space-y-4">
-              {cpo.order_lines.map((product) => (
+              {cpo.order_lines.map((product: CPOGetOne) => (
                 <div
                   key={product.id}
                   className="flex gap-4 p-4 bg-white rounded-lg"

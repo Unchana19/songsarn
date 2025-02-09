@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["Products", "Product", "CategoryProducts"],
+  tagTypes: ["Products", "Product", "CategoryProducts", "Cart"],
   endpoints(builder) {
     return {
       fetchProducts: builder.query({
@@ -34,10 +34,55 @@ const productsApi = createApi({
           };
         },
       }),
+
+      fetchProductById: builder.query({
+        providesTags: (result, error, id: string) => [{ type: "Product", id }],
+        query: (id: string) => {
+          return {
+            url: "/products/find-by-id",
+            params: { id },
+            method: "GET",
+          };
+        },
+      }),
+
+      customizeProduct: builder.mutation({
+        invalidatesTags: ["Products", "Cart"],
+        query: ({
+          data,
+          accessToken,
+        }: {
+          data: {
+            user_id?: string;
+            category_id: string;
+            price: number;
+            quantity: number;
+            components: {
+              id?: string;
+              primary_color?: string;
+              pattern_color?: string;
+            }[];
+          };
+          accessToken: string;
+        }) => {
+          return {
+            url: "/products/customize",
+            method: "POST",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useFetchProductsQuery, useFetchProductsByCategoryQuery } =
-  productsApi;
+export const {
+  useFetchProductsQuery,
+  useFetchProductsByCategoryQuery,
+  useCustomizeProductMutation,
+  useFetchProductByIdQuery,
+} = productsApi;
 export { productsApi };

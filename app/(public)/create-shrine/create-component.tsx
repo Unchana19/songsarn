@@ -1,10 +1,12 @@
 "use client";
 
 import ImagePlaceholder from "@/components/image-placeholder";
+import PopupModal from "@/components/popup-modal";
 import type { Category } from "@/interfaces/category.interface";
 import type { Color } from "@/interfaces/color.interface";
 import type { Component } from "@/interfaces/component.interface";
 import {
+  useCustomizeProductMutation,
   useFetchBomComponentsCategoriesQuery,
   useFetchColorsQuery,
   useFetchComponentsQuery,
@@ -15,6 +17,7 @@ import { Card, CardBody, CardFooter } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 import { Image } from "@heroui/image";
+import { useDisclosure } from "@heroui/modal";
 import { Progress } from "@heroui/progress";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -48,6 +51,10 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
   const { data: colors, isLoading: isLoadingColors } = useFetchColorsQuery(
     session.data?.accessToken || ""
   );
+
+  const [customizeProduct, results] = useCustomizeProductMutation();
+  const [modalMessage, setModalMessage] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -101,31 +108,34 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
   };
 
   const handleProductSave = async () => {
-    try {
-      const simplifiedComponents = selections?.map((item) => ({
-        id: item.component?.id,
-        primary_color: item.primaryColor?.id,
-        pattern_color: item.patternColor?.id,
-      }));
-      const data = {
-        user_id: session.data?.userId,
-        category_id: selectedCategory,
-        price: totalPrice,
-        quantity,
-        components: simplifiedComponents,
-      };
-
-      const response = await fetch("/api/products/customize", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.data?.accessToken}` },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (response.ok) {
+    if (session.data?.accessToken) {
+      try {
+        const simplifiedComponents = selections?.map((item) => ({
+          id: item.component?.id,
+          primary_color: item.primaryColor?.id,
+          pattern_color: item.patternColor?.id,
+        }));
+        const data = {
+          user_id: session.data?.userId,
+          category_id: selectedCategory,
+          price: totalPrice,
+          quantity,
+          components: simplifiedComponents,
+        };
+        await customizeProduct({
+          data,
+          accessToken: session.data.accessToken,
+        }).unwrap();
+      } catch (error) {
+        setModalMessage("An error occurred. Please try again.");
+        onOpen();
+      } finally {
         router.push("/cart");
-      } else {
       }
-    } catch (error) {}
+    } else {
+      setModalMessage("Please login to add items to cart");
+      onOpen();
+    }
   };
 
   if (isLoadingBOMCateogires || isLoadingComponents || isLoadingColors) {
@@ -184,41 +194,41 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {categoryComponents?.map((component: Component) => (
-                    <Card
+                  <Card
                     key={component.id}
                     isPressable
                     className={`border-2 justify-center w-full transition-all duration-200 hover:scale-[1.02] ${
                       selection?.component?.id === component.id
-                      ? "border-primary shadow-lg shadow-primary/20"
-                      : "border-transparent hover:border-primary/50"
+                        ? "border-primary shadow-lg shadow-primary/20"
+                        : "border-transparent hover:border-primary/50"
                     }`}
                     onPress={() =>
                       handleComponentSelect(category.id, component)
                     }
-                    >
+                  >
                     <CardBody className="p-0 w-full aspect-square flex justify-center items-center z-0 overflow-hidden">
                       {component.img ? (
-                      <Image
-                        src={component.img}
-                        alt={component.name}
-                        className="object-contain"
-                      />
+                        <Image
+                          src={component.img}
+                          alt={component.name}
+                          className="object-contain"
+                        />
                       ) : (
-                      <ImagePlaceholder
-                        name={component.name}
-                        classNames="h-full bg-default-100"
-                      />
+                        <ImagePlaceholder
+                          name={component.name}
+                          classNames="h-full bg-default-100"
+                        />
                       )}
                     </CardBody>
                     <CardFooter className="flex flex-col items-start p-4">
                       <p className="font-medium">{component.name}</p>
                       <div className="flex items-baseline gap-1">
-                      <span className="text-primary font-semibold">
-                        {formatNumberWithComma(component.price)}
-                      </span>
+                        <span className="text-primary font-semibold">
+                          {formatNumberWithComma(component.price)}
+                        </span>
                       </div>
                     </CardFooter>
-                    </Card>
+                  </Card>
                 ))}
               </div>
 
@@ -318,6 +328,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
               className="font-medium px-8"
               radius="full"
               isDisabled={!isValid}
+              isLoading={results.isLoading}
             >
               Add to cart
               <FaBasketShopping size={20} />
@@ -325,6 +336,11 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
           </div>
         </div>
       </div>
+      <PopupModal
+        message={modalMessage}
+        isOpen={isOpen}
+        onClose={onOpenChange}
+      />
     </div>
   );
 }

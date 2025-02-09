@@ -2,7 +2,6 @@ import { Button } from "@heroui/button";
 import {
   Modal,
   ModalContent,
-  ModalHeader,
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
@@ -12,7 +11,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   buttonTitle?: string;
-  buttonFunction?: any;
+  buttonFunction?: () => void;
 }
 
 export default function PopupModal({
@@ -24,10 +23,9 @@ export default function PopupModal({
 }: Props) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose}>
-      <ModalContent className="flex items-center pb-3">
+      <ModalContent className="flex items-center py-5">
         {(onClose) => (
           <>
-            <ModalHeader></ModalHeader>
             <ModalBody className="flex items-center w-full">
               <p className="text-xl font-bold">{message}</p>
             </ModalBody>
@@ -45,7 +43,7 @@ export default function PopupModal({
               <Button
                 fullWidth
                 radius="full"
-                variant={(buttonTitle && buttonFunction) ? "light" : "solid"}
+                variant={buttonTitle && buttonFunction ? "light" : "solid"}
                 onPress={onClose}
               >
                 Close

@@ -3,6 +3,7 @@
 import CategoryCard from "@/components/categoy-card";
 import type { Category } from "@/interfaces/category.interface";
 import { useFetchProductCategoriesQuery } from "@/store";
+import { Progress } from "@heroui/progress";
 import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
@@ -19,7 +20,17 @@ export default function SelectCategoryPage({
   );
 
   if (isLoading) {
-    return;
+    return (
+      <div className="space-y-4 text-center">
+        <Progress
+          size="sm"
+          isIndeterminate
+          aria-label="Loading..."
+          className="max-w-md"
+        />
+        <p className="text-default-500">Loading data...</p>
+      </div>
+    );
   }
 
   return (

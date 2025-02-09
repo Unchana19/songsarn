@@ -1,6 +1,6 @@
 import EmptyComponents from "@/components/empty-components";
 import TabsSelect from "@/components/tabs-select";
-import { CPOGetAll } from "@/interfaces/cpo-get-all.interface";
+import type { CPOGetAll } from "@/interfaces/cpo-get-all.interface";
 import { formatId } from "@/utils/format-id";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -8,7 +8,7 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useTransition, useMemo } from "react";
+import { type Key, useTransition, useMemo } from "react";
 
 interface Props {
   cpos: CPOGetAll[];
@@ -29,10 +29,11 @@ export default function StatusTab({ cpos }: Props) {
     const currentTab = searchParams.get("type") || "process";
     return cpos.filter((cpo) => {
       if (currentTab === "process") {
-        return ["NEW", "PAID", "PROCESSING", "ON DELIVERY"].includes(cpo.status);
-      } else {
-        return ["COMPLETED", "CANCELED"].includes(cpo.status);
+        return ["NEW", "PAID", "PROCESSING", "ON DELIVERY"].includes(
+          cpo.status
+        );
       }
+      return ["COMPLETED", "CANCELED"].includes(cpo.status);
     });
   }, [cpos, searchParams]);
 
@@ -61,7 +62,7 @@ export default function StatusTab({ cpos }: Props) {
           return isSelected ? (
             <div key={tab.id}>
               {filteredCPOs.length > 0 ? (
-                <div className="my-5 flex flex-col gap-10">
+                <div className="my-5 flex flex-col gap-5">
                   {filteredCPOs.map((order) => (
                     <Link
                       href={`/my-order/detail/${order.id}`}
@@ -96,10 +97,7 @@ export default function StatusTab({ cpos }: Props) {
                       <div className="flex items-center">
                         <p className="flex items-center gap-2">
                           Status:{" "}
-                          <Chip
-                            variant="flat"
-                            color="primary"
-                          >
+                          <Chip variant="flat" color="primary">
                             {getStatusCpo(order.status)}
                           </Chip>
                         </p>
