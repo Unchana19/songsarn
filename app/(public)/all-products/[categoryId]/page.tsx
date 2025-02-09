@@ -5,19 +5,19 @@ import { useParams } from "next/navigation";
 import type { Product } from "@/interfaces/product.interface";
 import EmptyComponents from "@/components/empty-components";
 import ProductCardSmall from "@/components/product-card-small";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import { FaCartPlus } from "react-icons/fa";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useDisclosure } from "@nextui-org/modal";
+import { useDisclosure } from "@heroui/modal";
 import PopupModal from "@/components/popup-modal";
 import {
   useAddToCartMutation,
   useFetchProductCategoryQuery,
   useFetchProductsByCategoryQuery,
 } from "@/store";
-import { Skeleton } from "@nextui-org/skeleton";
-import { Card } from "@nextui-org/card";
+import { Skeleton } from "@heroui/skeleton";
+import { Card } from "@heroui/card";
 
 export default function ProductCategoryPage() {
   const session = useSession();
@@ -67,12 +67,12 @@ export default function ProductCategoryPage() {
 
   if (isLoadingProductCategory || isLoadingProducts) {
     return (
-      <div>
+      (<div>
         <Skeleton className="h-8 w-32 rounded-lg mb-10" />
         <div className="flex flex-col gap-10">
           {[...Array(3)].map((_, categoryIndex) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            <div key={categoryIndex} className="flex flex-col">
+            (<div key={categoryIndex} className="flex flex-col">
               <div className="flex flex-wrap justify-start">
                 {[...Array(4)].map((_, productIndex) => (
                   <div
@@ -107,10 +107,10 @@ export default function ProductCategoryPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>)
           ))}
         </div>
-      </div>
+      </div>)
     );
   }
 

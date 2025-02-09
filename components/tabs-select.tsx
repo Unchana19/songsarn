@@ -1,5 +1,5 @@
-import { Spinner } from "@nextui-org/spinner";
-import { Tabs, Tab } from "@nextui-org/tabs";
+import { Spinner } from "@heroui/spinner";
+import { Tabs, Tab } from "@heroui/tabs";
 import { Key } from "@react-types/shared";
 
 interface Props {

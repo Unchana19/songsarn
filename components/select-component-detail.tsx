@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, CardBody, CardFooter } from "@nextui-org/card";
-import { Button } from "@nextui-org/button";
+import { Card, CardBody, CardFooter } from "@heroui/card";
+import { Button } from "@heroui/button";
 import { SelectedComponent } from "@/interfaces/select-component";
 import { Component } from "@/interfaces/component.interface";
 

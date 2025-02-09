@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import { FaShoppingBag } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import {
 } from "@/constants/menu-tabs-items";
 import { useSession } from "next-auth/react";
 import { MenuItems } from "@/types";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Skeleton } from "@heroui/skeleton";
 import { Category } from "@/interfaces/category.interface";
 import { useState, useEffect } from "react";
 

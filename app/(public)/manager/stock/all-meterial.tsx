@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import { Material } from "@/interfaces/material.interface";
+import type { Material } from "@/interfaces/material.interface";
 import {
-  CreateRequisitionSchema,
+  type CreateRequisitionSchema,
   createRequisitionSchema,
 } from "@/lib/schemas/createRequisitionSchema";
 import { formatId } from "@/utils/format-id";
 import { getAvailabilityStatus } from "@/utils/get-availability-status";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Chip } from "@nextui-org/chip";
-import { Input } from "@nextui-org/input";
+import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
+import { Input } from "@heroui/input";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   useDisclosure,
-} from "@nextui-org/modal";
+} from "@heroui/modal";
 import {
   Table,
   TableHeader,
@@ -24,13 +24,13 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@nextui-org/table";
+} from "@heroui/table";
 import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-} from "@nextui-org/dropdown";
+} from "@heroui/dropdown";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { FiEdit, FiFilter } from "react-icons/fi";

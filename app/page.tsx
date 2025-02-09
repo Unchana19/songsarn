@@ -2,7 +2,7 @@
 
 import CategoryCard from "@/components/categoy-card";
 import type { Category } from "@/interfaces/category.interface";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BenefitsSection from "@/components/home/benefit-section";

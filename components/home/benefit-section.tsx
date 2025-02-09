@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Card, CardBody } from "@nextui-org/card";
+import { Card, CardBody } from "@heroui/card";
 import { IoSparkles } from "react-icons/io5";
 import { FaTruck } from "react-icons/fa";
 import { FaHandshakeSimple } from "react-icons/fa6";

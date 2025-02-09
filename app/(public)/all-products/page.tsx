@@ -9,10 +9,10 @@ import {
   useFetchProductCategoriesQuery,
   useFetchProductsQuery,
 } from "@/store";
-import { Button } from "@nextui-org/button";
-import { Card } from "@nextui-org/card";
-import { useDisclosure } from "@nextui-org/modal";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
+import { useDisclosure } from "@heroui/modal";
+import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -63,12 +63,12 @@ export default function AllProductsPage() {
 
   if (isLoadingProductCategories || isLoadingProducts) {
     return (
-      <div>
+      (<div>
         <Skeleton className="h-8 w-32 rounded-lg mb-10" />
         <div className="flex flex-col gap-10">
           {[...Array(3)].map((_, categoryIndex) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            <div key={categoryIndex} className="flex flex-col">
+            (<div key={categoryIndex} className="flex flex-col">
               <div className="flex justify-between mb-5">
                 <Skeleton className="h-6 w-40 rounded-lg" />
                 <Skeleton className="h-10 w-32 rounded-full" />
@@ -107,10 +107,10 @@ export default function AllProductsPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>)
           ))}
         </div>
-      </div>
+      </div>)
     );
   }
 

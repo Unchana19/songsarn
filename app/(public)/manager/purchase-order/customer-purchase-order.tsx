@@ -4,8 +4,8 @@ import TabsSelect from "@/components/tabs-select";
 import { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Key, useTransition, useMemo, useState, useEffect } from "react";
-import { Button } from "@nextui-org/button";
-import { Chip } from "@nextui-org/chip";
+import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
 import EmptyComponents from "@/components/empty-components";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -18,7 +18,7 @@ import Link from "next/link";
 import { getCPOMaterialStatus } from "@/utils/get-cpo-material-stataus";
 import { useSession } from "next-auth/react";
 import PopupModal from "@/components/popup-modal";
-import { useDisclosure } from "@nextui-org/modal";
+import { useDisclosure } from "@heroui/modal";
 
 interface Props {
   cpos: ManagerCPOGetAll[];

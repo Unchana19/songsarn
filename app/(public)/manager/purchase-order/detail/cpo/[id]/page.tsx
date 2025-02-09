@@ -4,8 +4,8 @@ import { ManagerCPOGetOne } from "@/interfaces/manager-cpo-get-one.interface";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@nextui-org/button";
-import { Spinner } from "@nextui-org/spinner";
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { formatId } from "@/utils/format-id";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -14,8 +14,8 @@ import ImagePlaceholder from "@/components/image-placeholder";
 import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { getDateLabelCPO } from "@/utils/get-date-label-cpo";
 import { getPaymentMethod } from "@/utils/get-payment-method";
-import { Chip } from "@nextui-org/chip";
-import { Image } from "@nextui-org/image";
+import { Chip } from "@heroui/chip";
+import { Image } from "@heroui/image";
 
 interface Props {
   params: { id: string };

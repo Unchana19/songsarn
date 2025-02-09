@@ -4,9 +4,9 @@ import { CPOGetAll } from "@/interfaces/cpo-get-all.interface";
 import StatusTab from "./status-tab";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@heroui/spinner";
 import EmptyComponents from "@/components/empty-components";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import Link from "next/link";
 
 interface Props {

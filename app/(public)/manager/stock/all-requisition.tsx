@@ -1,19 +1,19 @@
-import { Requisition } from "@/interfaces/requisition.interface";
+import type { Requisition } from "@/interfaces/requisition.interface";
 import {
-  CreateMPOSchema,
+  type CreateMPOSchema,
   createMPOSchema,
 } from "@/lib/schemas/createMPOSchema";
 import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Input } from "@nextui-org/input";
+import { Button } from "@heroui/button";
+import { Input } from "@heroui/input";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   useDisclosure,
-} from "@nextui-org/modal";
+} from "@heroui/modal";
 import {
   Table,
   TableHeader,
@@ -21,8 +21,8 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Selection,
-} from "@nextui-org/table";
+  type Selection,
+} from "@heroui/table";
 import { useSession } from "next-auth/react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -181,7 +181,7 @@ export default function AllRequisition({
                   <div className="flex flex-col gap-5">
                     <p className="mb-5">{getValues("supplier")}</p>
                     {selectedRequisitions.map((requisition) => (
-                      <p>{requisition.material_name}</p>
+                      <p key={requisition.id}>{requisition.material_name}</p>
                     ))}
                   </div>
                 </div>

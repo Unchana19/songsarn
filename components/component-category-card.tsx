@@ -1,7 +1,7 @@
 import { Category } from "@/interfaces/category.interface";
-import { Button } from "@nextui-org/button";
-import { Card } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
+import { Image } from "@heroui/image";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 interface Props {

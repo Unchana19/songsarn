@@ -4,8 +4,8 @@ import TabsSelect from "@/components/tabs-select";
 import { usePathname, useRouter } from "next/navigation";
 import { Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
-import { Chip } from "@nextui-org/chip";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Chip } from "@heroui/chip";
+import { Skeleton } from "@heroui/skeleton";
 import {
   TableRow,
   TableCell,
@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableColumn,
   TableBody,
-} from "@nextui-org/table";
+} from "@heroui/table";
 import { formatId } from "@/utils/format-id";
 import { Transaction } from "@/interfaces/transaction.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";

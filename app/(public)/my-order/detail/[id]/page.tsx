@@ -5,12 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
-import { Spinner } from "@nextui-org/spinner";
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import PaymentModal from "@/components/payment-modal";
-import { Image } from "@nextui-org/image";
+import { Image } from "@heroui/image";
 import ImagePlaceholder from "@/components/image-placeholder";
 
 export default function OrderDetailPage() {

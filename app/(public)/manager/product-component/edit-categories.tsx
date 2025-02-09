@@ -5,9 +5,9 @@ import {
   CreateCategorySchema,
 } from "@/lib/schemas/createCategoySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Image } from "@nextui-org/image";
-import { Input } from "@nextui-org/input";
+import { Button } from "@heroui/button";
+import { Image } from "@heroui/image";
+import { Input } from "@heroui/input";
 import { useForm } from "react-hook-form";
 import {
   RiImageAddFill,
@@ -15,9 +15,9 @@ import {
   RiDeleteBin6Line,
 } from "react-icons/ri";
 import { useSession } from "next-auth/react";
-import { Select, SelectItem } from "@nextui-org/select";
-import { Card } from "@nextui-org/card";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Select, SelectItem } from "@heroui/select";
+import { Card } from "@heroui/card";
+import { Skeleton } from "@heroui/skeleton";
 import ComponentCategoryCard from "@/components/component-category-card";
 import EmptyComponents from "@/components/empty-components";
 

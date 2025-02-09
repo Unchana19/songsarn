@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@heroui/spinner";
 import { BiCloudUpload } from "react-icons/bi";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from "@nextui-org/modal";
+} from "@heroui/modal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

@@ -3,13 +3,13 @@
 import { EyeFilledIcon } from "@/components/icons/eye-filled-icon";
 import { EyeSlashFilledIcon } from "@/components/icons/eye-slash-filled-icon";
 import { signUpSchema, SignUpSchema } from "@/lib/schemas/signUpSchema";
-import { Button } from "@nextui-org/button";
-import { Input } from "@nextui-org/input";
+import { Button } from "@heroui/button";
+import { Input } from "@heroui/input";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDisclosure } from "@nextui-org/modal";
+import { useDisclosure } from "@heroui/modal";
 import PopupModal from "@/components/popup-modal";
 import { useRouter } from "next/navigation";
 

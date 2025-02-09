@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import TabsSelect from "@/components/tabs-select";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Skeleton } from "@heroui/skeleton";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Key, useEffect, useState, useTransition } from "react";
 import CustomerPurchaseOrder from "./customer-purchase-order";

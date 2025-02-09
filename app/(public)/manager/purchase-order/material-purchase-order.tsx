@@ -4,8 +4,8 @@ import TabsSelect from "@/components/tabs-select";
 import { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Key, useTransition, useMemo, useState, useEffect } from "react";
-import { Button } from "@nextui-org/button";
-import { Chip } from "@nextui-org/chip";
+import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
 import EmptyComponents from "@/components/empty-components";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -16,7 +16,7 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import PopupModal from "@/components/popup-modal";
-import { useDisclosure } from "@nextui-org/modal";
+import { useDisclosure } from "@heroui/modal";
 
 interface Props {
   mpo: MPOGetAll[] | null;

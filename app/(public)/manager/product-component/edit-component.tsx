@@ -6,12 +6,12 @@ import {
   createComponentSchema,
 } from "@/lib/schemas/createComponentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Card } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
-import { Input } from "@nextui-org/input";
-import { Select, SelectItem } from "@nextui-org/select";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
+import { Image } from "@heroui/image";
+import { Input } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
+import { Skeleton } from "@heroui/skeleton";
 import {
   Table,
   TableHeader,
@@ -19,7 +19,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@nextui-org/table";
+} from "@heroui/table";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";

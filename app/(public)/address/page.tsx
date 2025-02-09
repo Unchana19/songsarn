@@ -1,14 +1,14 @@
 "use client";
 
 import { User } from "@/interfaces/user.interface";
-import { useDisclosure } from "@nextui-org/modal";
+import { useDisclosure } from "@heroui/modal";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useMemo } from "react";
-import { Card, CardHeader, CardBody } from "@nextui-org/card";
-import { Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
-import { Spinner } from "@nextui-org/spinner";
-import { Input, Textarea } from "@nextui-org/input";
+import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Button } from "@heroui/button";
+import { Divider } from "@heroui/divider";
+import { Spinner } from "@heroui/spinner";
+import { Input, Textarea } from "@heroui/input";
 import {
   GoogleMap,
   Marker,

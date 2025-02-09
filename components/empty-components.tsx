@@ -1,4 +1,4 @@
-import { Card } from "@nextui-org/card";
+import { Card } from "@heroui/card";
 import { ReactElement } from "react";
 import { RiInboxLine } from "react-icons/ri";
 

@@ -1,6 +1,6 @@
 "use client";
-import { Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
+import { Button } from "@heroui/button";
+import { Divider } from "@heroui/divider";
 import { FiTruck } from "react-icons/fi";
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
 import { MdOutlinePayment } from "react-icons/md";
@@ -13,17 +13,17 @@ import {
   ModalFooter,
   ModalHeader,
   useDisclosure,
-} from "@nextui-org/modal";
-import { Input, Textarea } from "@nextui-org/input";
+} from "@heroui/modal";
+import { Input, Textarea } from "@heroui/input";
 import { OrderLine } from "@/interfaces/order-line.interface";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Skeleton } from "@heroui/skeleton";
 import CartCard from "@/components/cart-card";
 import { setAddressPOSchema } from "@/lib/schemas/setAddressPOSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@heroui/spinner";
 import { FormData } from "./page";
 import { SearchBox } from "@/components/google-map-search-box";
 

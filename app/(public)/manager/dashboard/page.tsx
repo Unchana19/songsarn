@@ -1,8 +1,8 @@
 "use client";
 
-import { Card } from "@nextui-org/card";
+import { Card } from "@heroui/card";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import { format } from "date-fns";
 import { FaArrowDown, FaArrowUp, FaTrophy } from "react-icons/fa6";
 import {
@@ -14,14 +14,14 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import { Chip } from "@nextui-org/chip";
-import { Divider } from "@nextui-org/divider";
+import { Chip } from "@heroui/chip";
+import { Divider } from "@heroui/divider";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { DashboardData } from "@/interfaces/dashboard.interface";
 import { useSession } from "next-auth/react";
-import { Progress } from "@nextui-org/progress";
+import { Progress } from "@heroui/progress";
 import { formatCurrency } from "@/utils/format-currency";
-import { Image } from "@nextui-org/image";
+import { Image } from "@heroui/image";
 import ImagePlaceholder from "@/components/image-placeholder";
 import { formatId } from "@/utils/format-id";
 import { getHistoryStatus } from "@/utils/get-history-status";

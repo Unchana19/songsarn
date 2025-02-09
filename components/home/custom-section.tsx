@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Button } from "@nextui-org/button";
-import { Image } from "@nextui-org/image";
+import { Button } from "@heroui/button";
+import { Image } from "@heroui/image";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 const CustomShrineSection = () => {

@@ -12,12 +12,12 @@ import {
 } from "@/lib/schemas/createProductSchema";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Card } from "@nextui-org/card";
-import { Divider } from "@nextui-org/divider";
-import { Image } from "@nextui-org/image";
-import { Input, Textarea } from "@nextui-org/input";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
+import { Divider } from "@heroui/divider";
+import { Image } from "@heroui/image";
+import { Input, Textarea } from "@heroui/input";
+import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";

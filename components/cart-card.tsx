@@ -1,8 +1,8 @@
 import { OrderLine } from "@/interfaces/order-line.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { ButtonGroup, Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
-import { Image } from "@nextui-org/image";
+import { ButtonGroup, Button } from "@heroui/button";
+import { Divider } from "@heroui/divider";
+import { Image } from "@heroui/image";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import ImagePlaceholder from "./image-placeholder";
 

@@ -9,9 +9,9 @@ import {
   NavbarMenuToggle,
   NavbarMenu,
   NavbarMenuItem,
-} from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
-import { Link } from "@nextui-org/link";
+} from "@heroui/navbar";
+import { Button } from "@heroui/button";
+import { Link } from "@heroui/link";
 import { FaBasketShopping } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -21,10 +21,10 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { Avatar } from "@nextui-org/avatar";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Avatar } from "@heroui/avatar";
+import { Skeleton } from "@heroui/skeleton";
 import { User } from "@/interfaces/user.interface";
-import { Image } from "@nextui-org/image";
+import { Image } from "@heroui/image";
 import {
   menuItemsManager,
   menuItemsCustomer,

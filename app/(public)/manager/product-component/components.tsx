@@ -3,11 +3,11 @@
 import PopupModal from "@/components/popup-modal";
 import { Component } from "@/interfaces/component.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Button } from "@nextui-org/button";
-import { Card, CardHeader, CardBody } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
-import { useDisclosure } from "@nextui-org/modal";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Button } from "@heroui/button";
+import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Image } from "@heroui/image";
+import { useDisclosure } from "@heroui/modal";
+import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";

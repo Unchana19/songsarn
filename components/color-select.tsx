@@ -1,5 +1,5 @@
 import { Color } from "@/interfaces/color.interface";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 
 interface Props {
   isPrimary: boolean;

@@ -1,10 +1,10 @@
 import React from "react";
-import { Select, SelectItem } from "@nextui-org/select";
+import { Select, SelectItem } from "@heroui/select";
 import { Component } from "@/interfaces/component.interface";
 import { Color } from "@/interfaces/color.interface";
 import ColorSelect from "./color-select";
 import { Category } from "@/interfaces/category.interface";
-import { Image } from "@nextui-org/image";
+import { Image } from "@heroui/image";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 
 interface Props {

@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "@nextui-org/button";
-import { Divider } from "@nextui-org/divider";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Button } from "@heroui/button";
+import { Divider } from "@heroui/divider";
+import { Skeleton } from "@heroui/skeleton";
 import { MdOutlinePayments } from "react-icons/md";
 import { OrderLine } from "@/interfaces/order-line.interface";
 import CartCard from "@/components/cart-card";

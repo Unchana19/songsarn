@@ -1,7 +1,7 @@
 import { Category } from "@/interfaces/category.interface";
-import { Button } from "@nextui-org/button";
-import { Card, CardBody, CardFooter } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
+import { Button } from "@heroui/button";
+import { Card, CardBody, CardFooter } from "@heroui/card";
+import { Image } from "@heroui/image";
 import ImagePlaceholder from "./image-placeholder";
 
 interface Props {

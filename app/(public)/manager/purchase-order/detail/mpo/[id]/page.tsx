@@ -10,18 +10,18 @@ import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@nextui-org/button";
-import { Input } from "@nextui-org/input";
-import { useDisclosure } from "@nextui-org/modal";
-import { Select, SelectItem } from "@nextui-org/select";
-import { Chip } from "@nextui-org/chip";
-import { Spinner } from "@nextui-org/spinner";
+import { Button } from "@heroui/button";
+import { Input } from "@heroui/input";
+import { useDisclosure } from "@heroui/modal";
+import { Select, SelectItem } from "@heroui/select";
+import { Chip } from "@heroui/chip";
+import { Spinner } from "@heroui/spinner";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { Card, CardBody, CardHeader } from "@nextui-org/card";
+import { Card, CardBody, CardHeader } from "@heroui/card";
 
 interface Props {
   params: { id: string };

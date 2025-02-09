@@ -5,8 +5,8 @@ import { History } from "@/interfaces/history.interface";
 import { usePathname, useRouter } from "next/navigation";
 import { Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
-import { Chip } from "@nextui-org/chip";
-import { Skeleton } from "@nextui-org/skeleton";
+import { Chip } from "@heroui/chip";
+import { Skeleton } from "@heroui/skeleton";
 import {
   TableRow,
   TableCell,
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableColumn,
   TableBody,
-} from "@nextui-org/table";
+} from "@heroui/table";
 import { formatId } from "@/utils/format-id";
 import { getHistoryStatus } from "@/utils/get-history-status";
 import Link from "next/link";

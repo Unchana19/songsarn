@@ -1,7 +1,7 @@
 import { Product } from "@/interfaces/product.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
-import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Image } from "@heroui/image";
 import { ReactNode } from "react";
 import ImagePlaceholder from "./image-placeholder";
 

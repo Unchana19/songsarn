@@ -1,36 +1,42 @@
 "use client";
 
-import { SetStateAction, Suspense, useEffect, useRef, useState } from "react";
+import {
+  type SetStateAction,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import TabsSelect from "@/components/tabs-select";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { Key, useTransition } from "react";
+import { type Key, useTransition } from "react";
 import AllMeterial from "./all-meterial";
-import { Button } from "@nextui-org/button";
+import { Button } from "@heroui/button";
 import { FaPlus } from "react-icons/fa";
-import { Input } from "@nextui-org/input";
+import { Input } from "@heroui/input";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   useDisclosure,
-} from "@nextui-org/modal";
+} from "@heroui/modal";
 import { useForm } from "react-hook-form";
 import {
   createMaterialSchema,
-  CreateMaterialSchema,
+  type CreateMaterialSchema,
 } from "@/lib/schemas/createMaterialSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { Skeleton } from "@nextui-org/skeleton";
-import { Material } from "@/interfaces/material.interface";
+import { Skeleton } from "@heroui/skeleton";
+import type { Material } from "@/interfaces/material.interface";
 import PopupModal from "@/components/popup-modal";
 import AllRequisition from "./all-requisition";
 import { HexColorPicker } from "react-colorful";
-import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
 import { getContrastColor } from "@/utils/get-contrast-color";
-import { Checkbox } from "@nextui-org/checkbox";
-import { cn } from "@nextui-org/theme";
+import { Checkbox } from "@heroui/checkbox";
+import { cn } from "@heroui/theme";
 
 function StockContent() {
   const session = useSession();

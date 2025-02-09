@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -11,7 +11,7 @@ import FooterComponent from "@/components/footer";
 export const metadata: Metadata = {
   title: {
     default: "Songsarn",
-    template: `%s - Songsarn`,
+    template: "%s - Songsarn",
   },
   description: "songsarn e-comerce platform to sell shrine",
   icons: {
