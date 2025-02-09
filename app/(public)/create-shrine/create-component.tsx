@@ -1,9 +1,14 @@
 "use client";
 
 import ImagePlaceholder from "@/components/image-placeholder";
-import { Category } from "@/interfaces/category.interface";
-import { Color } from "@/interfaces/color.interface";
-import { Component } from "@/interfaces/component.interface";
+import type { Category } from "@/interfaces/category.interface";
+import type { Color } from "@/interfaces/color.interface";
+import type { Component } from "@/interfaces/component.interface";
+import {
+  useFetchBomComponentsCategoriesQuery,
+  useFetchColorsQuery,
+  useFetchComponentsQuery,
+} from "@/store";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button, ButtonGroup } from "@heroui/button";
 import { Card, CardBody, CardFooter } from "@heroui/card";
@@ -30,82 +35,28 @@ export interface ComponentSelection {
 export default function CreateComponentPage({ selectedCategory }: Props) {
   const session = useSession();
   const router = useRouter();
-  const [bomCategories, setBomCategories] = useState<Category[]>([]);
-  const [components, setComponents] = useState<Component[]>([]);
-  const [colors, setColors] = useState<Color[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: bomCategories, isLoading: isLoadingBOMCateogires } =
+    useFetchBomComponentsCategoriesQuery({
+      categoryId: selectedCategory,
+      accessToken: session.data?.accessToken || "",
+    });
+
+  const { data: components, isLoading: isLoadingComponents } =
+    useFetchComponentsQuery(session.data?.accessToken || "");
+
+  const { data: colors, isLoading: isLoadingColors } = useFetchColorsQuery(
+    session.data?.accessToken || ""
+  );
+
   const [totalPrice, setTotalPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<ComponentSelection[]>([]);
 
-  const fetchBOMCategories = async () => {
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(
-        `/api/categories/bom-categories/${selectedCategory}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        setBomCategories(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch BOM categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchComponents = async () => {
-    try {
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/components", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setComponents(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch components:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchColors = async () => {
-    try {
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/materials/colors", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setColors(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch colors:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchBOMCategories();
-    fetchComponents();
-    fetchColors();
-  }, [session]);
-
-  useEffect(() => {
-    if (bomCategories.length > 0) {
+    if (bomCategories?.length > 0) {
       setSelections(
-        bomCategories.map((category) => ({
+        bomCategories?.map((category: Category) => ({
           categoryId: category.id,
           component: null,
           primaryColor: null,
@@ -124,7 +75,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
 
   const handleComponentSelect = (categoryId: string, component: Component) => {
     setSelections((prev) =>
-      prev.map((selection) =>
+      prev?.map((selection) =>
         selection.categoryId === categoryId
           ? { ...selection, component }
           : selection
@@ -138,7 +89,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
     type: "primary" | "pattern"
   ) => {
     setSelections((prev) =>
-      prev.map((selection) =>
+      prev?.map((selection) =>
         selection.categoryId === categoryId
           ? {
               ...selection,
@@ -151,7 +102,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
 
   const handleProductSave = async () => {
     try {
-      const simplifiedComponents = selections.map((item) => ({
+      const simplifiedComponents = selections?.map((item) => ({
         id: item.component?.id,
         primary_color: item.primaryColor?.id,
         pattern_color: item.patternColor?.id,
@@ -177,7 +128,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
     } catch (error) {}
   };
 
-  if (isLoading) {
+  if (isLoadingBOMCateogires || isLoadingComponents || isLoadingColors) {
     return (
       <div className="h-[50vh] flex items-center justify-center">
         <Progress size="sm" isIndeterminate aria-label="Loading..." />
@@ -203,12 +154,9 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col gap-8 pb-32">
-        {" "}
-        {/* เพิ่ม padding-bottom สำหรับ fixed button */}
-        {/* Categories */}
-        {bomCategories.map((category) => {
+        {bomCategories?.map((category: Category) => {
           const categoryComponents = components.filter(
-            (c) => c.category_id === category.id
+            (component: Component) => component.category_id === category.id
           );
           const selection = selections.find(
             (s) => s.categoryId === category.id
@@ -235,45 +183,42 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {categoryComponents.map((component) => (
-                  <Card
+                {categoryComponents?.map((component: Component) => (
+                    <Card
                     key={component.id}
                     isPressable
-                    className={`border-2 transition-all duration-200 hover:scale-[1.02] ${
+                    className={`border-2 justify-center w-full transition-all duration-200 hover:scale-[1.02] ${
                       selection?.component?.id === component.id
-                        ? "border-primary shadow-lg shadow-primary/20"
-                        : "border-transparent hover:border-primary/50"
+                      ? "border-primary shadow-lg shadow-primary/20"
+                      : "border-transparent hover:border-primary/50"
                     }`}
                     onPress={() =>
                       handleComponentSelect(category.id, component)
                     }
-                  >
-                    <CardBody className="p-0 aspect-square flex justify-center">
+                    >
+                    <CardBody className="p-0 w-full aspect-square flex justify-center items-center z-0 overflow-hidden">
                       {component.img ? (
-                        <Image
-                          src={component.img}
-                          alt={component.name}
-                          classNames={{
-                            wrapper: "w-full h-full",
-                            img: "object-cover w-full h-full",
-                          }}
-                        />
+                      <Image
+                        src={component.img}
+                        alt={component.name}
+                        className="object-contain"
+                      />
                       ) : (
-                        <ImagePlaceholder
-                          name={component.name}
-                          classNames="h-full bg-default-100"
-                        />
+                      <ImagePlaceholder
+                        name={component.name}
+                        classNames="h-full bg-default-100"
+                      />
                       )}
                     </CardBody>
                     <CardFooter className="flex flex-col items-start p-4">
                       <p className="font-medium">{component.name}</p>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-primary font-semibold">
-                          {formatNumberWithComma(component.price)}
-                        </span>
+                      <span className="text-primary font-semibold">
+                        {formatNumberWithComma(component.price)}
+                      </span>
                       </div>
                     </CardFooter>
-                  </Card>
+                    </Card>
                 ))}
               </div>
 
@@ -284,9 +229,10 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
                     <div className="space-y-3">
                       <p className="font-medium">Primary Color</p>
                       <div className="flex gap-3 flex-wrap">
-                        {colors.map((color) => (
+                        {colors.map((color: Color) => (
                           <button
                             key={color.id}
+                            type="button"
                             className={`w-10 h-10 rounded-xl transition-transform hover:scale-110 ${
                               selection.primaryColor?.id === color.id
                                 ? "ring-2 ring-primary ring-offset-2"
@@ -304,9 +250,10 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
                     <div className="space-y-3">
                       <p className="font-medium">Pattern Color</p>
                       <div className="flex gap-3 flex-wrap">
-                        {colors.map((color) => (
+                        {colors.map((color: Color) => (
                           <button
                             key={color.id}
+                            type="button"
                             className={`w-10 h-10 rounded-xl transition-transform hover:scale-110 ${
                               selection.patternColor?.id === color.id
                                 ? "ring-2 ring-primary ring-offset-2"
@@ -328,8 +275,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
             </div>
           );
         })}
-        {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t z-100">
+        <div className="fixed py-5 bottom-0 left-0 right-0 p-4 backdrop-blur-md border-t bg-white z-100">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="flex flex-col">
@@ -344,7 +290,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
               <div className="border-primary border-1.5 rounded-full p-1 w-36">
                 <ButtonGroup className="flex justify-between">
                   <Button
-                    onClick={decreateQuantity}
+                    onPress={decreateQuantity}
                     isIconOnly
                     radius="full"
                     variant="light"
@@ -354,7 +300,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
                   </Button>
                   <div>{quantity}</div>
                   <Button
-                    onClick={increateQuantity}
+                    onPress={increateQuantity}
                     isIconOnly
                     radius="full"
                     variant="light"
@@ -366,7 +312,7 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
               </div>
             </div>
             <Button
-              onClick={handleProductSave}
+              onPress={handleProductSave}
               color="primary"
               size="lg"
               className="font-medium px-8"

@@ -45,27 +45,27 @@ export default function CustomizePage() {
     }
   };
 
-    if (session.status === "unauthenticated") {
-      return (
-        <div className="flex items-center justify-center">
-          <EmptyComponents
-            title={"Please login to create own shrine"}
-            subTitle={"Let's create own shrine"}
-            button={
-              <Button
-                as={Link}
-                href="/login"
-                radius="full"
-                color="primary"
-                className="px-10"
-              >
-                Login
-              </Button>
-            }
-          />
-        </div>
-      );
-    }
+  if (session.status === "unauthenticated") {
+    return (
+      <div className="flex items-center justify-center">
+        <EmptyComponents
+          title={"Please login to create own shrine"}
+          subTitle={"Let's create own shrine"}
+          button={
+            <Button
+              as={Link}
+              href="/login"
+              radius="full"
+              color="primary"
+              className="px-10"
+            >
+              Login
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -80,10 +80,10 @@ export default function CustomizePage() {
             <div className="flex gap-4">
               {activeStep > 1 && (
                 <Button
+                  onPress={() => prevPage(activeStep)}
                   color="primary"
                   variant="bordered"
                   radius="full"
-                  onClick={() => prevPage(activeStep)}
                 >
                   <FaArrowLeftLong />
                   <p>Back</p>
@@ -91,9 +91,9 @@ export default function CustomizePage() {
               )}
               {activeStep === 1 && (
                 <Button
+                  onPress={() => nextPage(activeStep)}
                   color="primary"
                   radius="full"
-                  onClick={() => nextPage(activeStep)}
                   isDisabled={activeStep === 1 && selectedCategory === ""}
                 >
                   <div className="flex items-center justify-center gap-2">

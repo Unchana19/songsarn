@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Navbar,
   NavbarBrand,
@@ -23,21 +23,25 @@ import {
 } from "@heroui/dropdown";
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
-import { User } from "@/interfaces/user.interface";
 import { Image } from "@heroui/image";
 import {
   menuItemsManager,
   menuItemsCustomer,
 } from "@/constants/menu-tabs-items";
-import { MenuItems } from "@/types";
+import type { MenuItems } from "@/types";
 import { FaShoppingBag } from "react-icons/fa";
+import { useFetchUserQuery } from "@/store";
 
 export default function NavbarComponent() {
-  const { data: session, status } = useSession();
-  const [user, setUser] = useState<User | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = useSession();
   const pathname = usePathname();
-  const isLoading = status === "loading";
+  const {
+    data: user,
+    error,
+    isLoading,
+  } = useFetchUserQuery(session?.userId ?? "");
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isManager = session?.role === "manager";
 
   let menuItems: MenuItems[];
@@ -46,27 +50,6 @@ export default function NavbarComponent() {
   } else {
     menuItems = menuItemsCustomer;
   }
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (status === "authenticated" && session?.userId) {
-        try {
-          const response = await fetch(`/api/users/${session.userId}`);
-
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          }
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-
-    fetchUser();
-  }, [status, session]);
 
   if (pathname === "/login" || pathname === "/sign-up") {
     return null;
@@ -130,7 +113,7 @@ export default function NavbarComponent() {
               <p className="text-black">Address</p>
             </DropdownItem>
             <DropdownItem
-              onClick={() => signOut()}
+              onPress={() => signOut()}
               key="logout"
               className="text-danger"
               color="danger"
@@ -157,10 +140,7 @@ export default function NavbarComponent() {
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex gap-4"
-        justify="start"
-      />
+      <NavbarContent className="hidden sm:flex gap-4" justify="start" />
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
@@ -199,8 +179,8 @@ export default function NavbarComponent() {
             </Button>
           </NavbarMenuItem>
         )}
-        {menuItems.map((menu, index) => (
-          <NavbarMenuItem key={`${menu}-${index}`}>
+        {menuItems.map((menu) => (
+          <NavbarMenuItem key={"menu.href"}>
             <Button
               fullWidth
               as={Link}

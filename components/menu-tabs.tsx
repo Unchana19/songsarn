@@ -16,10 +16,10 @@ import {
   menuItemsManager,
 } from "@/constants/menu-tabs-items";
 import { useSession } from "next-auth/react";
-import { MenuItems } from "@/types";
+import type { MenuItems } from "@/types";
 import { Skeleton } from "@heroui/skeleton";
-import { Category } from "@/interfaces/category.interface";
-import { useState, useEffect } from "react";
+import type { Category } from "@/interfaces/category.interface";
+import { useFetchProductCategoriesQuery } from "@/store";
 
 export default function MenuTabsComponent() {
   const pathname = usePathname();
@@ -27,33 +27,18 @@ export default function MenuTabsComponent() {
   const { data: session, status } = useSession();
   const isManager = session?.role === "manager";
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchCategories = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/categories/product-categories");
-      const result = await response.json();
-      if (response.ok) {
-        setCategories(result);
-      }
-    } catch (error) {
-      console.error("Error fetching product categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const {
+    data: productCategories,
+    error,
+    isLoading,
+  } = useFetchProductCategoriesQuery({});
 
   if (status === "loading" || isLoading) {
     return (
       <div className="md:flex gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
         <div className="flex gap-2">
           {[...Array(4)].map((_, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Skeleton key={index} className="h-10 w-32 rounded-lg" />
           ))}
         </div>
@@ -70,7 +55,7 @@ export default function MenuTabsComponent() {
 
   const dropdownItems = [
     { key: "", label: "All products" },
-    ...categories.map((category) => ({
+    ...productCategories.map((category: Category) => ({
       key: category.id,
       label: category.name,
     })),
