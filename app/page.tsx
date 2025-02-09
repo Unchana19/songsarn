@@ -1,39 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import CategoryCard from "@/components/categoy-card";
-import { Category } from "@/interfaces/category.interface";
+import type { Category } from "@/interfaces/category.interface";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BenefitsSection from "@/components/home/benefit-section";
 import CustomShrineSection from "@/components/home/custom-section";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { useSession } from "next-auth/react";
+import { useFetchProductCategoriesQuery } from "@/store";
 
 export default function HomePage() {
-  const session = useSession();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchCategories = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/categories/product-categories");
-      const result = await response.json();
-      if (response.ok) {
-        setCategories(result);
-      }
-    } catch (error) {
-      console.error("Error fetching product categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, [session]);
+  const {
+    data: productCategories,
+    error,
+    isLoading,
+  } = useFetchProductCategoriesQuery({});
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -41,7 +23,7 @@ export default function HomePage() {
     transition: { duration: 0.8 },
   };
 
-  if (isLoading) {
+  if (isLoading || error) {
     return <div className="w-full h-screen bg-white" />;
   }
 
@@ -133,7 +115,7 @@ export default function HomePage() {
           หมวดหมู่ศาลพระภูมิ
         </h2>
         <div className="flex justify-start md:justify-center gap-4 sm:gap-8 overflow-x-auto pb-8 scrollbar-hide px-2 snap-x snap-mandatory">
-          {categories.map((category: Category) => (
+          {productCategories.map((category: Category) => (
             <motion.div
               key={category.name}
               whileHover={{ y: -5 }}

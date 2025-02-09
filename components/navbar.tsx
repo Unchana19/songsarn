@@ -20,7 +20,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-} from "@nextui-org/dropdown";
+} from "@heroui/dropdown";
 import { Avatar } from "@nextui-org/avatar";
 import { Skeleton } from "@nextui-org/skeleton";
 import { User } from "@/interfaces/user.interface";
@@ -160,7 +160,7 @@ export default function NavbarComponent() {
       <NavbarContent
         className="hidden sm:flex gap-4"
         justify="start"
-      ></NavbarContent>
+      />
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">

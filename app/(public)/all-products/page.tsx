@@ -2,117 +2,72 @@
 import EmptyComponents from "@/components/empty-components";
 import PopupModal from "@/components/popup-modal";
 import ProductCardSmall from "@/components/product-card-small";
-import { Category } from "@/interfaces/category.interface";
-import { Product } from "@/interfaces/product.interface";
+import type { Category } from "@/interfaces/category.interface";
+import type { Product } from "@/interfaces/product.interface";
+import {
+  useAddToCartMutation,
+  useFetchProductCategoriesQuery,
+  useFetchProductsQuery,
+} from "@/store";
 import { Button } from "@nextui-org/button";
 import { Card } from "@nextui-org/card";
 import { useDisclosure } from "@nextui-org/modal";
 import { Skeleton } from "@nextui-org/skeleton";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 
 export default function AllProductsPage() {
   const session = useSession();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+  const {
+    data: productsCategories,
+    error: errorProductCategories,
+    isLoading: isLoadingProductCategories,
+  } = useFetchProductCategoriesQuery({});
 
+  const {
+    data: products,
+    error: errorProducts,
+    isLoading: isLoadingProducts,
+  } = useFetchProductsQuery({});
+
+  const [addToCart, results] = useAddToCartMutation();
+  const [modalMessage, setModalMessage] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const fetchCategories = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/categories/product-categories");
-      const result = await response.json();
-      if (response.ok) {
-        setCategories(result);
-      }
-    } catch (error) {
-      console.error("Error fetching product categories:", error);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/products?id=${session.data?.userId}`);
-      const result = await response.json();
-      if (response.ok) {
-        setProducts(result);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-    fetchProducts();
-  }, []);
-
   const handleAddToCart = async (product: Product) => {
-    if (session.status === "authenticated" && session.data?.userId) {
-      await addToCart(product);
+    if (
+      session.status === "authenticated" &&
+      session.data?.userId &&
+      session.data?.accessToken
+    ) {
+      try {
+        addToCart({
+          userId: session.data.userId,
+          productId: product.id,
+          accessToken: session.data.accessToken,
+        });
+      } catch (error) {
+        setModalMessage("An error occurred. Please try again.");
+        onOpen();
+      } finally {
+        setModalMessage("Product added to cart successfully");
+        onOpen();
+      }
     } else {
       setModalMessage("Please login to add items to cart");
       onOpen();
     }
   };
 
-  const addToCart = async (product: Product) => {
-    if (isAddingToCart) return;
-
-    setIsAddingToCart(true);
-
-    try {
-      if (!session.data?.userId) {
-        setModalMessage("Unable to add to cart. Please try again.");
-        onOpen();
-        return;
-      }
-
-      const data = {
-        product_id: product.id,
-        order_id: session.data.userId,
-      };
-
-      const response = await fetch("/api/carts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data.accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setModalMessage("Product added to cart successfully!");
-      } else {
-        setModalMessage("Failed to add product to cart");
-      }
-      onOpen();
-    } catch (error) {
-      setModalMessage("An error occurred. Please try again.");
-      onOpen();
-    } finally {
-      setIsAddingToCart(false);
-    }
-  };
-
-  if (isLoading) {
+  if (isLoadingProductCategories || isLoadingProducts) {
     return (
       <div>
         <Skeleton className="h-8 w-32 rounded-lg mb-10" />
         <div className="flex flex-col gap-10">
           {[...Array(3)].map((_, categoryIndex) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <div key={categoryIndex} className="flex flex-col">
               <div className="flex justify-between mb-5">
                 <Skeleton className="h-6 w-40 rounded-lg" />
@@ -121,30 +76,31 @@ export default function AllProductsPage() {
               <div className="flex flex-wrap justify-start">
                 {[...Array(4)].map((_, productIndex) => (
                   <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                     key={productIndex}
                     className="w-full md:w-1/2 xl:w-1/4 p-5"
                   >
                     <Card className="w-full space-y-5 p-4">
                       <Skeleton className="rounded-lg">
-                        <div className="h-52 rounded-lg bg-default-300"></div>
+                        <div className="h-52 rounded-lg bg-default-300" />
                       </Skeleton>
                       <div className="space-y-3">
                         <Skeleton className="w-3/5 rounded-lg">
-                          <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+                          <div className="h-3 w-3/5 rounded-lg bg-default-200" />
                         </Skeleton>
                         <Skeleton className="w-4/5 rounded-lg">
-                          <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
+                          <div className="h-3 w-4/5 rounded-lg bg-default-200" />
                         </Skeleton>
                         <Skeleton className="w-2/5 rounded-lg">
-                          <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
+                          <div className="h-3 w-2/5 rounded-lg bg-default-300" />
                         </Skeleton>
                       </div>
                       <div className="flex gap-4">
                         <Skeleton className="w-32 rounded-lg">
-                          <div className="h-10 rounded-lg bg-default-200"></div>
+                          <div className="h-10 rounded-lg bg-default-200" />
                         </Skeleton>
                         <Skeleton className="w-10 rounded-lg">
-                          <div className="h-10 rounded-lg bg-default-200"></div>
+                          <div className="h-10 rounded-lg bg-default-200" />
                         </Skeleton>
                       </div>
                     </Card>
@@ -162,9 +118,9 @@ export default function AllProductsPage() {
     <div>
       <h2 className="font-bold text-lg">All products</h2>
       <div className="flex flex-col mt-10 gap-10">
-        {categories.map((category) => {
+        {productsCategories.map((category: Category) => {
           const productsFilter = products.filter(
-            (product) => product.category_id === category.id
+            (product: Product) => product.category_id === category.id
           );
           return (
             <div key={category.id} className="flex flex-col">
@@ -182,7 +138,7 @@ export default function AllProductsPage() {
               </div>
               <div className="flex flex-wrap justify-start min-h-[200px]">
                 {productsFilter.length > 0 ? (
-                  productsFilter.map((product, index) => (
+                  productsFilter.map((product: Product, index: number) => (
                     <div
                       key={product.id}
                       className="w-full md:w-1/2 xl:w-1/4 p-5"
@@ -211,7 +167,7 @@ export default function AllProductsPage() {
                                 className="z-10"
                                 isIconOnly
                                 color="primary"
-                                isLoading={isAddingToCart}
+                                isLoading={results.isLoading}
                               >
                                 <FaCartPlus color="white" size={20} />
                               </Button>
