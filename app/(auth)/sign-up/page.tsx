@@ -2,71 +2,29 @@
 
 import { EyeFilledIcon } from "@/components/icons/eye-filled-icon";
 import { EyeSlashFilledIcon } from "@/components/icons/eye-slash-filled-icon";
-import { signUpSchema, SignUpSchema } from "@/lib/schemas/signUpSchema";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import Link from "next/link";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useDisclosure } from "@heroui/modal";
 import PopupModal from "@/components/popup-modal";
 import { useRouter } from "next/navigation";
+import { useSignUp } from "@/hooks/useSignUp";
 
 export default function SignUpPage() {
   const router = useRouter();
 
-  const [isVisible, setIsVisible] = useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
-
-  const [isError, setIsError] = useState(false);
-  const [message, setMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const methods = useForm<SignUpSchema>({
-    resolver: zodResolver(signUpSchema),
-    mode: "onTouched",
-  });
-
   const {
+    isVisible,
+    toggleVisibility,
+    message,
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
-  } = methods;
-
-const onSubmit = async (data: SignUpSchema) => {
-  try {
-    const response = await fetch("/api/sign-up", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      if (response.status === 400) {
-        setIsError(true);
-        setMessage(result.message || "Validation error occurred.");
-        onOpen();
-      } else {
-        setIsError(true);
-        setMessage("An unexpected error occurred.");
-        onOpen();
-      }
-    } else {
-      setIsError(false);
-      setMessage("Sign up successfully");
-      onOpen();
-    }
-  } catch (error) {
-    setIsError(true);
-    setMessage("There was an error processing your request.");
-    onOpen();
-  }
-};
+    errors,
+    isValid,
+    isSubmitting,
+    onSubmit,
+    isOpen,
+    onOpenChange,
+  } = useSignUp();
 
   return (
     <div className="flex justify-center h-screen items-center">

@@ -1,32 +1,38 @@
+"use client";
+
 import React from "react";
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { Skeleton } from "@heroui/skeleton";
 import { MdOutlinePayments } from "react-icons/md";
-import { OrderLine } from "@/interfaces/order-line.interface";
+import type { OrderLine } from "@/interfaces/order-line.interface";
 import CartCard from "@/components/cart-card";
 import { calTotal } from "@/utils/cal-total";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import EmptyComponents from "@/components/empty-components";
 import Link from "next/link";
+import { useCarts } from "@/hooks/useCarts";
 
 interface Props {
-  orderLines: OrderLine[];
-  increateQuantityOrder: (id: string) => void;
-  decreateQuantityOrder: (id: string) => void;
-  deleteOrder: (id: string) => void;
-  isLoading: boolean;
   nextPage(page: number): void;
+  userId: string;
+  accessToken: string;
 }
 
 export default function CartSummaryPage({
-  orderLines,
-  increateQuantityOrder,
-  decreateQuantityOrder,
-  deleteOrder,
-  isLoading,
   nextPage,
+  userId,
+  accessToken,
 }: Props) {
+  const {
+    orderLines = [],
+    isLoading,
+    isSuccess,
+    handleIncreaseQuantityById,
+    handleDecreaseQuantityById,
+    handleDeleteOrderById,
+  } = useCarts({ userId, accessToken });
+
   const goToCheckOut = () => {
     nextPage(0);
   };
@@ -81,15 +87,15 @@ export default function CartSummaryPage({
       <h3 className="font-bold text-xl mb-10">Your cart</h3>
       <div className="flex flex-col md:flex-row w-full">
         <div className="md:w-1/2">
-          {orderLines.length > 0 ? (
+          {isSuccess && orderLines?.length > 0 ? (
             <div>
               {orderLines.map((orderLine: OrderLine) => (
                 <CartCard
                   key={orderLine.id}
                   orderLine={orderLine}
-                  increateQuantityOrder={increateQuantityOrder}
-                  decreateQuantityOrder={decreateQuantityOrder}
-                  deleteOrder={deleteOrder}
+                  handleIncreaseQuantityById={handleIncreaseQuantityById}
+                  handleDecreaseQuantityById={handleDecreaseQuantityById}
+                  handleDeleteOrderById={handleDeleteOrderById}
                 />
               ))}
             </div>
@@ -117,30 +123,35 @@ export default function CartSummaryPage({
           <div className="w-full flex flex-col items-center">
             <div className="md:w-2/3 w-full flex flex-col gap-4">
               <p className="font-bold text-lg">Summary</p>
-              {orderLines.map((orderLine) => (
-                <div key={orderLine.id} className="flex justify-between">
-                  <p>
-                    {orderLine.name} ({orderLine.quantity})
-                  </p>
-                  <p>
-                    {formatNumberWithComma(
-                      orderLine.price * orderLine.quantity
-                    )}
-                  </p>
-                </div>
-              ))}
+              {isSuccess &&
+                orderLines?.map((orderLine: OrderLine) => (
+                  <div key={orderLine.id} className="flex justify-between">
+                    <p>
+                      {orderLine.name} ({orderLine.quantity})
+                    </p>
+                    <p>
+                      {formatNumberWithComma(
+                        orderLine.price * orderLine.quantity
+                      )}
+                    </p>
+                  </div>
+                ))}
               <Divider className="my-1" />
               <div className="flex justify-between font-bold text-lg">
                 <p>Total</p>
-                <p>{formatNumberWithComma(calTotal(orderLines))}</p>
+                <p>
+                  {!isSuccess
+                    ? formatNumberWithComma(0)
+                    : formatNumberWithComma(calTotal(orderLines) ?? 0)}
+                </p>
               </div>
               <Button
                 color="primary"
                 radius="full"
                 size="lg"
                 startContent={<MdOutlinePayments color="white" size={20} />}
-                onClick={() => goToCheckOut()}
-                isDisabled={orderLines.length === 0}
+                onPress={() => goToCheckOut()}
+                isDisabled={!isSuccess || orderLines?.length === 0}
               >
                 <p className="text-white">Go to checkout</p>
               </Button>

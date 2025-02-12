@@ -12,9 +12,10 @@ import { type Key, useTransition, useMemo } from "react";
 
 interface Props {
   cpos: CPOGetAll[];
+  isSuccess: boolean;
 }
 
-export default function StatusTab({ cpos }: Props) {
+export default function StatusTab({ cpos, isSuccess }: Props) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -61,7 +62,7 @@ export default function StatusTab({ cpos }: Props) {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
             <div key={tab.id}>
-              {filteredCPOs.length > 0 ? (
+              {isSuccess && filteredCPOs.length > 0 ? (
                 <div className="my-5 flex flex-col gap-5">
                   {filteredCPOs.map((order) => (
                     <Link

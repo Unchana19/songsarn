@@ -49,12 +49,22 @@ export {
   useCustomizeProductMutation,
   useFetchProductByIdQuery,
 } from "./api/productsApi";
-export { useAddToCartMutation } from "./api/cartsApi";
-export { useFetchUserQuery } from "./api/usersApi";
+export {
+  useAddToCartMutation,
+  useFetchCartsByIdQuery,
+  useIncreaseQuantityByIdMutation,
+  useDecreaseQuantityByIdMutation,
+  useDeleteOrderByIdMutation,
+} from "./api/cartsApi";
+export { useFetchUserQuery, useSignUpMutation } from "./api/usersApi";
 export { useFetchBomComponentsCategoriesQuery } from "./api/bomCategoriesApi";
 export { useFetchComponentsQuery } from "./api/componentsApi";
 export { useFetchColorsQuery } from "./api/colorsApi";
-export { useFetchCPOsByUserIdQuery, useFetchCPOByIdQuery } from "./api/cposApi";
+export {
+  useFetchCPOsByUserIdQuery,
+  useFetchCPOByIdQuery,
+  useAddCPOMutation,
+} from "./api/cposApi";
 export { useTestPaymentsMutation } from "./api/paymentsApi";
 
 export type RootState = ReturnType<typeof store.getState>;

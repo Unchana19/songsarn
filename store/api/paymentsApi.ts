@@ -8,8 +8,8 @@ const paymentsApi = createApi({
     return {
       testPayments: build.mutation({
         invalidatesTags: (
-          result,
-          error,
+          _result,
+          _error,
           {
             data,
           }: {
@@ -27,7 +27,7 @@ const paymentsApi = createApi({
           return {
             url: "/payments/test-payment",
             method: "POST",
-            body: JSON.stringify(data),
+            body: data,
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },

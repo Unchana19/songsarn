@@ -1,7 +1,7 @@
-import { OrderLine } from "@/interfaces/order-line.interface";
+import type { OrderLine } from "@/interfaces/order-line.interface";
 
-export const calTotal = (orderLines: OrderLine[]) => {
-  return orderLines.reduce(
+export const calTotal = (orderLines?: OrderLine[]) => {
+  return orderLines?.reduce(
     (total, orderLine) => total + orderLine.price * orderLine.quantity,
     0
   );

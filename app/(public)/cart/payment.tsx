@@ -8,31 +8,40 @@ import { FiTruck } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { BsBank2 } from "react-icons/bs";
 import { MdOutlinePayment, MdOutlineQrCodeScanner } from "react-icons/md";
-import { Dispatch, SetStateAction, useState } from "react";
-import { OrderLine } from "@/interfaces/order-line.interface";
-import { FormData } from "./page";
+import { type Dispatch, type SetStateAction, useState } from "react";
+import type { OrderLine } from "@/interfaces/order-line.interface";
+import type { FormData } from "./page";
 import { useSession } from "next-auth/react";
 import CartCard from "@/components/cart-card";
 import { useRouter } from "next/navigation";
+import { useAddCPOMutation } from "@/store";
+import PopupModal from "@/components/popup-modal";
+import { useDisclosure } from "@heroui/modal";
+import { useCarts } from "@/hooks/useCarts";
 
 interface Props {
   userId: string;
+  accessToken: string;
   formData: FormData;
   setFormData: Dispatch<SetStateAction<FormData>>;
-  orderLines: OrderLine[];
   prevPage(page: number): void;
 }
 
 export default function PaymentPage({
   userId,
-  orderLines,
+  accessToken,
   formData,
   setFormData,
   prevPage,
 }: Props) {
   const session = useSession();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { orderLines, isSuccess, refetch } = useCarts({ userId, accessToken });
+
+  const [addCpo, results] = useAddCPOMutation();
+  const [modalMessage, setModalMessage] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const backToDelivery = () => {
     prevPage(2);
@@ -45,42 +54,43 @@ export default function PaymentPage({
     }));
   };
 
-  const placeOrder = async () => {
-    try {
-      setIsLoading(true);
-      const dataOrderLines = orderLines.map((ol) => ({
-        id: ol.id,
-        product_id: ol.product_id,
-        quantity: ol.quantity,
-      }));
-      const dataCPO = {
-        user_id: userId,
-        delivery_price: formData.delivery_price,
-        address: formData.address,
-        total_price: calTotal(orderLines) + formData.delivery_price,
-        phone_number: formData.phone_number,
-        payment_method: formData.payment_method,
-      };
-      const dataWithOrderLines = {
-        ...dataCPO,
-        order_lines: [...dataOrderLines],
-      };
-      const response = await fetch("/api/customer-purchase-orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-        body: JSON.stringify(dataWithOrderLines),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        router.push(`my-order/detail/${result.id}`);
-      } else {
+  const handleAddCPO = async () => {
+    if (session.data?.accessToken) {
+      try {
+        const dataOrderLines = orderLines.map((ol: OrderLine) => ({
+          id: ol.id,
+          product_id: ol.product_id,
+          quantity: ol.quantity,
+        }));
+        const dataCPO = {
+          user_id: userId,
+          delivery_price: formData.delivery_price,
+          address: formData.address || "",
+          total_price: calTotal(orderLines) ?? 0 + formData.delivery_price,
+          phone_number: formData.phone_number || "",
+          payment_method: formData.payment_method || "",
+        };
+        const dataWithOrderLines = {
+          ...dataCPO,
+          order_lines: [...dataOrderLines],
+        };
+
+        await addCpo({
+          data: dataWithOrderLines,
+          accessToken: session.data.accessToken,
+        })
+          .unwrap()
+          .then(async (response) => {
+            await refetch();
+            router.push(`my-order/detail/${response.id}`);
+          });
+      } catch {
+        setModalMessage("An error occurred. Please try again.");
+        onOpen();
       }
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
+    } else {
+      setModalMessage("Please Login to order");
+      onOpen();
     }
   };
 
@@ -99,7 +109,7 @@ export default function PaymentPage({
             <p>Delivery</p>
           </div>
         </Button>
-        <div className="bg-black h-1 w-1/5 rounded-full"></div>
+        <div className="bg-black h-1 w-1/5 rounded-full" />
         <Button
           radius="full"
           isIconOnly
@@ -125,7 +135,7 @@ export default function PaymentPage({
               fullWidth
               size="lg"
               disableRipple
-              onClick={() => changePaymentMethod("qr")}
+              onPress={() => changePaymentMethod("qr")}
             >
               <div className="flex items-start w-full gap-4 px-4">
                 <MdOutlineQrCodeScanner size={20} />
@@ -141,7 +151,7 @@ export default function PaymentPage({
               fullWidth
               size="lg"
               disableRipple
-              onClick={() => changePaymentMethod("mobile")}
+              onPress={() => changePaymentMethod("mobile")}
             >
               <div className="flex items-start w-full gap-4 px-4">
                 <BsBank2 size={20} />
@@ -151,8 +161,8 @@ export default function PaymentPage({
           </div>
           <div className="flex flex-col gap-5 mt-10">
             <Button
-              onClick={placeOrder}
-              isLoading={isLoading}
+              onPress={handleAddCPO}
+              isLoading={results.isLoading}
               color="primary"
               radius="full"
               size="lg"
@@ -165,7 +175,7 @@ export default function PaymentPage({
               variant="bordered"
               size="lg"
               startContent={<IoIosArrowRoundBack size={25} />}
-              onClick={() => backToDelivery()}
+              onPress={() => backToDelivery()}
             >
               <p>Back to delivery</p>
             </Button>
@@ -184,7 +194,7 @@ export default function PaymentPage({
             </div>
             <h3 className="font-bold text-xl">
               {formatNumberWithComma(
-                calTotal(orderLines) + formData.delivery_price
+                calTotal(orderLines) ?? 0 + formData.delivery_price
               )}
             </h3>
           </div>
@@ -208,16 +218,22 @@ export default function PaymentPage({
 
           <p className="font-bold text-lg">Products</p>
           <div className="flex flex-col items-center">
-            {orderLines.map((orderLine, index) => {
-              return (
-                <div key={index} className="my-5 w-full">
-                  <CartCard orderLine={orderLine} />
-                </div>
-              );
-            })}
+            {isSuccess &&
+              orderLines.map((orderLine: OrderLine) => {
+                return (
+                  <div key={orderLine.id} className="my-5 w-full">
+                    <CartCard orderLine={orderLine} />
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>
+      <PopupModal
+        message={modalMessage}
+        isOpen={isOpen}
+        onClose={onOpenChange}
+      />
     </div>
   );
 }

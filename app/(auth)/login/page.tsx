@@ -3,7 +3,7 @@
 import { EyeFilledIcon } from "@/components/icons/eye-filled-icon";
 import { EyeSlashFilledIcon } from "@/components/icons/eye-slash-filled-icon";
 import PopupModal from "@/components/popup-modal";
-import { LoginSchema, loginSchema } from "@/lib/schemas/signInSchema";
+import { type LoginSchema, loginSchema } from "@/lib/schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
@@ -21,7 +21,6 @@ export default function LoginPage() {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -41,7 +40,6 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setIsError(true);
       setMessage(result.error);
       onOpen();
     } else {
@@ -108,7 +106,7 @@ export default function LoginPage() {
           <p className="text-white font-bold">Log in</p>
         </Button>
 
-        <Divider></Divider>
+        <Divider />
 
         <Button
           color="primary"
@@ -116,7 +114,7 @@ export default function LoginPage() {
           fullWidth
           size="lg"
           radius="full"
-          onClick={handleGoogleLogin}
+          onPress={handleGoogleLogin}
         >
           <div className="flex items-center gap-5">
             <FaGoogle size={22} />

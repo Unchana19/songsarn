@@ -1,4 +1,4 @@
-import { OrderLine } from "@/interfaces/order-line.interface";
+import type { OrderLine } from "@/interfaces/order-line.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { ButtonGroup, Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
@@ -8,16 +8,18 @@ import ImagePlaceholder from "./image-placeholder";
 
 interface Props {
   orderLine: OrderLine;
-  increateQuantityOrder?: (id: string) => void;
-  decreateQuantityOrder?: (id: string) => void;
-  deleteOrder?: (id: string) => void;
+  userId?: string;
+  accessToken?: string;
+  handleIncreaseQuantityById?: (orderId: string) => void;
+  handleDecreaseQuantityById?: (orderId: string) => void;
+  handleDeleteOrderById?: (orderId: string) => void;
 }
 
 export default function CartCard({
   orderLine,
-  increateQuantityOrder,
-  decreateQuantityOrder,
-  deleteOrder,
+  handleIncreaseQuantityById,
+  handleDecreaseQuantityById,
+  handleDeleteOrderById,
 }: Props) {
   return (
     <div>
@@ -45,12 +47,15 @@ export default function CartCard({
           <div>
             <p>Price per unit: {formatNumberWithComma(orderLine.price)}</p>
           </div>
-          {decreateQuantityOrder && increateQuantityOrder && deleteOrder ? (
+
+          {handleIncreaseQuantityById &&
+          handleDecreaseQuantityById &&
+          handleDeleteOrderById ? (
             <div className="flex items-center gap-3">
               <div className="border-primary border-1.5 rounded-full p-1 w-48">
                 <ButtonGroup className="flex justify-between">
                   <Button
-                    onClick={() => decreateQuantityOrder(orderLine.id)}
+                    onPress={() => handleDecreaseQuantityById(orderLine.id)}
                     isIconOnly
                     radius="full"
                     variant="light"
@@ -60,7 +65,7 @@ export default function CartCard({
                   </Button>
                   <div>{orderLine.quantity}</div>
                   <Button
-                    onClick={() => increateQuantityOrder(orderLine.id)}
+                    onPress={() => handleIncreaseQuantityById(orderLine.id)}
                     isIconOnly
                     radius="full"
                     variant="light"
@@ -71,7 +76,7 @@ export default function CartCard({
                 </ButtonGroup>
               </div>
               <Button
-                onClick={() => deleteOrder(orderLine.id)}
+                onPress={() => handleDeleteOrderById(orderLine.id)}
                 color="primary"
                 variant="light"
                 isIconOnly

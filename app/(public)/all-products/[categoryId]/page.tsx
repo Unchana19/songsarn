@@ -26,13 +26,11 @@ export default function ProductCategoryPage() {
 
   const {
     data: productCategory,
-    error: errorProductCategory,
     isLoading: isLoadingProductCategory,
   } = useFetchProductCategoryQuery(categoryId);
 
   const {
     data: products,
-    error: errorProducts,
     isLoading: isLoadingProducts,
   } = useFetchProductsByCategoryQuery(productCategory);
 

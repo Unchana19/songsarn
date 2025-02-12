@@ -11,12 +11,16 @@ import { useFetchCPOsByUserIdQuery } from "@/store";
 export default function MyOrderPage() {
   const session = useSession();
 
-  const {data: cpos, isLoading} = useFetchCPOsByUserIdQuery({
+  const {
+    data: cpos,
+    isLoading,
+    isSuccess,
+  } = useFetchCPOsByUserIdQuery({
     userId: session.data?.userId,
     accessToken: session.data?.accessToken,
   });
 
-  if (session.status === "loading" || isLoading) {
+  if (session.status === "loading" || isLoading || !isSuccess) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <Spinner size="lg" color="primary" />
@@ -31,7 +35,13 @@ export default function MyOrderPage() {
           title={"Please login to view your orders"}
           subTitle={"Your order is empty"}
           button={
-            <Button as={Link} href="/login" radius="full" color="primary" className="px-10">
+            <Button
+              as={Link}
+              href="/login"
+              radius="full"
+              color="primary"
+              className="px-10"
+            >
               Login
             </Button>
           }
@@ -42,7 +52,7 @@ export default function MyOrderPage() {
 
   return (
     <div className="container mx-auto px-4">
-      <StatusTab cpos={cpos} />
+      <StatusTab cpos={cpos} isSuccess={isSuccess} />
     </div>
   );
 }

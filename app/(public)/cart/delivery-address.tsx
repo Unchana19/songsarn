@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { FiTruck } from "react-icons/fi";
@@ -12,35 +13,23 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  useDisclosure,
 } from "@heroui/modal";
 import { Input, Textarea } from "@heroui/input";
-import { OrderLine } from "@/interfaces/order-line.interface";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import type { OrderLine } from "@/interfaces/order-line.interface";
+import type { Dispatch, SetStateAction } from "react";
 import { Skeleton } from "@heroui/skeleton";
 import CartCard from "@/components/cart-card";
-import { setAddressPOSchema } from "@/lib/schemas/setAddressPOSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { Spinner } from "@heroui/spinner";
-import { FormData } from "./page";
+import type { FormData } from "./page";
 import { SearchBox } from "@/components/google-map-search-box";
-
-const defaultCenter = {
-  lat: 13.7563,
-  lng: 100.5018,
-};
-
-interface Location {
-  lat: number;
-  lng: number;
-  address?: string;
-}
+import { centerMap } from "@/constants/center-map";
+import { useDelivery } from "@/hooks/useDelivery";
+import { useCarts } from "@/hooks/useCarts";
 
 interface Props {
-  orderLines: OrderLine[];
   userId: string;
+  accessToken: string;
   formData: FormData;
   setFormData: Dispatch<SetStateAction<FormData>>;
   prevPage(page: number): void;
@@ -48,290 +37,42 @@ interface Props {
 }
 
 export default function DeliveryAddressPage({
-  orderLines,
   userId,
+  accessToken,
   formData,
   setFormData,
   prevPage,
   nextPage,
 }: Props) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null
-  );
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [modalKey, setModalKey] = useState(0);
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-    libraries: ["places"],
-  });
-
   const {
-    register,
-    setValue,
+    isLoading,
+    onOpen,
+    hasAddress,
+    continueToPayment,
+    isSubmitting,
+    backToCart,
+    modalKey,
+    isOpen,
+    handleModalChange,
     handleSubmit,
-    watch,
-    formState: { errors, isValid, isSubmitting },
-    reset,
-  } = useForm<setAddressPOSchema>({
-    resolver: zodResolver(setAddressPOSchema),
-    mode: "onTouched",
+    onSubmit,
+    register,
+    errors,
+    isLoaded,
+    handlePlaceSelect,
+    selectedLocation,
+    handleMapClick,
+    setMap,
+    isValid,
+  } = useDelivery({
+    userId,
+    formData,
+    setFormData,
+    prevPage,
+    nextPage,
   });
 
-  const fetchUser = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/users/${userId}`);
-      const userData = await response.json();
-      if (response.ok) {
-        const initialData = {
-          name: userData.name,
-          phone_number: userData.phone_number || "",
-          address: userData.address || "",
-          lat: userData.lat || null,
-          lng: userData.lng || null,
-          delivery_price: 0,
-          payment_method: "qr",
-        };
-        setFormData(initialData);
-        if (userData.lat && userData.lng) {
-          const deliveryData = await calculateDeliveryPrice(
-            userData.lat,
-            userData.lng
-          );
-
-          const submitData = {
-            ...initialData,
-            delivery_price: deliveryData.fee,
-          };
-
-          setFormData(submitData);
-
-          setSelectedLocation({
-            lat: userData.lat,
-            lng: userData.lng,
-            address: userData.address,
-          });
-        }
-        reset(initialData);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const handleModalChange = (open: boolean) => {
-    if (open) {
-      reset(formData);
-      if (formData.lat && formData.lng) {
-        setSelectedLocation({
-          lat: formData.lat,
-          lng: formData.lng,
-          address: formData.address,
-        });
-      }
-      setModalKey((prev) => prev + 1);
-    }
-    onOpenChange();
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      reset(formData);
-      if (formData.lat && formData.lng) {
-        setSelectedLocation({
-          lat: formData.lat,
-          lng: formData.lng,
-          address: formData.address,
-        });
-      }
-    }
-  }, [isOpen, formData, reset]);
-
-  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
-    if (!place.geometry || !place.geometry.location) return;
-
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-    const address = place.formatted_address;
-
-    setSelectedLocation({
-      lat,
-      lng,
-      address,
-    });
-
-    setValue("lat", lat, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-    setValue("lng", lng, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-    setValue("address", address || "", {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-
-    const currentPhoneNumber = watch("phone_number");
-    setFormData((prev) => ({
-      ...prev,
-      address: address || "",
-      phone_number: currentPhoneNumber || prev.phone_number,
-      lat,
-      lng,
-    }));
-
-    if (map) {
-      map.panTo({ lat, lng });
-      map.setZoom(17);
-    }
-  };
-
-  const getAddressFromLatLng = async (lat: number, lng: number) => {
-    try {
-      const geocoder = new google.maps.Geocoder();
-      const response = await geocoder.geocode({
-        location: { lat, lng },
-      });
-
-      if (response.results[0]) {
-        const result = response.results[0];
-        const addressObj = {
-          address: result.formatted_address,
-        };
-
-        setValue("address", addressObj.address, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-
-        return addressObj;
-      }
-      return null;
-    } catch (error) {
-      console.error("Geocoding error:", error);
-      return null;
-    }
-  };
-
-  const handleMapClick = async (event: google.maps.MapMouseEvent) => {
-    if (!event.latLng) return;
-
-    const lat = event.latLng.lat();
-    const lng = event.latLng.lng();
-
-    try {
-      setSelectedLocation({
-        lat,
-        lng,
-      });
-
-      setValue("lat", lat, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-      setValue("lng", lng, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-
-      const addressInfo = await getAddressFromLatLng(lat, lng);
-
-      if (addressInfo) {
-        setSelectedLocation((prev) => ({
-          ...prev!,
-          address: addressInfo.address,
-        }));
-
-        setValue("address", addressInfo.address, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-
-        const currentPhoneNumber = watch("phone_number");
-
-        setFormData((prev) => ({
-          ...prev,
-          address: addressInfo.address,
-          phone_number: currentPhoneNumber || prev.phone_number,
-          lat,
-          lng,
-        }));
-      }
-    } catch (error) {
-      console.error("Error handling map click:", error);
-    }
-  };
-
-  const calculateDeliveryPrice = async (lat: number, lng: number) => {
-    const deliveryResponse = await fetch("/api/delivery", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        destinationLat: lat,
-        destinationLng: lng,
-      }),
-    });
-
-    if (!deliveryResponse.ok) {
-      throw new Error("Failed to calculate delivery fee");
-    }
-
-    return await deliveryResponse.json();
-  };
-
-  const onSubmit = async (data: setAddressPOSchema) => {
-    try {
-      if (!selectedLocation) return;
-
-      const deliveryData = await calculateDeliveryPrice(data.lat, data.lng);
-
-      const submitData = {
-        ...formData,
-        ...data,
-        lat: selectedLocation.lat,
-        lng: selectedLocation.lng,
-        delivery_price: deliveryData.fee,
-      };
-
-      setFormData(submitData);
-      onClose();
-    } catch (error) {
-      console.error("Error updating address:", error);
-    }
-  };
-
-  const hasAddress = Boolean(
-    formData.address && formData.phone_number && formData.lat && formData.lng
-  );
-
-  const backToCart = () => {
-    prevPage(1);
-  };
-
-  const continueToPayment = async () => {
-    nextPage(1);
-  };
+  const { orderLines, isSuccess } = useCarts({ userId, accessToken });
 
   const LoadingSkeleton = () => (
     <div className="flex flex-col gap-4 w-full">
@@ -358,7 +99,7 @@ export default function DeliveryAddressPage({
             <p>Delivery</p>
           </div>
         </Button>
-        <div className="bg-gray-600 h-1 w-1/5 rounded-full"></div>
+        <div className="bg-gray-600 h-1 w-1/5 rounded-full" />
         <Button
           radius="full"
           isIconOnly
@@ -400,7 +141,7 @@ export default function DeliveryAddressPage({
               radius="full"
               size="lg"
               endContent={<IoIosArrowRoundForward size={25} color="white" />}
-              onClick={continueToPayment}
+              onPress={continueToPayment}
               isDisabled={isLoading || !hasAddress}
               isLoading={isSubmitting}
             >
@@ -412,7 +153,7 @@ export default function DeliveryAddressPage({
               variant="bordered"
               size="lg"
               startContent={<IoIosArrowRoundBack size={25} />}
-              onClick={() => backToCart()}
+              onPress={() => backToCart()}
             >
               <p>Back to cart</p>
             </Button>
@@ -437,7 +178,7 @@ export default function DeliveryAddressPage({
             </div>
             <h3 className="font-bold text-xl">
               {formatNumberWithComma(
-                calTotal(orderLines) + formData.delivery_price
+                calTotal(orderLines) ?? 0 + formData.delivery_price
               )}
             </h3>
           </div>
@@ -453,13 +194,14 @@ export default function DeliveryAddressPage({
           <Divider className="my-4" />
           <p className="font-bold text-lg">Products</p>
           <div className="flex flex-col items-center">
-            {orderLines.map((orderLine, index) => {
-              return (
-                <div key={index} className="my-5 w-full">
-                  <CartCard orderLine={orderLine} />
-                </div>
-              );
-            })}
+            {isSuccess &&
+              orderLines.map((orderLine: OrderLine) => {
+                return (
+                  <div key={orderLine.id} className="my-5 w-full">
+                    <CartCard orderLine={orderLine} />
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>
@@ -505,7 +247,7 @@ export default function DeliveryAddressPage({
                     ) : (
                       <GoogleMap
                         mapContainerStyle={{ width: "100%", height: "100%" }}
-                        center={selectedLocation || defaultCenter}
+                        center={selectedLocation || centerMap}
                         zoom={13}
                         onClick={handleMapClick}
                         onLoad={setMap}

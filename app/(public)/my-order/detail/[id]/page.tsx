@@ -22,8 +22,10 @@ export default function OrderDetailPage() {
 
   const {
     data: cpo,
-    error,
     isLoading,
+    isFetching,
+    isSuccess,
+    refetch,
   } = useFetchCPOByIdQuery({
     id: cpoId,
     accessToken: session.data?.accessToken,
@@ -43,22 +45,14 @@ export default function OrderDetailPage() {
     } catch (error) {
       console.error("Error fetching order:", error);
     } finally {
-      router.push("/my-order");
+      await refetch();
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isFetching || !isSuccess) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <Spinner size="lg" color="primary" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-[400px] flex flex-col items-center justify-center gap-4">
-        <p className="text-danger">Error</p>
       </div>
     );
   }
@@ -76,7 +70,6 @@ export default function OrderDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="font-bold text-xl">Order detail</h1>

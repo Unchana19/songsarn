@@ -22,13 +22,11 @@ export default function AllProductsPage() {
   const session = useSession();
   const {
     data: productsCategories,
-    error: errorProductCategories,
     isLoading: isLoadingProductCategories,
   } = useFetchProductCategoriesQuery({});
 
   const {
     data: products,
-    error: errorProducts,
     isLoading: isLoadingProducts,
   } = useFetchProductsQuery({});
 

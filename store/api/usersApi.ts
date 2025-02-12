@@ -15,9 +15,20 @@ const usersApi = createApi({
           };
         },
       }),
+
+      signUp: builder.mutation({
+        invalidatesTags: ["User"],
+        query: (data) => {
+          return {
+            url: "/users",
+            method: "POST",
+            body: data,
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useFetchUserQuery } = usersApi;
+export const { useFetchUserQuery, useSignUpMutation } = usersApi;
 export { usersApi };
