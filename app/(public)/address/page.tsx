@@ -1,235 +1,74 @@
 "use client";
 
-import { User } from "@/interfaces/user.interface";
-import { useDisclosure } from "@heroui/modal";
 import { useSession } from "next-auth/react";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { Spinner } from "@heroui/spinner";
 import { Input, Textarea } from "@heroui/input";
-import {
-  GoogleMap,
-  Marker,
-  useJsApiLoader,
-  Autocomplete,
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, Autocomplete } from "@react-google-maps/api";
 import PopupModal from "@/components/popup-modal";
 import { MdLocationOn, MdSearch } from "react-icons/md";
-
-const defaultCenter = {
-  lat: 13.7563,
-  lng: 100.5018,
-};
-
-interface Location {
-  lat: number;
-  lng: number;
-  address?: string;
-}
+import { centerMap } from "@/constants/center-map";
+import { useAddress } from "@/hooks/useAddress";
 
 export default function AddressPage() {
   const { data: session } = useSession();
-  const [user, setUser] = useState<User>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null
-  );
-  const [currentAddress, setCurrentAddress] = useState<string>("");
-  const [searchBox, setSearchBox] =
-    useState<google.maps.places.Autocomplete | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [mapKey, setMapKey] = useState(0);
 
-  const [message, setMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-    libraries: ["places"],
+  const {
+    user,
+    isLoading,
+    isSuccess,
+    selectedLocation,
+    currentAddress,
+    map,
+    mapKey,
+    message,
+    isOpen,
+    onOpenChange,
+    isLoaded,
+    mapOptions,
+    autocompleteOptions,
+    setSearchBox,
+    setMap,
+    handleMapClick,
+    onPlaceSelected,
+    handleSave,
+    setSelectedLocation,
+    setCurrentAddress,
+    results,
+  } = useAddress({
+    userId: session?.userId || "",
+    accessToken: session?.accessToken || "",
   });
 
-  // Google Maps Options
-  const mapOptions = useMemo<google.maps.MapOptions>(
-    () => ({
-      disableDefaultUI: false,
-      clickableIcons: true,
-      scrollwheel: true,
-      streetViewControl: false,
-      mapTypeControl: false,
-      fullscreenControl: false,
-    }),
-    []
-  );
+  useEffect(() => {
+    if (isSuccess) {
+      if (user.lat && user.lng) {
+        const location = {
+          lat: user.lat,
+          lng: user.lng,
+          address: user.address,
+        };
+        setSelectedLocation(location);
+        setCurrentAddress(user.address || "");
 
-  // Autocomplete Options
-  const autocompleteOptions = useMemo(
-    () => ({
-      componentRestrictions: { country: "th" }, // จำกัดการค้นหาในประเทศไทย
-      fields: ["formatted_address", "geometry", "name"],
-      strictBounds: false,
-    }),
-    []
-  );
-
-  // Load user data
-   const fetchUser = async () => {
-     if (!session?.userId) return;
-
-     try {
-       setIsLoading(true);
-       const response = await fetch(`/api/users/${session.userId}`);
-
-       if (response.ok) {
-         const userData = await response.json();
-         setUser(userData);
-
-         if (userData.lat && userData.lng) {
-           const location = {
-             lat: userData.lat,
-             lng: userData.lng,
-             address: userData.address,
-           };
-           setSelectedLocation(location);
-           setCurrentAddress(userData.address || "");
-
-           // Update map if it exists
-           if (map) {
-             map.panTo({ lat: userData.lat, lng: userData.lng });
-             map.setZoom(15);
-           }
-         }
-       }
-     } catch (error) {
-       console.error("Failed to fetch user:", error);
-       setMessage("Failed to load user data");
-       onOpen();
-     } finally {
-       setIsLoading(false);
-     }
-   };
-
- useEffect(() => {
-   if (session?.userId) {
-     fetchUser();
-   }
- }, [session?.userId]);
-
- const handleMapLoad = (mapInstance: google.maps.Map) => {
-   setMap(mapInstance);
-
-   if (selectedLocation) {
-     mapInstance.panTo({
-       lat: selectedLocation.lat,
-       lng: selectedLocation.lng,
-     });
-     mapInstance.setZoom(15);
-   }
- };
-
-  const getAddressFromLatLng = async (lat: number, lng: number) => {
-    try {
-      const geocoder = new google.maps.Geocoder();
-      const response = await geocoder.geocode({
-        location: { lat, lng },
-      });
-
-      if (response.results[0]) {
-        return response.results[0].formatted_address;
-      }
-      return null;
-    } catch (error) {
-      console.error("Geocoding error:", error);
-      return null;
-    }
-  };
-
-  const handleMapClick = async (event: google.maps.MapMouseEvent) => {
-    if (!event.latLng) return;
-
-    const lat = event.latLng.lat();
-    const lng = event.latLng.lng();
-
-    try {
-      const address = await getAddressFromLatLng(lat, lng);
-      if (address) {
-        setSelectedLocation({
-          lat,
-          lng,
-          address,
-        });
-        setCurrentAddress(address);
-      }
-    } catch (error) {
-      console.error("Error handling map click:", error);
-      setMessage("Failed to get address from location");
-      onOpen();
-    }
-  };
-
-  // Handle place selection from autocomplete
-  const onPlaceSelected = async () => {
-    if (!searchBox) return;
-
-    const place = searchBox.getPlace();
-    if (place.geometry && place.geometry.location) {
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const address = place.formatted_address || place.name;
-
-      setSelectedLocation({
-        lat,
-        lng,
-        address,
-      });
-      setCurrentAddress(address || "");
-
-      // Pan map to selected location
-      if (map) {
-        map.panTo({ lat, lng });
-        map.setZoom(17);
+        if (map) {
+          map.panTo({ lat: user.lat, lng: user.lng });
+          map.setZoom(15);
+        }
       }
     }
-  };
+  }, [user, isSuccess, map, setSelectedLocation, setCurrentAddress]);
 
-  const handleSave = async () => {
-    if (!selectedLocation || !session?.accessToken) return;
-
-    try {
-      setIsSaving(true);
-      const response = await fetch("/api/users/address", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        body: JSON.stringify({
-          id: user?.id,
-          address: currentAddress,
-          lat: selectedLocation.lat,
-          lng: selectedLocation.lng,
-        }),
-      });
-
-      if (response.ok) {
-        setMessage("Address updated successfully");
-        onOpen();
-        fetchUser();
-        setMapKey((prev) => prev + 1);
-      } else {
-        throw new Error("Failed to update address");
-      }
-    } catch (error) {
-      console.error("Error saving address:", error);
-      setMessage("Failed to update address");
-      onOpen();
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="lg" color="primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -289,7 +128,7 @@ export default function AddressPage() {
                   <GoogleMap
                     key={mapKey}
                     mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={selectedLocation || defaultCenter}
+                    center={selectedLocation || centerMap}
                     zoom={13}
                     onClick={handleMapClick}
                     options={mapOptions}
@@ -325,7 +164,7 @@ export default function AddressPage() {
                 size="lg"
                 className="w-full font-medium"
                 isDisabled={!selectedLocation || !currentAddress}
-                isLoading={isSaving}
+                isLoading={results.isLoading}
                 onPress={handleSave}
               >
                 Save Address

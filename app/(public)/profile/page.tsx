@@ -1,6 +1,6 @@
 "use client";
 import PopupModal from "@/components/popup-modal";
-import { User } from "@/interfaces/user.interface";
+import type { User } from "@/interfaces/user.interface";
 import { updateProfileSchema } from "@/lib/schemas/updateProfileSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Avatar } from "@heroui/avatar";
@@ -15,11 +15,19 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RiImageAddFill, RiPhoneLine, RiUserLine } from "react-icons/ri";
 import { isDirty } from "zod";
+import { useFetchUserQuery, useUpdateUserProfileMutation } from "@/store";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const [user, setUser] = useState<User>();
-  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    currentData: user,
+    isLoading,
+    isSuccess,
+  } = useFetchUserQuery(session?.userId || "");
+
+  const [updateUserProfile, results] = useUpdateUserProfileMutation();
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -36,36 +44,18 @@ export default function ProfilePage() {
     mode: "onTouched",
   });
 
-  const fetchUser = async () => {
-    setIsLoading(true);
-    if (session?.userId) {
-      try {
-        const response = await fetch(`/api/users/${session.userId}`);
+  useEffect(() => {
+    if (isSuccess) {
+      setValue("name", user.name, { shouldDirty: false });
+      setValue("phone_number", user.phone_number, {
+        shouldDirty: false,
+      });
 
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-
-          setValue("name", userData.name, { shouldDirty: false });
-          setValue("phone_number", userData.phone_number, {
-            shouldDirty: false,
-          });
-
-          if (userData.img) {
-            setPreviewUrl(userData.img);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      } finally {
-        setIsLoading(false);
+      if (user.img) {
+        setPreviewUrl(user.img);
       }
     }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, [session]);
+  }, [user, isSuccess, setValue]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,21 +80,15 @@ export default function ProfilePage() {
 
       if (selectedFile) formData.append("file", selectedFile);
 
-      const response = await fetch("/api/users", {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${session?.accessToken}` },
-        body: formData,
-      });
-      const result = await response.json();
-      if (response.ok) {
+      await updateUserProfile({
+        data: formData,
+        accessToken: session?.accessToken,
+      }).then(() => {
         setMessage("Profile updated successfully");
         onOpen();
-      } else {
-        setMessage("Profile updated failed");
-        onOpen();
-      }
+      });
     } catch (error) {
-      setMessage(error as string);
+      setMessage("Profile updated failed");
       onOpen();
     }
   };

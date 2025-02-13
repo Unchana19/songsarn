@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const paymentsApi = createApi({
   reducerPath: "paymentsApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["Payments", "CPO"],
+  tagTypes: ["Payments", "CPO", "UsersCPO"],
   endpoints(build) {
     return {
       testPayments: build.mutation({
@@ -16,7 +16,7 @@ const paymentsApi = createApi({
             data: { cpoId: string; amount: number };
             accessToken?: string;
           }
-        ) => [{ type: "CPO", id: data.cpoId }],
+        ) => [{ type: "CPO", id: data.cpoId }, "UsersCPO"],
         query: ({
           data,
           accessToken,

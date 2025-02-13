@@ -56,7 +56,12 @@ export {
   useDecreaseQuantityByIdMutation,
   useDeleteOrderByIdMutation,
 } from "./api/cartsApi";
-export { useFetchUserQuery, useSignUpMutation } from "./api/usersApi";
+export {
+  useFetchUserQuery,
+  useSignUpMutation,
+  useUpdateUserProfileMutation,
+  useUpdateUserAddressMutation,
+} from "./api/usersApi";
 export { useFetchBomComponentsCategoriesQuery } from "./api/bomCategoriesApi";
 export { useFetchComponentsQuery } from "./api/componentsApi";
 export { useFetchColorsQuery } from "./api/colorsApi";

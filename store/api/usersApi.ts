@@ -26,9 +26,42 @@ const usersApi = createApi({
           };
         },
       }),
+
+      updateUserProfile: builder.mutation({
+        invalidatesTags: ["User"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/users",
+            method: "PATCH",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      updateUserAddress: builder.mutation({
+        invalidatesTags: ["User"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/users/address",
+            method: "PATCH",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useFetchUserQuery, useSignUpMutation } = usersApi;
+export const {
+  useFetchUserQuery,
+  useSignUpMutation,
+  useUpdateUserProfileMutation,
+  useUpdateUserAddressMutation,
+} = usersApi;
 export { usersApi };

@@ -2,63 +2,54 @@
 
 import ImagePlaceholder from "@/components/image-placeholder";
 import PopupModal from "@/components/popup-modal";
+import { useCreateComponents } from "@/hooks/useCreateComponents";
 import type { Category } from "@/interfaces/category.interface";
 import type { Color } from "@/interfaces/color.interface";
 import type { Component } from "@/interfaces/component.interface";
-import {
-  useCustomizeProductMutation,
-  useFetchBomComponentsCategoriesQuery,
-  useFetchColorsQuery,
-  useFetchComponentsQuery,
-} from "@/store";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button, ButtonGroup } from "@heroui/button";
 import { Card, CardBody, CardFooter } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 import { Image } from "@heroui/image";
-import { useDisclosure } from "@heroui/modal";
 import { Progress } from "@heroui/progress";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FaBasketShopping } from "react-icons/fa6";
 
 interface Props {
   selectedCategory: string;
 }
 
-export interface ComponentSelection {
-  categoryId: string;
-  component: Component | null;
-  primaryColor: Color | null;
-  patternColor: Color | null;
-}
-
 export default function CreateComponentPage({ selectedCategory }: Props) {
   const session = useSession();
-  const router = useRouter();
 
-  const { data: bomCategories, isLoading: isLoadingBOMCateogires } =
-    useFetchBomComponentsCategoriesQuery({
-      categoryId: selectedCategory,
-      accessToken: session.data?.accessToken || "",
-    });
-
-  const { data: components, isLoading: isLoadingComponents } =
-    useFetchComponentsQuery(session.data?.accessToken || "");
-
-  const { data: colors, isLoading: isLoadingColors } = useFetchColorsQuery(
-    session.data?.accessToken || ""
-  );
-
-  const [customizeProduct, results] = useCustomizeProductMutation();
-  const [modalMessage, setModalMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [selections, setSelections] = useState<ComponentSelection[]>([]);
+  const {
+    bomCategories,
+    isLoadingBOMCateogires,
+    components,
+    isLoadingComponents,
+    colors,
+    isLoadingColors,
+    results,
+    modalMessage,
+    isOpen,
+    onOpenChange,
+    totalPrice,
+    setTotalPrice,
+    quantity,
+    selections,
+    setSelections,
+    isValid,
+    decreateQuantity,
+    increateQuantity,
+    handleColorSelect,
+    handleProductSave,
+  } = useCreateComponents({
+    selectedCategory,
+    userId: session.data?.userId || "",
+    accessToken: session.data?.accessToken || "",
+  });
 
   useEffect(() => {
     if (bomCategories?.length > 0) {
@@ -71,14 +62,14 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
         }))
       );
     }
-  }, [bomCategories]);
+  }, [bomCategories, setSelections]);
 
   useEffect(() => {
     const total = selections.reduce((sum, selection) => {
       return sum + (selection.component?.price || 0);
     }, 0);
     setTotalPrice(total);
-  }, [selections]);
+  }, [selections, setTotalPrice]);
 
   const handleComponentSelect = (categoryId: string, component: Component) => {
     setSelections((prev) =>
@@ -90,75 +81,12 @@ export default function CreateComponentPage({ selectedCategory }: Props) {
     );
   };
 
-  const handleColorSelect = (
-    categoryId: string,
-    color: Color,
-    type: "primary" | "pattern"
-  ) => {
-    setSelections((prev) =>
-      prev?.map((selection) =>
-        selection.categoryId === categoryId
-          ? {
-              ...selection,
-              [type === "primary" ? "primaryColor" : "patternColor"]: color,
-            }
-          : selection
-      )
-    );
-  };
-
-  const handleProductSave = async () => {
-    if (session.data?.accessToken) {
-      try {
-        const simplifiedComponents = selections?.map((item) => ({
-          id: item.component?.id,
-          primary_color: item.primaryColor?.id,
-          pattern_color: item.patternColor?.id,
-        }));
-        const data = {
-          user_id: session.data?.userId,
-          category_id: selectedCategory,
-          price: totalPrice,
-          quantity,
-          components: simplifiedComponents,
-        };
-        await customizeProduct({
-          data,
-          accessToken: session.data.accessToken,
-        }).unwrap();
-      } catch (error) {
-        setModalMessage("An error occurred. Please try again.");
-        onOpen();
-      } finally {
-        router.push("/cart");
-      }
-    } else {
-      setModalMessage("Please login to add items to cart");
-      onOpen();
-    }
-  };
-
   if (isLoadingBOMCateogires || isLoadingComponents || isLoadingColors) {
     return (
       <div className="h-[50vh] flex items-center justify-center">
         <Progress size="sm" isIndeterminate aria-label="Loading..." />
       </div>
     );
-  }
-
-  const isValid = selections.every(
-    (selection) =>
-      selection.component && selection.primaryColor && selection.patternColor
-  );
-
-  function decreateQuantity() {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  }
-
-  function increateQuantity() {
-    setQuantity(quantity + 1);
   }
 
   return (

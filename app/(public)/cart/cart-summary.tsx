@@ -25,7 +25,7 @@ export default function CartSummaryPage({
   accessToken,
 }: Props) {
   const {
-    orderLines = [],
+    orderLines,
     isLoading,
     isSuccess,
     handleIncreaseQuantityById,

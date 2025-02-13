@@ -12,7 +12,7 @@ export default function MyOrderPage() {
   const session = useSession();
 
   const {
-    data: cpos,
+    currentData: cpos,
     isLoading,
     isSuccess,
   } = useFetchCPOsByUserIdQuery({
