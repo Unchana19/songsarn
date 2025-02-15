@@ -1,6 +1,13 @@
-import { NextResponse } from "next/server";
+interface Token {
+  accessToken?: string;
+  refreshToken?: string;
+  userId?: string;
+  role?: string;
+  accessTokenExpires?: number;
+  error?: string;
+}
 
-export async function refreshAccessToken(token: any) {
+export async function refreshAccessToken(token: Token): Promise<Token> {
   try {
     if (!token.refreshToken) {
       throw new Error("No refresh token available");
@@ -26,20 +33,15 @@ export async function refreshAccessToken(token: any) {
       throw new Error("New access token is missing");
     }
 
-    return NextResponse.json(
-      {
-        ...token,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken ?? token.refreshToken,
-        accessTokenExpires: Date.now() + (data.expiresIn ?? 3600) * 1000,
-      },
-      { status: 200 }
-    );
+    // Return a new token object with the updated access token and expiration time
+    return {
+      ...token,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken ?? token.refreshToken,
+      accessTokenExpires: Date.now() + (data.expiresIn ?? 3600) * 1000,
+    };
   } catch (error) {
     console.error("Token refresh error:", error);
-    return NextResponse.json({
-      ...token,
-      error: "RefreshAccessTokenError",
-    });
+    return { ...token, error: "RefreshAccessTokenError" };
   }
 }

@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const cposApi = createApi({
   reducerPath: "cposApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["UsersCPO", "CPO", "UsersCarts"],
+  tagTypes: ["UsersCPO", "CPO", "UsersCarts", "Dashboard"],
   endpoints(build) {
     return {
       fetchCPOsByUserId: build.query({
@@ -65,7 +65,11 @@ const cposApi = createApi({
             };
             accessToken: string;
           }
-        ) => ["UsersCPO", { type: "UsersCarts", id: data.user_id }],
+        ) => [
+          "UsersCPO",
+          "Dashboard",
+          { type: "UsersCarts", id: data.user_id },
+        ],
         query: ({
           data,
           accessToken,

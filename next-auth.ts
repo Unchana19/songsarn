@@ -1,8 +1,9 @@
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { signOut } from "next-auth/react";
 import { refreshAccessToken } from "./utils/refresh-token";
+import type { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -41,6 +42,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Token data is missing");
           }
 
+          // Return user data along with tokens (only on first sign in)
           return {
             id: data.id,
             email: data.email,
@@ -61,11 +63,25 @@ export const authOptions: NextAuthOptions = {
       user,
       account,
     }: {
-      token: any;
-      user: any;
-      account: any;
+      token: {
+        accessToken?: string;
+        refreshToken?: string;
+        userId?: string;
+        role?: string;
+        accessTokenExpires?: number;
+        error?: string;
+      };
+      user?: {
+        accessToken: string;
+        refreshToken: string;
+        id: string;
+        role?: string;
+      };
+      account?: { provider: string; id_token?: string } | null;
     }) {
-      try {
+      // First sign in: add tokens and set expiration time
+      if (user) {
+        // Handle Google provider
         if (account?.provider === "google") {
           if (!account.id_token) {
             throw new Error("Google provider account ID is missing");
@@ -95,28 +111,46 @@ export const authOptions: NextAuthOptions = {
           token.userId = data.id;
           token.role = data.role || "customer";
         } else {
-          if (user) {
-            token.accessToken = user.accessToken;
-            token.refreshToken = user.refreshToken;
-            token.userId = user.id;
-            token.role = user.role || "customer";
-          }
+          // Handle credentials provider
+          token.accessToken = user.accessToken;
+          token.refreshToken = user.refreshToken;
+          token.userId = user.id;
+          token.role = user.role || "customer";
         }
-
+        // Set expiration once on first sign in or after a refresh
         token.accessTokenExpires = Date.now() + 3600 * 1000;
-
-        const now = Date.now();
-        if (!token.accessTokenExpires || now < token.accessTokenExpires) {
-          return token;
-        }
-
-        return await refreshAccessToken(token);
-      } catch (error) {
-        console.error("JWT callback error:", error);
-        return { ...token, error: "TokenError" };
+        return token;
       }
+
+      // Return previous token if the access token has not expired yet
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+
+      // Access token has expired, try to refresh it
+      if (token.refreshToken) {
+        return await refreshAccessToken(token);
+      }
+
+      // If no refresh token is available, attach an error
+      return { ...token, error: "RefreshTokenError" };
     },
-    async session({ session, token }: { session: any; token: any }) {
+
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT & {
+        accessToken?: string;
+        refreshToken?: string;
+        userId?: string;
+        role?: string;
+        accessTokenExpires?: number;
+        error?: string;
+      };
+    }) {
+      // If token refresh failed, sign out the user
       if (token.error === "RefreshTokenError") {
         await signOut({ callbackUrl: "/login" });
         return { ...session, error: "RefreshTokenError" };
@@ -124,7 +158,7 @@ export const authOptions: NextAuthOptions = {
 
       session.accessToken = token.accessToken;
       session.userId = token.userId;
-      session.role = token.role;
+      session.role = token.role as string;
 
       return session;
     },

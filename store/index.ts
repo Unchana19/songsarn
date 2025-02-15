@@ -9,6 +9,7 @@ import { componentsApi } from "./api/componentsApi";
 import { colorsApi } from "./api/colorsApi";
 import { cposApi } from "./api/cposApi";
 import paymentsApi from "./api/paymentsApi";
+import { dashboardApi } from "./api/dashboardApi";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     [colorsApi.reducerPath]: colorsApi.reducer,
     [cposApi.reducerPath]: cposApi.reducer,
     [paymentsApi.reducerPath]: paymentsApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -32,7 +34,8 @@ export const store = configureStore({
       componentsApi.middleware,
       colorsApi.middleware,
       cposApi.middleware,
-      paymentsApi.middleware
+      paymentsApi.middleware,
+      dashboardApi.middleware
     );
   },
 });
@@ -71,6 +74,7 @@ export {
   useAddCPOMutation,
 } from "./api/cposApi";
 export { useTestPaymentsMutation } from "./api/paymentsApi";
+export { useFetchDashboardQuery } from "./api/dashboardApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

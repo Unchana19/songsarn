@@ -1,8 +1,8 @@
-import { Product } from "@/interfaces/product.interface";
+import type { Product } from "@/interfaces/product.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Image } from "@heroui/image";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import ImagePlaceholder from "./image-placeholder";
 
 interface Props {
