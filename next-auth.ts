@@ -78,7 +78,7 @@ export const authOptions: NextAuthOptions = {
         role?: string;
       };
       account?: { provider: string; id_token?: string } | null;
-    }) {
+    }): Promise<JWT> {
       // First sign in: add tokens and set expiration time
       if (user) {
         // Handle Google provider
@@ -141,7 +141,7 @@ export const authOptions: NextAuthOptions = {
       token,
     }: {
       session: Session;
-      token: JWT & {
+      token: {
         accessToken?: string;
         refreshToken?: string;
         userId?: string;

@@ -5,6 +5,7 @@ interface Token {
   role?: string;
   accessTokenExpires?: number;
   error?: string;
+  [key: string]: string | number | undefined;
 }
 
 export async function refreshAccessToken(token: Token): Promise<Token> {
