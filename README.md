@@ -1,53 +1,50 @@
-# Next.js & NextUI Template
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+## Overview
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
+This is e-commerce for Shirne's shop. This project started from the System Analysis course.
+This website has a beautiful and user-friendly UI
 
-## Technologies Used
+
+## Tech Stack
 
 - [Next.js 14](https://nextjs.org/docs/getting-started)
 - [NextUI v2](https://nextui.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
 
-## How to Use
+## Environment Variables
 
-### Use the template with create-next-app
+Create a `.env.local` file in the root directory and add the following environment variables:
 
-To create a new project based on this template using `create-next-app`, run the following command:
+```env
+API_URL=""
+NEXT_PUBLIC_API_URL=""
 
-```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-template
+NEXTAUTH_URL=""
+NEXTAUTH_SECRET=""
+
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 ```
 
-### Install dependencies
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+## Demo
+You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm` and ensure you have a `.env.local` file.
 
-```bash
-npm install
-```
-
-### Run the development server
+#### Install dependencies
 
 ```bash
-npm run dev
+  npm install
 ```
 
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
-
+#### Run the development server
 ```bash
-public-hoist-pattern[]=*@nextui-org/*
+  npm run dev
 ```
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
 
 ## License
 
 Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
+
