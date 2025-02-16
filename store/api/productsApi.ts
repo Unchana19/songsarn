@@ -19,7 +19,7 @@ const productsApi = createApi({
       }),
 
       fetchProductsByCategory: builder.query({
-        providesTags: (result, error, category: Category) => {
+        providesTags: (result, _error, category: Category) => {
           const tags = result.map((product: Product) => {
             return { type: "Product", id: product.id };
           });
@@ -36,7 +36,9 @@ const productsApi = createApi({
       }),
 
       fetchProductById: builder.query({
-        providesTags: (result, error, id: string) => [{ type: "Product", id }],
+        providesTags: (_result, _error, id: string) => [
+          { type: "Product", id },
+        ],
         query: (id: string) => {
           return {
             url: "/products/find-by-id",
@@ -75,6 +77,47 @@ const productsApi = createApi({
           };
         },
       }),
+
+      createProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/products",
+            method: "POST",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      editProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/products",
+            method: "PATCH",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      deleteProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ id, accessToken }) => {
+          return {
+            url: `/products?id=${id}`,
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -84,5 +127,8 @@ export const {
   useFetchProductsByCategoryQuery,
   useCustomizeProductMutation,
   useFetchProductByIdQuery,
+  useCreateProductMutation,
+  useEditProductMutation,
+  useDeleteProductMutation,
 } = productsApi;
 export { productsApi };

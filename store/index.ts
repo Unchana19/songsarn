@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { productCategoriesApi } from "./api/productCategoriesApi";
+import { categoriesApi } from "./api/categoriesApi";
 import { productsApi } from "./api/productsApi";
 import { cartsApi } from "./api/cartsApi";
 import { usersApi } from "./api/usersApi";
@@ -13,7 +13,7 @@ import { dashboardApi } from "./api/dashboardApi";
 
 export const store = configureStore({
   reducer: {
-    [productCategoriesApi.reducerPath]: productCategoriesApi.reducer,
+    [categoriesApi.reducerPath]: categoriesApi.reducer,
     [productsApi.reducerPath]: productsApi.reducer,
     [cartsApi.reducerPath]: cartsApi.reducer,
     [usersApi.reducerPath]: usersApi.reducer,
@@ -26,7 +26,7 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
-      productCategoriesApi.middleware,
+      categoriesApi.middleware,
       productsApi.middleware,
       cartsApi.middleware,
       usersApi.middleware,
@@ -44,13 +44,20 @@ setupListeners(store.dispatch);
 
 export {
   useFetchProductCategoriesQuery,
-  useFetchProductCategoryQuery,
-} from "./api/productCategoriesApi";
+  useFetchCategoryQuery,
+  useFetchCategoriesQuery,
+  useCreateCategoryMutation,
+  useEditCategoryMutation,
+  useDeleteCategoryMutation,
+} from "./api/categoriesApi";
 export {
   useFetchProductsQuery,
   useFetchProductsByCategoryQuery,
   useCustomizeProductMutation,
   useFetchProductByIdQuery,
+  useCreateProductMutation,
+  useEditProductMutation,
+  useDeleteProductMutation,
 } from "./api/productsApi";
 export {
   useAddToCartMutation,
@@ -66,7 +73,12 @@ export {
   useUpdateUserAddressMutation,
 } from "./api/usersApi";
 export { useFetchBomComponentsCategoriesQuery } from "./api/bomCategoriesApi";
-export { useFetchComponentsQuery } from "./api/componentsApi";
+export {
+  useFetchComponentsQuery,
+  useCreateComponentMutation,
+  useEditComponentMutation,
+  useDeleteComponentMutation,
+} from "./api/componentsApi";
 export { useFetchColorsQuery } from "./api/colorsApi";
 export {
   useFetchCPOsByUserIdQuery,

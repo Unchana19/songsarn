@@ -13,7 +13,7 @@ import { useDisclosure } from "@heroui/modal";
 import PopupModal from "@/components/popup-modal";
 import {
   useAddToCartMutation,
-  useFetchProductCategoryQuery,
+  useFetchCategoryQuery,
   useFetchProductsByCategoryQuery,
 } from "@/store";
 import { Skeleton } from "@heroui/skeleton";
@@ -27,7 +27,7 @@ export default function ProductCategoryPage() {
   const {
     data: productCategory,
     isLoading: isLoadingProductCategory,
-  } = useFetchProductCategoryQuery(categoryId);
+  } = useFetchCategoryQuery(categoryId);
 
   const {
     data: products,
