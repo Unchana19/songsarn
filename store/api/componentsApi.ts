@@ -19,6 +19,25 @@ const componentsApi = createApi({
         },
       }),
 
+      fetchComponentsByCategoryId: builder.query({
+        providesTags: ["Component"],
+        query: ({
+          categoryId,
+          accessToken,
+        }: {
+          categoryId: string;
+          accessToken: string;
+        }) => {
+          return {
+            url: `/components/category?categoryId=${categoryId}`,
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
       createComponent: builder.mutation({
         invalidatesTags: ["Component"],
         query: ({ data, accessToken }) => {
@@ -65,6 +84,7 @@ const componentsApi = createApi({
 
 export const {
   useFetchComponentsQuery,
+  useFetchComponentsByCategoryIdQuery,
   useCreateComponentMutation,
   useEditComponentMutation,
   useDeleteComponentMutation,

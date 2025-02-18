@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const categoriesApi = createApi({
   reducerPath: "categoriesApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["ProductCategories", "Categories"],
+  tagTypes: ["ProductCategories", "ComponentCategories", "Categories"],
   endpoints(builder) {
     return {
       fetchProductCategories: builder.query({
@@ -12,6 +12,19 @@ const categoriesApi = createApi({
           return {
             url: "/categories/product-categories",
             method: "GET",
+          };
+        },
+      }),
+
+      fetchComponentCategories: builder.query({
+        providesTags: ["ComponentCategories", "Categories"],
+        query: (accessToken: string) => {
+          return {
+            url: "/categories/component-categories",
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
           };
         },
       }),
@@ -85,6 +98,7 @@ const categoriesApi = createApi({
 
 export const {
   useFetchProductCategoriesQuery,
+  useFetchComponentCategoriesQuery,
   useFetchCategoryQuery,
   useFetchCategoriesQuery,
   useCreateCategoryMutation,

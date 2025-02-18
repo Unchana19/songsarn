@@ -10,6 +10,8 @@ import { colorsApi } from "./api/colorsApi";
 import { cposApi } from "./api/cposApi";
 import paymentsApi from "./api/paymentsApi";
 import { dashboardApi } from "./api/dashboardApi";
+import { materialsApi } from "./api/materialsApi";
+import { bomComponentsApi } from "./api/bomComponentsApi";
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +25,8 @@ export const store = configureStore({
     [cposApi.reducerPath]: cposApi.reducer,
     [paymentsApi.reducerPath]: paymentsApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [materialsApi.reducerPath]: materialsApi.reducer,
+    [bomComponentsApi.reducerPath]: bomComponentsApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -35,7 +39,9 @@ export const store = configureStore({
       colorsApi.middleware,
       cposApi.middleware,
       paymentsApi.middleware,
-      dashboardApi.middleware
+      dashboardApi.middleware,
+      materialsApi.middleware,
+      bomComponentsApi.middleware
     );
   },
 });
@@ -44,6 +50,7 @@ setupListeners(store.dispatch);
 
 export {
   useFetchProductCategoriesQuery,
+  useFetchComponentCategoriesQuery,
   useFetchCategoryQuery,
   useFetchCategoriesQuery,
   useCreateCategoryMutation,
@@ -72,9 +79,13 @@ export {
   useUpdateUserProfileMutation,
   useUpdateUserAddressMutation,
 } from "./api/usersApi";
-export { useFetchBomComponentsCategoriesQuery } from "./api/bomCategoriesApi";
+export {
+  useFetchBomComponentsCategoriesQuery,
+  useFetchBomCategoriesQuery,
+} from "./api/bomCategoriesApi";
 export {
   useFetchComponentsQuery,
+  useFetchComponentsByCategoryIdQuery,
   useCreateComponentMutation,
   useEditComponentMutation,
   useDeleteComponentMutation,
@@ -87,6 +98,8 @@ export {
 } from "./api/cposApi";
 export { useTestPaymentsMutation } from "./api/paymentsApi";
 export { useFetchDashboardQuery } from "./api/dashboardApi";
+export { useFetchMaterialsQuery } from "./api/materialsApi";
+export { useFetchBOMComponentQuery } from "./api/bomComponentsApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

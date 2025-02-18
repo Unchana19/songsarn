@@ -1,8 +1,8 @@
-import { Category } from "@/interfaces/category.interface";
-import { Component } from "@/interfaces/component.interface";
-import { Material } from "@/interfaces/material.interface";
+import type { Category } from "@/interfaces/category.interface";
+import type { Component } from "@/interfaces/component.interface";
+import type { Material } from "@/interfaces/material.interface";
 import {
-  CreateComponentSchema,
+  type CreateComponentSchema,
   createComponentSchema,
 } from "@/lib/schemas/createComponentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,10 +29,11 @@ import {
   RiImageAddFill,
   RiImageEditFill,
 } from "react-icons/ri";
+import { useFetchBOMComponentQuery, useFetchMaterialsQuery } from "@/store";
 
 interface Props {
   category: Category;
-  component: Component | null;
+  component?: Component;
   handleSave: (
     data: CreateComponentSchema,
     materials: { material: Material; quantity: string }[],
@@ -48,8 +49,18 @@ export default function EditComponent({
   handleDiscard,
 }: Props) {
   const session = useSession();
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: materials = [], isLoading: isLoadingMaterials } =
+    useFetchMaterialsQuery(session.data?.accessToken || "");
+
+  const {
+    data: bomComponents = [],
+    isLoading: isLoadingBOMComponent,
+    isSuccess,
+  } = useFetchBOMComponentQuery({
+    componentId: component?.id || "",
+    accessToken: session.data?.accessToken || "",
+  });
 
   const {
     register,
@@ -80,45 +91,9 @@ export default function EditComponent({
     Array<{ material: Material; quantity: string }>
   >([]);
 
-  const fetchBOM = async () => {
-    if (!component) return;
-
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(
-        `/api/components/bom-components/${component.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        const bomMaterials = result.materials.map((material: any) => ({
-          material: {
-            id: material.id,
-            name: material.name,
-            unit: material.unit,
-            threshold: material.threshold,
-          },
-          quantity: material.quantity.toString(),
-        }));
-        setSelectedMaterials(bomMaterials);
-      }
-    } catch (error) {
-      console.error("Failed to fetch BOM", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const getAvailableMaterials = () => {
     return materials.filter(
-      (material) =>
+      (material: Material) =>
         !selectedMaterials.some(
           (selected) => selected.material.id === material.id
         )
@@ -143,7 +118,7 @@ export default function EditComponent({
   };
 
   const handleSelectionChange = (materialId: string) => {
-    const selected = materials.find((m) => m.id === materialId);
+    const selected = materials.find((m: Material) => m.id === materialId);
     setSelectedMaterial(selected || null);
     setQuantity("");
   };
@@ -171,69 +146,62 @@ export default function EditComponent({
   };
 
   useEffect(() => {
-    fetchMaterials();
     if (component) {
-      fetchBOM();
-    }
-  }, [session]);
-
-  const fetchMaterials = async () => {
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/materials", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setMaterials(result);
+      if (!isLoadingBOMComponent && !isLoadingMaterials && isSuccess) {
+        const bomMaterials = bomComponents.materials.map((material: any) => ({
+          material: {
+            id: material.id,
+            name: material.name,
+            unit: material.unit,
+            threshold: material.threshold,
+          },
+          quantity: material.quantity.toString(),
+        }));
+        setSelectedMaterials(bomMaterials);
       }
-    } catch (error) {
-      console.error("Failed to fetch materials", error);
-      setMaterials([]);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [
+    component,
+    bomComponents,
+    isLoadingBOMComponent,
+    isLoadingMaterials,
+    isSuccess,
+  ]);
 
   const onSubmit = async (data: CreateComponentSchema) => {
     await handleSave(data, selectedMaterials, selectedFile);
   };
 
-  if (isLoading) {
+  if (isLoadingMaterials || isLoadingBOMComponent) {
     return (
       <div>
         <Skeleton className="rounded-lg">
-          <div className="h-24 rounded-lg bg-default-300"></div>
+          <div className="h-24 rounded-lg bg-default-300" />
         </Skeleton>
         <div className="flex mt-5 flex-col md:flex-row gap-20">
           <div className="w-4/12">
             <Skeleton className="rounded-xl">
-              <div className="h-60 rounded-xl bg-default-300"></div>
+              <div className="h-60 rounded-xl bg-default-300" />
             </Skeleton>
             <div className="flex flex-col gap-5 mt-10">
               <Skeleton className="w-3/4 rounded-lg">
-                <div className="h-3 w-3/4 rounded-lg bg-default-200"></div>
+                <div className="h-3 w-3/4 rounded-lg bg-default-200" />
               </Skeleton>
               <Skeleton className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200"></div>
+                <div className="h-10 w-full rounded-full bg-default-200" />
               </Skeleton>
               <Skeleton className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200"></div>
+                <div className="h-10 w-full rounded-full bg-default-200" />
               </Skeleton>
             </div>
           </div>
           <div className="flex flex-col gap-5 w-5/12">
             <Skeleton className="w-3/4 rounded-lg">
-              <div className="h-3 w-3/4 rounded-lg bg-default-200"></div>
+              <div className="h-3 w-3/4 rounded-lg bg-default-200" />
             </Skeleton>
             {[...Array(6)].map((_, index) => (
               <Skeleton key={index} className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200"></div>
+                <div className="h-10 w-full rounded-full bg-default-200" />
               </Skeleton>
             ))}
           </div>
@@ -250,7 +218,7 @@ export default function EditComponent({
       </div>
       <div className="flex mt-5 flex-col md:flex-row gap-20">
         <div className="w-4/12">
-          <div onClick={triggerFileInput} className="">
+          <button type="button" onClick={triggerFileInput} className="w-full">
             <Card
               className="flex items-center justify-center border-primary border-1 rounded-xl w-full p-5 cursor-pointer"
               isHoverable
@@ -283,7 +251,7 @@ export default function EditComponent({
               accept="image/*"
               className="hidden"
             />
-          </div>
+          </button>
           <div className="flex flex-col gap-5 mt-10">
             <h3 className="text-xl font-bold">Detail</h3>
             <div className="flex flex-col gap-2">
@@ -363,7 +331,7 @@ export default function EditComponent({
                 selectedKeys={selectedMaterial ? [selectedMaterial.id] : []}
                 onChange={(e) => handleSelectionChange(e.target.value)}
               >
-                {getAvailableMaterials().map((material) => (
+                {getAvailableMaterials().map((material: Material) => (
                   <SelectItem key={material.id} value={material.id}>
                     {material.name}
                   </SelectItem>
@@ -396,7 +364,7 @@ export default function EditComponent({
                 radius="full"
                 className="text-white"
                 onClick={handleAddMaterial}
-                isDisabled={quantity == ""}
+                isDisabled={quantity === ""}
               >
                 <RiAddLine size={25} />
                 <p>Add material</p>
@@ -422,7 +390,10 @@ export default function EditComponent({
                   </TableHeader>
                   <TableBody>
                     {selectedMaterials.map((item, index) => (
-                      <TableRow key={index} className="hover:bg-amber-50">
+                      <TableRow
+                        key={item.material.id}
+                        className="hover:bg-amber-50"
+                      >
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {item.material.color && (
@@ -462,7 +433,7 @@ export default function EditComponent({
                 fullWidth
                 size="lg"
                 isLoading={isSubmitting}
-                isDisabled={!isValid || selectedMaterials.length == 0}
+                isDisabled={!isValid || selectedMaterials.length === 0}
               >
                 <p className="text-white">Save</p>
               </Button>

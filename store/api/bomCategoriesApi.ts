@@ -3,11 +3,24 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const bomCategoriesApi = createApi({
   reducerPath: "bomCategoriesApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["BomComponentsCategories"],
+  tagTypes: ["BomCategories"],
   endpoints(build) {
     return {
       fetchBomComponentsCategories: build.query({
-        providesTags: ["BomComponentsCategories"],
+        providesTags: ["BomCategories"],
+        query: (accessToken: string) => {
+          return {
+            url: "/categories/component-categories",
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      fetchBomCategories: build.query({
+        providesTags: ["BomCategories"],
         query: ({
           categoryId,
           accessToken,
@@ -16,11 +29,8 @@ const bomCategoriesApi = createApi({
           accessToken: string;
         }) => {
           return {
-            url: "/categories/component-categories",
+            url: `/categories/${categoryId}`,
             method: "GET",
-            params: {
-              categoryId,
-            },
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -31,5 +41,8 @@ const bomCategoriesApi = createApi({
   },
 });
 
-export const { useFetchBomComponentsCategoriesQuery } = bomCategoriesApi;
+export const {
+  useFetchBomComponentsCategoriesQuery,
+  useFetchBomCategoriesQuery,
+} = bomCategoriesApi;
 export { bomCategoriesApi };
