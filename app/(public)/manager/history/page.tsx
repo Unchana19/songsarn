@@ -1,9 +1,10 @@
 "use client";
 
-import { History } from "@/interfaces/history.interface";
+import type { History } from "@/interfaces/history.interface";
 import HistoryTab from "./history-tab";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { useFetchHistoriesQuery } from "@/store";
 
 interface Props {
   searchParams: { type: string };
@@ -11,11 +12,14 @@ interface Props {
 
 export default function HistoryPage({ searchParams }: Props) {
   const session = useSession();
-  const [histories, setHistories] = useState<History[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    currentData: histories = [],
+    isLoading,
+  } = useFetchHistoriesQuery(session.data?.accessToken || "");
 
   const filteredHistory = useMemo(() => {
-    return histories.filter((history) => {
+    return histories.filter((history: History) => {
       switch (searchParams.type) {
         case "material":
           return history.type === "MPO";
@@ -24,30 +28,6 @@ export default function HistoryPage({ searchParams }: Props) {
       }
     });
   }, [histories, searchParams.type]);
-
-  const fetchHistories = async () => {
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/history", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setHistories(result);
-      }
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHistories();
-  }, [session]);
 
   return (
     <div>

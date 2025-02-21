@@ -3,6 +3,7 @@
 import {
   type SetStateAction,
   Suspense,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -37,6 +38,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
 import { getContrastColor } from "@/utils/get-contrast-color";
 import { Checkbox } from "@heroui/checkbox";
 import { cn } from "@heroui/theme";
+import {
+  useCreateMaterialsMutation,
+  useDeleteMaterialsMutation,
+  useFetchMaterialsQuery,
+  useFetchRequisitionsQuery,
+  useUpdateMaterialsMutation,
+} from "@/store";
 
 function StockContent() {
   const session = useSession();
@@ -56,11 +64,23 @@ function StockContent() {
 
   const [error, setError] = useState("");
 
-  const [materials, setMaterials] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [material, setMaterial] = useState<Material | null>();
+  const {
+    currentData: materials,
+    isLoading: isLoadingMaterials,
+    isSuccess: isSuccessMaterials,
+  } = useFetchMaterialsQuery(session.data?.accessToken || "");
 
-  const [requisitions, setRequisitions] = useState([]);
+  const {
+    currentData: requisitions,
+    isLoading: isLoadingRequisitions,
+    isSuccess: isSuccessRequisitions,
+  } = useFetchRequisitionsQuery(session.data?.accessToken || "");
+
+  const [createMaterial] = useCreateMaterialsMutation();
+  const [updateMaterial] = useUpdateMaterialsMutation();
+  const [deleteMaterial, resultsDeleteMaterial] = useDeleteMaterialsMutation();
+
+  const [material, setMaterial] = useState<Material | null>();
 
   const {
     register,
@@ -75,23 +95,22 @@ function StockContent() {
   const getStepContent = (label: string) => {
     switch (label) {
       case "All material":
-        return isLoading ? (
+        return isLoadingMaterials ||
+          isLoadingRequisitions ||
+          !isSuccessMaterials ||
+          !isSuccessRequisitions ? (
           <SkeletonLoading />
         ) : (
-          <AllMeterial
-            materials={materials}
-            handleEdit={handleEdit}
-            fetchRequisition={fetchRequisitions}
-          />
+          <AllMeterial materials={materials} handleEdit={handleEdit} />
         );
       case "All requisition":
-        return isLoading ? (
+        return isLoadingMaterials ||
+          isLoadingRequisitions ||
+          !isSuccessMaterials ||
+          !isSuccessRequisitions ? (
           <SkeletonLoading />
         ) : (
-          <AllRequisition
-            requisitions={requisitions}
-            fetchRequisition={fetchRequisitions}
-          />
+          <AllRequisition requisitions={requisitions} />
         );
       default:
         return "unknown label";
@@ -111,77 +130,29 @@ function StockContent() {
     });
   };
 
-  const fetchMaterials = async () => {
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/materials", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setMaterials(result);
-      }
-    } catch (error) {
-      setError("Failed to fetch materials");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchRequisitions = async () => {
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/requisitions", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setRequisitions(result);
-      }
-    } catch (error) {
-      setError("Failed to fetch requisitions");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMaterials();
-    fetchRequisitions();
-  }, [session]);
-
   const handleColorChange = (color: SetStateAction<string>) => {
     setColorCode(color);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = useCallback((event: MouseEvent) => {
     if (
       colorPickerRef.current &&
       !colorPickerRef.current.contains(event.target as Node)
     ) {
       setIsColorPickerOpen(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [handleClickOutside]);
 
   const onSubmit = async (data: CreateMaterialSchema) => {
     try {
-      let response;
-      let submissionData;
+      let submissionData: CreateMaterialSchema & { color?: string };
 
       if (isColor) {
         submissionData = { ...data, color: colorCode };
@@ -191,33 +162,18 @@ function StockContent() {
 
       if (material) {
         const dataWithId = { id: material.id, ...submissionData };
-        response = await fetch("/api/materials", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-          body: JSON.stringify(dataWithId),
+        await updateMaterial({
+          data: dataWithId,
+          accessToken: session.data?.accessToken || "",
         });
       } else {
-        response = await fetch("/api/materials", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-          body: JSON.stringify(submissionData),
+        await createMaterial({
+          data: submissionData,
+          accessToken: session.data?.accessToken || "",
         });
       }
 
-      const result = await response.json();
-      if (response.ok) {
-        setError("");
-        editModal.onOpenChange();
-        fetchMaterials();
-      } else {
-        setError(result.message);
-      }
+      editModal.onOpenChange();
     } catch (error) {
       setError("Something went wrong");
     }
@@ -225,24 +181,14 @@ function StockContent() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/materials?id=${material?.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
+      await deleteMaterial({
+        id: material?.id,
+        accessToken: session.data?.accessToken || "",
       });
 
-      const result = await response.json();
-      if (response.ok) {
-        setError("");
-        setMaterial(null);
-        popupModal.onOpenChange();
-        editModal.onOpenChange();
-        fetchMaterials();
-      } else {
-        setError(result.message);
-      }
+      setMaterial(null);
+      popupModal.onOpenChange();
+      editModal.onOpenChange();
     } catch (error) {
       setError("Something went wrong");
     }
@@ -278,7 +224,7 @@ function StockContent() {
 
         {searchParams.get("type") === "material" ? (
           <Button
-            onClick={() => {
+            onPress={() => {
               setMaterial(null);
               setValue("name", "");
               setValue("unit", "");
@@ -300,8 +246,12 @@ function StockContent() {
         {tabs.map((tab) => {
           const isSelected = searchParams.get("type") === tab.id;
           return isSelected ? (
-            <div className="mt-5">
-              {isLoading ? <SkeletonLoading /> : getStepContent(tab.label)}
+            <div key={tab.id} className="mt-5">
+              {isLoadingMaterials || isLoadingRequisitions ? (
+                <SkeletonLoading />
+              ) : (
+                getStepContent(tab.label)
+              )}
             </div>
           ) : null;
         })}
@@ -415,7 +365,7 @@ function StockContent() {
                                   backgroundColor: colorCode,
                                   color: getContrastColor(colorCode),
                                 }}
-                                onClick={() => setIsColorPickerOpen(true)}
+                                onPress={() => setIsColorPickerOpen(true)}
                               >
                                 {colorCode}
                               </Button>
@@ -464,7 +414,8 @@ function StockContent() {
                           variant="bordered"
                           radius="full"
                           fullWidth
-                          onClick={popupModal.onOpen}
+                          onPress={popupModal.onOpen}
+                          isLoading={resultsDeleteMaterial.isLoading}
                         >
                           <p>Delete</p>
                         </Button>

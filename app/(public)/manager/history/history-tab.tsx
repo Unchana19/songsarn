@@ -1,9 +1,9 @@
 "use client";
 
 import TabsSelect from "@/components/tabs-select";
-import { History } from "@/interfaces/history.interface";
+import type { History } from "@/interfaces/history.interface";
 import { usePathname, useRouter } from "next/navigation";
-import { Key, useMemo, useState, useTransition } from "react";
+import { type Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { Chip } from "@heroui/chip";
 import { Skeleton } from "@heroui/skeleton";
@@ -99,6 +99,7 @@ export default function HistoryTab({ histories, isLoading }: Props) {
           loadingContent={
             <div className="space-y-3">
               {[...Array(5)].map((_, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 <LoadingRow key={index} />
               ))}
             </div>

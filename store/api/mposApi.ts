@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const mposApi = createApi({
   reducerPath: "mposApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["MPO"],
+  tagTypes: ["MPO", "Requisition"],
   endpoints(build) {
     return {
       fetchMPOs: build.query({
@@ -28,6 +28,20 @@ const mposApi = createApi({
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
+          };
+        },
+      }),
+
+      createMPO: build.mutation({
+        invalidatesTags: ["MPO", "Requisition"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/material-purchase-orders",
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: data,
           };
         },
       }),
@@ -82,6 +96,7 @@ const mposApi = createApi({
 export const {
   useFetchMPOsQuery,
   useFetchMPOByIdQuery,
+  useCreateMPOMutation,
   useEditMPOOrderLineMutation,
   useReceiveMPOMutation,
   useCancelMPOMutation,

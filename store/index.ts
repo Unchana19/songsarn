@@ -14,6 +14,9 @@ import { materialsApi } from "./api/materialsApi";
 import { bomComponentsApi } from "./api/bomComponentsApi";
 import { bomProductsApi } from "./api/bomProductsApi";
 import { mposApi } from "./api/mposApi";
+import { requisitionsApi } from "./api/requisitionsApi";
+import { historyApi } from "./api/historyApi";
+import { transactionsApi } from "./api/transactionsApi";
 
 export const store = configureStore({
   reducer: {
@@ -31,6 +34,9 @@ export const store = configureStore({
     [bomComponentsApi.reducerPath]: bomComponentsApi.reducer,
     [bomProductsApi.reducerPath]: bomProductsApi.reducer,
     [mposApi.reducerPath]: mposApi.reducer,
+    [requisitionsApi.reducerPath]: requisitionsApi.reducer,
+    [historyApi.reducerPath]: historyApi.reducer,
+    [transactionsApi.reducerPath]: transactionsApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -47,7 +53,10 @@ export const store = configureStore({
       materialsApi.middleware,
       bomComponentsApi.middleware,
       bomProductsApi.middleware,
-      mposApi.middleware
+      mposApi.middleware,
+      requisitionsApi.middleware,
+      historyApi.middleware,
+      transactionsApi.middleware
     );
   },
 });
@@ -113,16 +122,28 @@ export {
 } from "./api/cposApi";
 export { useTestPaymentsMutation } from "./api/paymentsApi";
 export { useFetchDashboardQuery } from "./api/dashboardApi";
-export { useFetchMaterialsQuery } from "./api/materialsApi";
+export {
+  useFetchMaterialsQuery,
+  useCreateMaterialsMutation,
+  useUpdateMaterialsMutation,
+  useDeleteMaterialsMutation,
+} from "./api/materialsApi";
 export { useFetchBOMComponentQuery } from "./api/bomComponentsApi";
 export { useFetchBOMProductQuery } from "./api/bomProductsApi";
 export {
   useFetchMPOsQuery,
   useFetchMPOByIdQuery,
+  useCreateMPOMutation,
   useEditMPOOrderLineMutation,
   useReceiveMPOMutation,
   useCancelMPOMutation,
 } from "./api/mposApi";
+export {
+  useFetchRequisitionsQuery,
+  useCreateRequisitionMutation,
+} from "./api/requisitionsApi";
+export { useFetchHistoriesQuery } from "./api/historyApi";
+export { useFetchTransactionsQuery } from "./api/transactionsApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

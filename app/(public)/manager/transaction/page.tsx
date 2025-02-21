@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { Transaction } from "@/interfaces/transaction.interface";
+import type { Transaction } from "@/interfaces/transaction.interface";
 import TransactionTab from "./transaction-tap";
+import { useFetchTransactionsQuery } from "@/store";
 
 interface Props {
   searchParams: { type: string };
@@ -11,11 +12,13 @@ interface Props {
 
 export default function TransactionPage({ searchParams }: Props) {
   const session = useSession();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: transactions = [], isLoading } = useFetchTransactionsQuery(
+    session.data?.accessToken || ""
+  );
 
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction) => {
+    return transactions.filter((transaction: Transaction) => {
       switch (searchParams.type) {
         case "material":
           return transaction.type === "mpo";
@@ -24,30 +27,6 @@ export default function TransactionPage({ searchParams }: Props) {
       }
     });
   }, [transactions, searchParams.type]);
-
-  const fetchTransactions = async () => {
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/transactions", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setTransactions(result);
-      }
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [session]);
 
   return (
     <div>
