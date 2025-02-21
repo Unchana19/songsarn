@@ -13,6 +13,7 @@ import { dashboardApi } from "./api/dashboardApi";
 import { materialsApi } from "./api/materialsApi";
 import { bomComponentsApi } from "./api/bomComponentsApi";
 import { bomProductsApi } from "./api/bomProductsApi";
+import { mposApi } from "./api/mposApi";
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     [materialsApi.reducerPath]: materialsApi.reducer,
     [bomComponentsApi.reducerPath]: bomComponentsApi.reducer,
     [bomProductsApi.reducerPath]: bomProductsApi.reducer,
+    [mposApi.reducerPath]: mposApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -44,7 +46,8 @@ export const store = configureStore({
       dashboardApi.middleware,
       materialsApi.middleware,
       bomComponentsApi.middleware,
-      bomProductsApi.middleware
+      bomProductsApi.middleware,
+      mposApi.middleware
     );
   },
 });
@@ -101,12 +104,25 @@ export {
   useFetchCPOsByUserIdQuery,
   useFetchCPOByIdQuery,
   useAddCPOMutation,
+  useFetchCPOByManagerQuery,
+  useFetchCPOByIdByManagerQuery,
+  useProcessCPOMutation,
+  useFinishedProcessCPOMutation,
+  useDeliveryCPOMutation,
+  useCompletedCPOMutation,
 } from "./api/cposApi";
 export { useTestPaymentsMutation } from "./api/paymentsApi";
 export { useFetchDashboardQuery } from "./api/dashboardApi";
 export { useFetchMaterialsQuery } from "./api/materialsApi";
 export { useFetchBOMComponentQuery } from "./api/bomComponentsApi";
 export { useFetchBOMProductQuery } from "./api/bomProductsApi";
+export {
+  useFetchMPOsQuery,
+  useFetchMPOByIdQuery,
+  useEditMPOOrderLineMutation,
+  useReceiveMPOMutation,
+  useCancelMPOMutation,
+} from "./api/mposApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

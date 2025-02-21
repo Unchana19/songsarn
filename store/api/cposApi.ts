@@ -99,6 +99,84 @@ const cposApi = createApi({
           };
         },
       }),
+
+      fetchCPOByManager: build.query({
+        providesTags: ["UsersCPO", "CPO"],
+        query: (accessToken: string) => {
+          return {
+            url: "/customer-purchase-orders/manager",
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      fetchCPOByIdByManager: build.query({
+        providesTags: ["CPO"],
+        query: ({ id, accessToken }: { id: string; accessToken: string }) => {
+          return {
+            url: `/customer-purchase-orders/manager/detail/${id}`,
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      processCPO: build.mutation({
+        invalidatesTags: ["CPO"],
+        query: ({ id, accessToken }: { id: string; accessToken: string }) => {
+          return {
+            url: `/customer-purchase-orders/manager/process/${id}`,
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      finishedProcessCPO: build.mutation({
+        invalidatesTags: ["CPO"],
+        query: ({ id, accessToken }: { id: string; accessToken: string }) => {
+          return {
+            url: `/customer-purchase-orders/manager/finished-process/${id}`,
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      deliveryCPO: build.mutation({
+        invalidatesTags: ["CPO"],
+        query: ({ id, accessToken }: { id: string; accessToken: string }) => {
+          return {
+            url: `/customer-purchase-orders/manager/delivery/${id}`,
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      completedCPO: build.mutation({
+        invalidatesTags: ["CPO"],
+        query: ({ id, accessToken }: { id: string; accessToken: string }) => {
+          return {
+            url: `/customer-purchase-orders/manager/delivery-completed/${id}`,
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -107,5 +185,11 @@ export const {
   useFetchCPOsByUserIdQuery,
   useFetchCPOByIdQuery,
   useAddCPOMutation,
+  useFetchCPOByManagerQuery,
+  useFetchCPOByIdByManagerQuery,
+  useProcessCPOMutation,
+  useFinishedProcessCPOMutation,
+  useDeliveryCPOMutation,
+  useCompletedCPOMutation,
 } = cposApi;
 export { cposApi };

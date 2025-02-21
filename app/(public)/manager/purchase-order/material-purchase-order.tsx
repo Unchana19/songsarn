@@ -1,9 +1,9 @@
 "use client";
 
 import TabsSelect from "@/components/tabs-select";
-import { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
+import type { MPOGetAll } from "@/interfaces/mpo-get-all.interface";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useTransition, useMemo, useState, useEffect } from "react";
+import { type Key, useTransition, useMemo, useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import EmptyComponents from "@/components/empty-components";
@@ -17,13 +17,13 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@heroui/modal";
+import { useCancelMPOMutation, useReceiveMPOMutation } from "@/store";
 
 interface Props {
   mpo: MPOGetAll[] | null;
-  fetchMPO: () => void;
 }
 
-export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
+export default function MaterialPurchaseOrder({ mpo }: Props) {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -34,6 +34,9 @@ export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
   const [currentTab, setCurrentTab] = useState("waiting");
   const cancelModal = useDisclosure();
   const receiveModal = useDisclosure();
+
+  const [receiveMPO, resultsReceiveMPO] = useReceiveMPOMutation();
+  const [cancelMPO, resutlsCancelMPO] = useCancelMPOMutation();
 
   const tabs = [
     { id: "waiting", label: "Waiting" },
@@ -70,40 +73,16 @@ export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
   };
 
   const handleReceieve = async (id: string) => {
-    try {
-      const response = await fetch("/api/material-purchase-orders/receive", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-        body: JSON.stringify({ id }),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        await fetchMPO();
-        receiveModal.onClose();
-        router.push("/manager/purchase-order?type=material&status=received");
-      }
-    } catch (error) {}
+    await receiveMPO({ id, accessToken: session.data?.accessToken });
+
+    receiveModal.onClose();
+    router.push("/manager/purchase-order?type=material&status=received");
   };
 
   const handleCancel = async (id: string) => {
-    try {
-      const response = await fetch("/api/material-purchase-orders/cancel", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-        body: JSON.stringify({ id }),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        await fetchMPO();
-        cancelModal.onClose();
-      }
-    } catch (error) {}
+    await cancelMPO({ id, accessToken: session.data?.accessToken });
+
+    cancelModal.onClose();
   };
 
   const handleAction = (id: string, action: string) => {
@@ -197,6 +176,7 @@ export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
                           </Button>
                           {currentTab === "waiting" && (
                             <Button
+                              isLoading={resultsReceiveMPO.isLoading}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -214,6 +194,7 @@ export default function MaterialPurchaseOrder({ mpo, fetchMPO }: Props) {
                       </div>
                       <div className="flex flex-col justify-center w-full md:w-1/12">
                         <Button
+                          isLoading={resutlsCancelMPO.isLoading}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
