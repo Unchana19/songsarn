@@ -12,6 +12,7 @@ import paymentsApi from "./api/paymentsApi";
 import { dashboardApi } from "./api/dashboardApi";
 import { materialsApi } from "./api/materialsApi";
 import { bomComponentsApi } from "./api/bomComponentsApi";
+import { bomProductsApi } from "./api/bomProductsApi";
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [materialsApi.reducerPath]: materialsApi.reducer,
     [bomComponentsApi.reducerPath]: bomComponentsApi.reducer,
+    [bomProductsApi.reducerPath]: bomProductsApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -41,7 +43,8 @@ export const store = configureStore({
       paymentsApi.middleware,
       dashboardApi.middleware,
       materialsApi.middleware,
-      bomComponentsApi.middleware
+      bomComponentsApi.middleware,
+      bomProductsApi.middleware
     );
   },
 });
@@ -103,6 +106,7 @@ export { useTestPaymentsMutation } from "./api/paymentsApi";
 export { useFetchDashboardQuery } from "./api/dashboardApi";
 export { useFetchMaterialsQuery } from "./api/materialsApi";
 export { useFetchBOMComponentQuery } from "./api/bomComponentsApi";
+export { useFetchBOMProductQuery } from "./api/bomProductsApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

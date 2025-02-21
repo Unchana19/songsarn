@@ -32,7 +32,7 @@ export default function ProductCategoryPage() {
   const {
     data: products,
     isLoading: isLoadingProducts,
-  } = useFetchProductsByCategoryQuery(productCategory);
+  } = useFetchProductsByCategoryQuery(productCategory.id);
 
   const [addToCart, results] = useAddToCartMutation();
   const [modalMessage, setModalMessage] = useState("");

@@ -120,6 +120,7 @@ export default function ComponentsPage({
         {isLoading || !isSuccess ? (
           Array(8)
             .fill(null)
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             .map((_, index) => <LoadingSkeleton key={index} />)
         ) : components.length === 0 ? (
           <EmptyComponents
