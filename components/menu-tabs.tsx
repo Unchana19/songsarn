@@ -14,6 +14,7 @@ import {
 import {
   menuItemsCustomer,
   menuItemsManager,
+  menuItemsStaff,
 } from "@/constants/menu-tabs-items";
 import { useSession } from "next-auth/react";
 import type { MenuItems } from "@/types";
@@ -25,7 +26,9 @@ export default function MenuTabsComponent() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
+  const isCustomer = session?.role === "customer";
   const isManager = session?.role === "manager";
+  const isStaff = session?.role === "staff";
 
   const {
     data: productCategories,
@@ -49,6 +52,8 @@ export default function MenuTabsComponent() {
   let menuItems: MenuItems[];
   if (isManager) {
     menuItems = menuItemsManager;
+  } else if (isStaff) {
+    menuItems = menuItemsStaff;
   } else {
     menuItems = menuItemsCustomer;
   }
@@ -64,7 +69,7 @@ export default function MenuTabsComponent() {
   return (
     <div className="md:flex w-full justify-center gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
       <div className="flex gap-2">
-        {!isManager && (
+        {isCustomer && (
           <Dropdown>
             <DropdownTrigger>
               <Button

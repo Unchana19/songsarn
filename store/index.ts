@@ -75,6 +75,9 @@ export {
 } from "./api/cartsApi";
 export {
   useFetchUserQuery,
+  useFetchStaffQuery,
+  useAddStaffMutation,
+  useDeleteStaffMutation,
   useSignUpMutation,
   useUpdateUserProfileMutation,
   useUpdateUserAddressMutation,

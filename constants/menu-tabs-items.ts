@@ -6,7 +6,7 @@ import {
   FaMoneyBillWave,
   FaWarehouse,
 } from "react-icons/fa";
-import { FaPencil } from "react-icons/fa6";
+import { FaPencil, FaUserGear } from "react-icons/fa6";
 import { MdSpaceDashboard } from "react-icons/md";
 
 export const menuItemsCustomer = [
@@ -20,6 +20,39 @@ export const menuItemsManager = [
     icon: MdSpaceDashboard,
     href: "/manager/dashboard",
   },
+  {
+    label: "Manage Staff",
+    icon: FaUserGear,
+    href: "/manager/manage-staff",
+  },
+  {
+    label: "Product & Component",
+    icon: FaBoxes,
+    href: "/manager/product-component",
+  },
+  {
+    label: "Purchase order",
+    icon: FaFileInvoice,
+    href: "/manager/purchase-order",
+  },
+  {
+    label: "Stock",
+    icon: FaWarehouse,
+    href: "/manager/stock",
+  },
+  {
+    label: "History",
+    icon: FaHistory,
+    href: "/manager/history",
+  },
+  {
+    label: "Transaction",
+    icon: FaMoneyBillWave,
+    href: "/manager/transaction",
+  },
+];
+
+export const menuItemsStaff = [
   {
     label: "Product & Component",
     icon: FaBoxes,

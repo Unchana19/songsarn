@@ -24,7 +24,7 @@ import {
 
 interface Props {
   label: string;
-  category?: Category;
+  category?: Category | null;
   handleSave: (
     data: CreateCategorySchema,
     file: File | null,

@@ -33,7 +33,7 @@ import { useFetchBOMComponentQuery, useFetchMaterialsQuery } from "@/store";
 
 interface Props {
   category: Category;
-  component?: Component;
+  component?: Component | null;
   handleSave: (
     data: CreateComponentSchema,
     materials: { material: Material; quantity: string }[],
@@ -148,15 +148,17 @@ export default function EditComponent({
   useEffect(() => {
     if (component) {
       if (!isLoadingBOMComponent && !isLoadingMaterials && isSuccess) {
-        const bomMaterials = bomComponents.materials.map((material: any) => ({
-          material: {
-            id: material.id,
-            name: material.name,
-            unit: material.unit,
-            threshold: material.threshold,
-          },
-          quantity: material.quantity.toString(),
-        }));
+        const bomMaterials = bomComponents.materials.map(
+          (material: Material) => ({
+            material: {
+              id: material.id,
+              name: material.name,
+              unit: material.unit,
+              threshold: material.threshold,
+            },
+            quantity: material.quantity.toString(),
+          })
+        );
         setSelectedMaterials(bomMaterials);
       }
     }
@@ -200,6 +202,7 @@ export default function EditComponent({
               <div className="h-3 w-3/4 rounded-lg bg-default-200" />
             </Skeleton>
             {[...Array(6)].map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               <Skeleton key={index} className="w-full rounded-full">
                 <div className="h-10 w-full rounded-full bg-default-200" />
               </Skeleton>
