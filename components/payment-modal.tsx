@@ -12,6 +12,7 @@ import {
 } from "@heroui/modal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useFetchQRPaymentQuery, useVerifySlipMutation } from "@/store";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -19,6 +20,13 @@ interface PaymentModalProps {
   orderId: string;
   amount: number;
   onSuccess?: () => void;
+}
+
+interface VerificationDetails {
+  amount: number;
+  sender_name: string;
+  sender_bank: string;
+  transaction_time: string;
 }
 
 type VerificationStatus = "idle" | "verifying" | "success" | "error";
@@ -42,40 +50,25 @@ export default function PaymentModal({
 }: PaymentModalProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [qrCode, setQrCode] = useState<string | null>(null);
-  const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [verificationStatus, setVerificationStatus] =
     useState<VerificationStatus>("idle");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<ErrorState | null>(null);
-  const [verificationDetails, setVerificationDetails] = useState<any>(null);
 
-  const fetchQRCode = async () => {
-    setIsLoadingQR(true);
-    try {
-      const response = await fetch("/api/payments", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: JSON.stringify({
-          amount: amount,
-        }),
-      });
+  const {
+    data: qrCode,
+    isLoading: isLoadingQR,
+    refetch,
+  } = useFetchQRPaymentQuery({
+    data: { amount },
+    accessToken: session?.accessToken,
+  });
 
-      if (!response.ok) {
-        throw new Error("Failed to generate QR code");
-      }
+  const [verifySlip] = useVerifySlipMutation();
 
-      const data = await response.json();
-      setQrCode(data.qrCode);
-    } catch (error) {
-      console.error("Error generating QR code:", error);
-    } finally {
-      setIsLoadingQR(false);
-    }
-  };
+  const [verificationDetails, setVerificationDetails] =
+    useState<VerificationDetails | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -101,13 +94,10 @@ export default function PaymentModal({
     formData.append("expectedAmount", amount.toString());
 
     try {
-      const response = await fetch("/api/payments/verify-slip", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        body: formData,
-      });
+      const response = await verifySlip({
+        data: formData,
+        accessToken: session.accessToken,
+      }).unwrap();
 
       const result = await response.json();
 
@@ -124,10 +114,9 @@ export default function PaymentModal({
       setVerificationDetails(result.details);
       onSuccess?.();
 
-      // Close modal after 3 seconds on success
       setTimeout(() => {
         onClose();
-        router.push('/my-order')
+        router.push("/my-order");
       }, 3000);
     } catch (error) {
       setVerificationStatus("error");
@@ -216,12 +205,6 @@ export default function PaymentModal({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen && session?.accessToken) {
-      fetchQRCode();
-    }
-  }, [isOpen, session?.accessToken]);
-
   return (
     <Modal size="md" isOpen={isOpen} onClose={onClose}>
       <ModalContent>
@@ -243,7 +226,7 @@ export default function PaymentModal({
                 ) : qrCode ? (
                   <div className="aspect-square w-full flex items-center justify-center">
                     <img
-                      src={qrCode}
+                      src={qrCode.qrCode}
                       alt="QR Payment"
                       className="max-w-full max-h-full object-contain"
                     />
@@ -257,7 +240,7 @@ export default function PaymentModal({
               <Button
                 color="primary"
                 variant="light"
-                onPress={fetchQRCode}
+                onPress={refetch}
                 isLoading={isLoadingQR}
                 className="w-full max-w-[300px]"
               >

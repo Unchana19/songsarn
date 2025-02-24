@@ -123,7 +123,11 @@ export {
   useDeliveryCPOMutation,
   useCompletedCPOMutation,
 } from "./api/cposApi";
-export { useTestPaymentsMutation } from "./api/paymentsApi";
+export {
+  useTestPaymentsMutation,
+  useFetchQRPaymentQuery,
+  useVerifySlipMutation,
+} from "./api/paymentsApi";
 export { useFetchDashboardQuery } from "./api/dashboardApi";
 export {
   useFetchMaterialsQuery,
