@@ -142,7 +142,7 @@ export default function CartSummaryPage({
                 <p>
                   {!isSuccess
                     ? formatNumberWithComma(0)
-                    : formatNumberWithComma(calTotal(orderLines) ?? 0)}
+                    : formatNumberWithComma(calTotal(orderLines))}
                 </p>
               </div>
               <Button

@@ -66,7 +66,7 @@ export default function PaymentPage({
           user_id: userId,
           delivery_price: formData.delivery_price,
           address: formData.address || "",
-          total_price: calTotal(orderLines) ?? 0 + formData.delivery_price,
+          total_price: calTotal(orderLines) + formData.delivery_price,
           phone_number: formData.phone_number || "",
           payment_method: formData.payment_method || "",
         };
@@ -194,7 +194,7 @@ export default function PaymentPage({
             </div>
             <h3 className="font-bold text-xl">
               {formatNumberWithComma(
-                calTotal(orderLines) ?? 0 + formData.delivery_price
+                calTotal(orderLines) + formData.delivery_price
               )}
             </h3>
           </div>

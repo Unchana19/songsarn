@@ -178,7 +178,7 @@ export default function DeliveryAddressPage({
             </div>
             <h3 className="font-bold text-xl">
               {formatNumberWithComma(
-                calTotal(orderLines) ?? 0 + formData.delivery_price
+                calTotal(orderLines) + formData.delivery_price
               )}
             </h3>
           </div>

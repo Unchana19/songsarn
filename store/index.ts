@@ -17,6 +17,7 @@ import { mposApi } from "./api/mposApi";
 import { requisitionsApi } from "./api/requisitionsApi";
 import { historyApi } from "./api/historyApi";
 import { transactionsApi } from "./api/transactionsApi";
+import { deliveryApi } from "./api/deliveryApi";
 
 export const store = configureStore({
   reducer: {
@@ -37,6 +38,7 @@ export const store = configureStore({
     [requisitionsApi.reducerPath]: requisitionsApi.reducer,
     [historyApi.reducerPath]: historyApi.reducer,
     [transactionsApi.reducerPath]: transactionsApi.reducer,
+    [deliveryApi.reducerPath]: deliveryApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -56,7 +58,8 @@ export const store = configureStore({
       mposApi.middleware,
       requisitionsApi.middleware,
       historyApi.middleware,
-      transactionsApi.middleware
+      transactionsApi.middleware,
+      deliveryApi.middleware
     );
   },
 });
@@ -144,6 +147,7 @@ export {
 } from "./api/requisitionsApi";
 export { useFetchHistoriesQuery } from "./api/historyApi";
 export { useFetchTransactionsQuery } from "./api/transactionsApi";
+export { useCalculateDeliveryPriceMutation } from "./api/deliveryApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

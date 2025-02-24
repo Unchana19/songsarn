@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useJsApiLoader } from "@react-google-maps/api";
 import type { Location } from "@/interfaces/location.interface";
-import { useFetchUserQuery } from "@/store";
+import { useCalculateDeliveryPriceMutation, useFetchUserQuery } from "@/store";
 import type { FormData } from "@/app/(public)/cart/page";
 
 interface Props {
@@ -39,6 +39,8 @@ export function useDelivery({
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const { data: user, isLoading } = useFetchUserQuery(userId);
+
+  const [calculateDeliveryPrice] = useCalculateDeliveryPriceMutation();
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -69,8 +71,11 @@ export function useDelivery({
       payment_method: "qr",
     };
     setFormData(initialData);
-    if (user.lat && user.lng) {
-      const deliveryData = await calculateDeliveryPrice(user.lat, user.lng);
+    if (user.lat && user.lng && !isLoading) {
+      const deliveryData = await calculateDeliveryPrice({
+        destinationLat: user.lat,
+        destinationLng: user.lng,
+      }).unwrap();
 
       const submitData = {
         ...initialData,
@@ -92,6 +97,8 @@ export function useDelivery({
     user.address,
     user.lat,
     user.lng,
+    isLoading,
+    calculateDeliveryPrice,
     setFormData,
     reset,
   ]);
@@ -254,30 +261,14 @@ export function useDelivery({
     }
   };
 
-  const calculateDeliveryPrice = async (lat: number, lng: number) => {
-    const deliveryResponse = await fetch("/api/delivery", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        destinationLat: lat,
-        destinationLng: lng,
-      }),
-    });
-
-    if (!deliveryResponse.ok) {
-      throw new Error("Failed to calculate delivery fee");
-    }
-
-    return await deliveryResponse.json();
-  };
-
   const onSubmit = async (data: setAddressPOSchema) => {
     try {
       if (!selectedLocation) return;
 
-      const deliveryData = await calculateDeliveryPrice(data.lat, data.lng);
+      const deliveryData = await calculateDeliveryPrice({
+        destinationLat: data.lat,
+        destinationLng: data.lng,
+      }).unwrap();
 
       const submitData = {
         ...formData,
