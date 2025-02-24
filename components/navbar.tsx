@@ -30,16 +30,28 @@ import {
 } from "@/constants/menu-tabs-items";
 import type { MenuItems } from "@/types";
 import { FaShoppingBag } from "react-icons/fa";
-import { useFetchUserQuery } from "@/store";
+import { useFetchProductsQuery, useFetchUserQuery } from "@/store";
+import { Input } from "@heroui/input";
+import { SearchIcon } from "./icons/search-icon";
+import type { Product } from "@/interfaces/product.interface";
+import ImagePlaceholder from "./image-placeholder";
 
 export default function NavbarComponent() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useFetchUserQuery(session?.userId ?? "");
+  const { data: user, isLoading: isLoadingUser } = useFetchUserQuery(
+    session?.userId ?? ""
+  );
+
+  const { data: products, isLoading: isLoadingProducts } =
+    useFetchProductsQuery({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const filteredProducts = products
+    ?.filter((product: Product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, 5);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isManager = session?.role === "manager";
@@ -56,7 +68,7 @@ export default function NavbarComponent() {
   }
 
   const renderAuthUI = () => {
-    if (isLoading) {
+    if (isLoadingUser) {
       return (
         <NavbarItem className="flex items-center gap-2">
           <Skeleton className="w-8 h-8 rounded-full" />
@@ -64,7 +76,7 @@ export default function NavbarComponent() {
       );
     }
 
-    if (!user && !isLoading) {
+    if (!user && !isLoadingUser) {
       return (
         <NavbarItem className="flex gap-2">
           <div>
@@ -140,7 +152,51 @@ export default function NavbarComponent() {
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="start" />
+      <NavbarContent justify="center" className="max-w-lg w-full">
+        {session?.role === "customer" && (
+          <NavbarItem className="relative w-full">
+            <Input
+              startContent={<SearchIcon />}
+              placeholder="Find your favorite shrine"
+              radius="full"
+              variant="bordered"
+              color="primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            />
+            {showSuggestions && filteredProducts.length > 0 && (
+              <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-2 p-3 border border-gray-200 z-10">
+                {filteredProducts.map((product: Product) => (
+                  <Link key={product.id} href={`/product/${product.id}`}>
+                    <div className="p-2 hover:bg-primary-100 cursor-pointer flex  items-center w-full gap-3 rounded-lg">
+                      {product.img ? (
+                        <Image
+                          src={product.img}
+                          alt={product.name}
+                          width={80}
+                          height={80}
+                          className="rounded-lg object-cover"
+                        />
+                      ) : (
+                        <ImagePlaceholder
+                          name={product.name.charAt(0).toUpperCase()}
+                          classNames="w-20 h-20"
+                        />
+                      )}
+                      <span className="font-medium text-gray-900">
+                        {product.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </NavbarItem>
+        )}
+      </NavbarContent>
+
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
