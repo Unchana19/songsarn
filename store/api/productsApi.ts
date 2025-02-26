@@ -1,4 +1,3 @@
-import type { Product } from "@/interfaces/product.interface";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const productsApi = createApi({
@@ -18,13 +17,7 @@ const productsApi = createApi({
       }),
 
       fetchProductsByCategory: builder.query({
-        providesTags: (result, _error, categoryId: string) => {
-          const tags = result.map((product: Product) => {
-            return { type: "Product", id: product.id };
-          });
-          tags.push({ type: "CategoryProducts", id: categoryId });
-          return tags;
-        },
+        providesTags: ["Products", "CategoryProducts"],
         query: (categoryId: string) => {
           return {
             url: `/products/find-by-category?categoryId=${categoryId}`,

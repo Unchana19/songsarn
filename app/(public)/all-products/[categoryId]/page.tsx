@@ -22,17 +22,15 @@ import { Card } from "@heroui/card";
 export default function ProductCategoryPage() {
   const session = useSession();
   const params = useParams();
-  const categoryId = params.categoryId as string;
+  const categoryId = Array.isArray(params.categoryId)
+    ? params.categoryId[0]
+    : params.categoryId || "";
 
-  const {
-    data: productCategory,
-    isLoading: isLoadingProductCategory,
-  } = useFetchCategoryQuery(categoryId);
+  const { data: productCategory, isLoading: isLoadingProductCategory } =
+    useFetchCategoryQuery(categoryId);
 
-  const {
-    data: products,
-    isLoading: isLoadingProducts,
-  } = useFetchProductsByCategoryQuery(productCategory.id);
+  const { data: products, isLoading: isLoadingProducts } =
+    useFetchProductsByCategoryQuery(productCategory?.id);
 
   const [addToCart, results] = useAddToCartMutation();
   const [modalMessage, setModalMessage] = useState("");
@@ -65,12 +63,12 @@ export default function ProductCategoryPage() {
 
   if (isLoadingProductCategory || isLoadingProducts) {
     return (
-      (<div>
+      <div>
         <Skeleton className="h-8 w-32 rounded-lg mb-10" />
         <div className="flex flex-col gap-10">
           {[...Array(3)].map((_, categoryIndex) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            (<div key={categoryIndex} className="flex flex-col">
+            <div key={categoryIndex} className="flex flex-col">
               <div className="flex flex-wrap justify-start">
                 {[...Array(4)].map((_, productIndex) => (
                   <div
@@ -105,10 +103,10 @@ export default function ProductCategoryPage() {
                   </div>
                 ))}
               </div>
-            </div>)
+            </div>
           ))}
         </div>
-      </div>)
+      </div>
     );
   }
 

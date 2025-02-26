@@ -18,6 +18,7 @@ import { requisitionsApi } from "./api/requisitionsApi";
 import { historyApi } from "./api/historyApi";
 import { transactionsApi } from "./api/transactionsApi";
 import { deliveryApi } from "./api/deliveryApi";
+import { likesApi } from "./api/likesApi";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     [historyApi.reducerPath]: historyApi.reducer,
     [transactionsApi.reducerPath]: transactionsApi.reducer,
     [deliveryApi.reducerPath]: deliveryApi.reducer,
+    [likesApi.reducerPath]: likesApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
@@ -59,7 +61,8 @@ export const store = configureStore({
       requisitionsApi.middleware,
       historyApi.middleware,
       transactionsApi.middleware,
-      deliveryApi.middleware
+      deliveryApi.middleware,
+      likesApi.middleware
     );
   },
 });
@@ -152,6 +155,11 @@ export {
 export { useFetchHistoriesQuery } from "./api/historyApi";
 export { useFetchTransactionsQuery } from "./api/transactionsApi";
 export { useCalculateDeliveryPriceMutation } from "./api/deliveryApi";
+export {
+  useFetchLikesQuery,
+  useCreateLikeMutation,
+  useDeleteLikeMutation,
+} from "./api/likesApi";
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

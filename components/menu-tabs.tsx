@@ -30,11 +30,9 @@ export default function MenuTabsComponent() {
   const isManager = session?.role === "manager";
   const isStaff = session?.role === "staff";
 
-  const {
-    data: productCategories,
-    error,
-    isLoading,
-  } = useFetchProductCategoriesQuery({});
+  const { data: productCategories, isLoading } = useFetchProductCategoriesQuery(
+    {}
+  );
 
   if (status === "loading" || isLoading) {
     return (
@@ -60,10 +58,10 @@ export default function MenuTabsComponent() {
 
   const dropdownItems = [
     { key: "", label: "All products" },
-    ...productCategories.map((category: Category) => ({
+    ...(productCategories?.map((category: Category) => ({
       key: category.id,
       label: category.name,
-    })),
+    })) ?? []),
   ];
 
   return (

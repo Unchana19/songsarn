@@ -35,6 +35,7 @@ import { Input } from "@heroui/input";
 import { SearchIcon } from "./icons/search-icon";
 import type { Product } from "@/interfaces/product.interface";
 import ImagePlaceholder from "./image-placeholder";
+import { MdFavorite } from "react-icons/md";
 
 export default function NavbarComponent() {
   const { data: session } = useSession();
@@ -165,27 +166,34 @@ export default function NavbarComponent() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="w-full"
             />
-            {showSuggestions && filteredProducts.length > 0 && (
-              <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-2 p-3 border border-gray-200 z-10">
+            {showSuggestions && filteredProducts?.length > 0 && (
+              <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-1 p-2 border border-gray-200 z-50 max-h-[60vh] overflow-y-auto">
                 {filteredProducts.map((product: Product) => (
-                  <Link key={product.id} href={`/product/${product.id}`}>
-                    <div className="p-2 hover:bg-primary-100 cursor-pointer flex  items-center w-full gap-3 rounded-lg">
-                      {product.img ? (
-                        <Image
-                          src={product.img}
-                          alt={product.name}
-                          width={80}
-                          height={80}
-                          className="rounded-lg object-cover"
-                        />
-                      ) : (
-                        <ImagePlaceholder
-                          name={product.name.charAt(0).toUpperCase()}
-                          classNames="w-20 h-20"
-                        />
-                      )}
-                      <span className="font-medium text-gray-900">
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.id}`}
+                    className="w-full"
+                  >
+                    <div className="p-1.5 sm:p-2 hover:bg-primary-100 cursor-pointer flex items-center w-full gap-2 sm:gap-3 rounded-lg">
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        {product.img ? (
+                          <Image
+                            src={product.img}
+                            alt={product.name}
+                            width={60}
+                            height={60}
+                            className="rounded-lg object-cover w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                          />
+                        ) : (
+                          <ImagePlaceholder
+                            name={product.name.charAt(0).toUpperCase()}
+                            classNames="w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                          />
+                        )}
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
                         {product.name}
                       </span>
                     </div>
@@ -200,6 +208,17 @@ export default function NavbarComponent() {
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
+            <Button
+              as={Link}
+              href="/like"
+              color="primary"
+              isDisabled={pathname === "/like"}
+              className={`opacity-100 ${pathname === "/like" ? "border-1 border-primary" : ""}`}
+              isIconOnly
+              variant={pathname === "/like" ? "flat" : "light"}
+            >
+              <MdFavorite size={20} color="#D4AF37" />
+            </Button>
             <Button
               as={Link}
               href="/cart"

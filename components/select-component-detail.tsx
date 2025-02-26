@@ -1,8 +1,8 @@
-import React from "react";
+import type React from "react";
 import { Card, CardBody, CardFooter } from "@heroui/card";
 import { Button } from "@heroui/button";
-import { SelectedComponent } from "@/interfaces/select-component";
-import { Component } from "@/interfaces/component.interface";
+import type { SelectedComponent } from "@/interfaces/select-component";
+import type { Component } from "@/interfaces/component.interface";
 
 interface Props {
   selectedComponent: SelectedComponent;
