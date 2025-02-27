@@ -7,6 +7,8 @@ import { Providers } from "./providers";
 import { fontPrompt } from "@/config/fonts";
 import NavbarComponent from "@/components/navbar";
 import FooterComponent from "@/components/footer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +37,10 @@ export default async function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <NavbarComponent />
-          <div className="w-full mb-60">{children}</div>
+          <div className="w-full mb-60">
+            <ToastContainer />
+            {children}
+          </div>
           <FooterComponent />
         </Providers>
       </body>

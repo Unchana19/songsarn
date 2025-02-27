@@ -1,7 +1,6 @@
 "use client";
 import Loading from "@/app/loading";
 import EmptyComponents from "@/components/empty-components";
-import PopupModal from "@/components/popup-modal";
 import ProductCardSmall from "@/components/product-card-small";
 import ShopButton from "@/components/shop-button";
 import type { Category } from "@/interfaces/category.interface";
@@ -15,13 +14,10 @@ import {
   useFetchProductCategoriesQuery,
   useFetchProductsQuery,
 } from "@/store";
+import { toastError, toastSuccess } from "@/utils/toast-config";
 import { Button } from "@heroui/button";
-import { Card } from "@heroui/card";
-import { useDisclosure } from "@heroui/modal";
-import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
 
 export default function AllProductsPage() {
   const session = useSession();
@@ -44,8 +40,6 @@ export default function AllProductsPage() {
   };
 
   const [addToCart, results] = useAddToCartMutation();
-  const [modalMessage, setModalMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleLike = async (productId: string) => {
     if (
@@ -53,28 +47,20 @@ export default function AllProductsPage() {
       session.data?.userId &&
       session.data?.accessToken
     ) {
-      try {
-        if (isLike(productId)) {
-          const like = likes?.find(
-            (like: Like) => like.product_id === productId
-          );
-          await deleteLike({
-            id: like?.id,
-            accessToken: session.data.accessToken,
-          });
-        } else {
-          await createLike({
-            data: { user_id: session.data.userId, product_id: productId },
-            accessToken: session.data.accessToken,
-          });
-        }
-      } catch (error) {
-        setModalMessage("An error occurred. Please try again.");
-        onOpen();
+      if (isLike(productId)) {
+        const like = likes?.find((like: Like) => like.product_id === productId);
+        await deleteLike({
+          id: like?.id,
+          accessToken: session.data.accessToken,
+        });
+      } else {
+        await createLike({
+          data: { user_id: session.data.userId, product_id: productId },
+          accessToken: session.data.accessToken,
+        });
       }
     } else {
-      setModalMessage("Please login to like items");
-      onOpen();
+      toastError("Please login to like product");
     }
   };
 
@@ -84,22 +70,15 @@ export default function AllProductsPage() {
       session.data?.userId &&
       session.data?.accessToken
     ) {
-      try {
-        addToCart({
-          userId: session.data.userId,
-          productId: product.id,
-          accessToken: session.data.accessToken,
-        });
-      } catch (error) {
-        setModalMessage("An error occurred. Please try again.");
-        onOpen();
-      } finally {
-        setModalMessage("Product added to cart successfully");
-        onOpen();
-      }
+      await addToCart({
+        userId: session.data.userId,
+        productId: product.id,
+        accessToken: session.data.accessToken,
+      });
+
+      toastSuccess("Product added to cart");
     } else {
-      setModalMessage("Please login to add items to cart");
-      onOpen();
+      toastError("Please login to add product to cart");
     }
   };
 
@@ -170,11 +149,6 @@ export default function AllProductsPage() {
           );
         })}
       </div>
-      <PopupModal
-        message={modalMessage}
-        isOpen={isOpen}
-        onClose={onOpenChange}
-      />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { formatNumberWithComma } from "@/utils/num-with-comma";
 import EmptyComponents from "@/components/empty-components";
 import Link from "next/link";
 import { useCarts } from "@/hooks/useCarts";
+import Loading from "@/app/loading";
 
 interface Props {
   nextPage(page: number): void;
@@ -38,48 +39,7 @@ export default function CartSummaryPage({
   };
 
   if (isLoading) {
-    return (
-      <div>
-        <Skeleton className="w-32 h-8 mb-5 rounded-lg" />
-        <div className="flex flex-col md:flex-row w-full">
-          <div className="md:w-1/2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex gap-4 mb-4">
-                <Skeleton className="w-24 h-24 rounded-lg" />
-                <div className="flex-1">
-                  <Skeleton className="w-3/4 h-6 mb-2 rounded-lg" />
-                  <Skeleton className="w-1/4 h-4 mb-2 rounded-lg" />
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                    <Skeleton className="w-16 h-8 rounded-lg" />
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="md:w-1/2 flex mt-10">
-            <div className="w-full flex flex-col items-center">
-              <div className="md:w-2/3 w-full flex flex-col gap-4">
-                <Skeleton className="w-24 h-6 mb-2 rounded-lg" />
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex justify-between">
-                    <Skeleton className="w-1/2 h-4 rounded-lg" />
-                    <Skeleton className="w-24 h-4 rounded-lg" />
-                  </div>
-                ))}
-                <Divider className="my-1" />
-                <div className="flex justify-between">
-                  <Skeleton className="w-16 h-6 rounded-lg" />
-                  <Skeleton className="w-24 h-6 rounded-lg" />
-                </div>
-                <Skeleton className="w-full h-12 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

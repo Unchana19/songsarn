@@ -1,22 +1,28 @@
 "use client";
 
+import Loading from "@/app/loading";
 import ImagePlaceholder from "@/components/image-placeholder";
-import PopupModal from "@/components/popup-modal";
+import type { Like } from "@/interfaces/like.interface";
 import type { ProductDetail } from "@/interfaces/product-detail.interface";
 import type { Product } from "@/interfaces/product.interface";
-import { useAddToCartMutation, useFetchProductByIdQuery } from "@/store";
+import {
+  useAddToCartMutation,
+  useCreateLikeMutation,
+  useDeleteLikeMutation,
+  useFetchLikesQuery,
+  useFetchProductByIdQuery,
+} from "@/store";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
+import { toastSuccess, toastError } from "@/utils/toast-config";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Image } from "@heroui/image";
-import { useDisclosure } from "@heroui/modal";
-import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 
 export default function ProductDetailPage() {
   const session = useSession();
@@ -24,14 +30,46 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  const { data: product, isLoading } = useFetchProductByIdQuery(id);
+  const { data: product, isLoading: isLoadingProduct } =
+    useFetchProductByIdQuery(id);
+
+  const { data: likes, isLoading: isLoadingLikes } = useFetchLikesQuery({
+    userId: session.data?.userId,
+    accessToken: session.data?.accessToken,
+  });
+
+  const [createLike, resultsCreateLike] = useCreateLikeMutation();
+  const [deleteLike, resultsDeleteLike] = useDeleteLikeMutation();
+
+  const isLiked = likes?.some((like: Like) => like.product_id === id);
 
   const [addToCart, results] = useAddToCartMutation();
-  const [modalMessage, setModalMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleLike = async (productId: string) => {
+    if (
+      session.status === "authenticated" &&
+      session.data?.userId &&
+      session.data?.accessToken
+    ) {
+      if (isLiked) {
+        const like = likes?.find((like: Like) => like.product_id === productId);
+        await deleteLike({
+          id: like?.id,
+          accessToken: session.data.accessToken,
+        });
+      } else {
+        await createLike({
+          data: { user_id: session.data.userId, product_id: productId },
+          accessToken: session.data.accessToken,
+        });
+      }
+    } else {
+      toastError("Please login to like product");
+    }
   };
 
   const handleAddToCart = async (product: Product) => {
@@ -40,49 +78,20 @@ export default function ProductDetailPage() {
       session.data?.userId &&
       session.data?.accessToken
     ) {
-      try {
-        addToCart({
-          userId: session.data.userId,
-          productId: product.id,
-          accessToken: session.data.accessToken,
-        });
-      } catch (error) {
-        setModalMessage("An error occurred. Please try again.");
-        onOpen();
-      } finally {
-        setModalMessage("Product added to cart successfully");
-        onOpen();
-      }
+      await addToCart({
+        userId: session.data.userId,
+        productId: product.id,
+        accessToken: session.data.accessToken,
+      });
+
+      toastSuccess("Product added to cart");
     } else {
-      setModalMessage("Please login to add items to cart");
-      onOpen();
+      toastError("Please login to add product to cart");
     }
   };
 
-  if (isLoading) {
-    return (
-      <div>
-        <div className="flex justify-between">
-          <Skeleton className="h-8 w-32 rounded-lg" />
-          <Skeleton className="h-10 w-24 rounded-lg" />
-        </div>
-        <div className="flex justify-around mt-5">
-          <div className="flex w-5/12">
-            <Skeleton className="rounded-lg">
-              <div className="h-[300px] w-[400px]" />
-            </Skeleton>
-          </div>
-          <div className="flex w-6/12">
-            <div className="flex flex-col gap-5 w-full">
-              <Skeleton className="h-8 w-3/4 rounded-lg" />
-              <Skeleton className="h-24 w-full rounded-lg" />
-              <Skeleton className="h-8 w-1/4 rounded-lg" />
-              <Skeleton className="h-10 w-10 rounded-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (isLoadingProduct || isLoadingLikes) {
+    return <Loading />;
   }
 
   return (
@@ -200,10 +209,7 @@ export default function ProductDetailPage() {
               ))}
             </div>
           </div>
-
           <Divider />
-
-          {/* Add to Cart Button */}
           <div className="flex gap-4">
             <Button
               size="lg"
@@ -215,14 +221,26 @@ export default function ProductDetailPage() {
             >
               Add to Cart
             </Button>
+            <Button
+              onPress={() => handleLike(id)}
+              isIconOnly
+              variant="light"
+              color="primary"
+              radius="full"
+              size="lg"
+              isLoading={
+                resultsCreateLike.isLoading || resultsDeleteLike.isLoading
+              }
+            >
+              {isLiked ? (
+                <MdFavorite size={28} />
+              ) : (
+                <MdFavoriteBorder size={28} />
+              )}
+            </Button>
           </div>
         </div>
       </div>
-      <PopupModal
-        message={modalMessage}
-        isOpen={isOpen}
-        onClose={onOpenChange}
-      />
     </div>
   );
 }

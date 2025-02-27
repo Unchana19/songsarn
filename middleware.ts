@@ -49,7 +49,7 @@ export default async function middleware(req: NextRequestWithAuth) {
   );
 
   if (isCustomerRoute) {
-    if (!isAuthenticated || !isCustomer) {
+    if (isAuthenticated && !isCustomer) {
       const redirectUrl = new URL("/login", req.url);
       redirectUrl.searchParams.set("callbackUrl", path);
       return NextResponse.redirect(redirectUrl);

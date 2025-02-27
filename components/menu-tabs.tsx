@@ -67,7 +67,7 @@ export default function MenuTabsComponent() {
   return (
     <div className="md:flex w-full justify-center gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">
       <div className="flex gap-2">
-        {isCustomer && (
+        {(isCustomer || status === "unauthenticated") && (
           <Dropdown>
             <DropdownTrigger>
               <Button
