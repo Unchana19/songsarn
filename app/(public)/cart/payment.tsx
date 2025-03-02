@@ -18,6 +18,8 @@ import { useAddCPOMutation } from "@/store";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@heroui/modal";
 import { useCarts } from "@/hooks/useCarts";
+import { calDeposit } from "@/utils/cal-deposit";
+import { calRest } from "@/utils/cal-rest";
 
 interface Props {
   userId: string;
@@ -187,16 +189,61 @@ export default function PaymentPage({
         </div>
 
         <div className="flex flex-col md:w-5/12 mt-20 md:mt-0">
-          <div className="flex w-full justify-between">
-            <div className="flex flex-col gap-2">
-              <h3 className="font-bold text-xl">Total price</h3>
-              <p className="text-primary">Include delivery price</p>
+          <div className="flex flex-col gap-2">
+            <div className="flex w-full justify-between">
+              <div className="flex flex-col gap-2">
+                <h3 className="font-bold text-xl">Total price</h3>
+                <p
+                  className={`${formData.delivery_price > 0 ? "text-primary" : "text-black"}`}
+                >
+                  {formData.delivery_price > 0
+                    ? "Include delivery price"
+                    : "Not include delivery price"}
+                </p>
+              </div>
+              <h3 className="font-bold text-xl">
+                {formatNumberWithComma(
+                  calTotal(orderLines) + formData.delivery_price
+                )}
+              </h3>
             </div>
-            <h3 className="font-bold text-xl">
-              {formatNumberWithComma(
-                calTotal(orderLines) + formData.delivery_price
-              )}
-            </h3>
+            {formData.delivery_price > 0 && (
+              <div>
+                <div className="flex justify-between">
+                  <div className="flex flex-col justify-center">
+                    <p>Delivery price</p>
+                    <p className="text-sm text-gray-400">
+                      Delivery price is pay now
+                    </p>
+                  </div>
+                  <p>{formatNumberWithComma(formData.delivery_price)}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <div className="flex flex-col justify-center">
+                <p>Deposit (20%)</p>
+                <p className="text-sm text-gray-400">Deposit is pay now</p>
+              </div>
+              <p>
+                {!isSuccess
+                  ? formatNumberWithComma(0)
+                  : formatNumberWithComma(calDeposit(orderLines))}
+              </p>
+            </div>
+            <div className="flex justify-between">
+              <div className="flex flex-col justify-center">
+                <p>The rest</p>
+                <p className="text-sm text-gray-400">
+                  The rest will be paid after delivery
+                </p>
+              </div>
+              <p>
+                {!isSuccess
+                  ? formatNumberWithComma(0)
+                  : formatNumberWithComma(calRest(orderLines))}
+              </p>
+            </div>
           </div>
           <Divider className="my-4" />
 
@@ -205,13 +252,6 @@ export default function PaymentPage({
             <p>{formData.name}</p>
             <p className="my-2">{formData.address}</p>
             <p>{formData.phone_number}</p>
-          </div>
-
-          <Divider className="my-8" />
-
-          <div className="flex justify-between font-bold text-lg">
-            <h3>Delivery price</h3>
-            <div>{formatNumberWithComma(formData.delivery_price)}</div>
           </div>
 
           <Divider className="my-8" />

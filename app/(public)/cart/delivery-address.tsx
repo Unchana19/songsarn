@@ -26,6 +26,8 @@ import { SearchBox } from "@/components/google-map-search-box";
 import { centerMap } from "@/constants/center-map";
 import { useDelivery } from "@/hooks/useDelivery";
 import { useCarts } from "@/hooks/useCarts";
+import { calDeposit } from "@/utils/cal-deposit";
+import { calRest } from "@/utils/cal-rest";
 
 interface Props {
   userId: string;
@@ -165,32 +167,62 @@ export default function DeliveryAddressPage({
         </div>
 
         <div className="flex flex-col md:w-5/12 mt-20 md:mt-0">
-          <div className="flex w-full justify-between">
-            <div className="flex flex-col gap-2">
-              <h3 className="font-bold text-xl">Total price</h3>
-              <p
-                className={`${formData.delivery_price > 0 ? "text-primary" : "text-black"}`}
-              >
-                {formData.delivery_price > 0
-                  ? "Include delivery price"
-                  : "Not include delivery price"}
+          <div className="flex flex-col gap-2">
+            <div className="flex w-full justify-between">
+              <div className="flex flex-col gap-2">
+                <h3 className="font-bold text-xl">Total price</h3>
+                <p
+                  className={`${formData.delivery_price > 0 ? "text-primary" : "text-black"}`}
+                >
+                  {formData.delivery_price > 0
+                    ? "Include delivery price"
+                    : "Not include delivery price"}
+                </p>
+              </div>
+              <h3 className="font-bold text-xl">
+                {formatNumberWithComma(
+                  calTotal(orderLines) + formData.delivery_price
+                )}
+              </h3>
+            </div>
+            {formData.delivery_price > 0 && (
+              <div>
+                <div className="flex justify-between">
+                  <div className="flex flex-col justify-center">
+                    <p>Delivery price</p>
+                    <p className="text-sm text-gray-400">
+                      Delivery price is pay now
+                    </p>
+                  </div>
+                  <p>{formatNumberWithComma(formData.delivery_price)}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <div className="flex flex-col justify-center">
+                <p>Deposit (20%)</p>
+                <p className="text-sm text-gray-400">Deposit is pay now</p>
+              </div>
+              <p>
+                {!isSuccess
+                  ? formatNumberWithComma(0)
+                  : formatNumberWithComma(calDeposit(orderLines))}
               </p>
             </div>
-            <h3 className="font-bold text-xl">
-              {formatNumberWithComma(
-                calTotal(orderLines) + formData.delivery_price
-              )}
-            </h3>
-          </div>
-          {formData.delivery_price > 0 && (
-            <div>
-              <Divider className="my-4" />
-              <div className="flex justify-between">
-                <h3>Delivery price</h3>
-                <p>{formatNumberWithComma(formData.delivery_price)}</p>
+            <div className="flex justify-between">
+              <div className="flex flex-col justify-center">
+                <p>The rest</p>
+                <p className="text-sm text-gray-400">
+                  The rest will be paid after delivery
+                </p>
               </div>
+              <p>
+                {!isSuccess
+                  ? formatNumberWithComma(0)
+                  : formatNumberWithComma(calRest(orderLines))}
+              </p>
             </div>
-          )}
+          </div>
           <Divider className="my-4" />
           <p className="font-bold text-lg">Products</p>
           <div className="flex flex-col items-center">

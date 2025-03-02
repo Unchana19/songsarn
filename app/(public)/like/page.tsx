@@ -65,7 +65,7 @@ export default function LikePage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold">Favorite products</h1>
+      <h1 className="text-xl font-bold">Your favorite products</h1>
 
       <div className="flex flex-col gap-5 mt-10">
         {products?.length > 0 ? (
@@ -89,7 +89,7 @@ export default function LikePage() {
                   )}
                 </div>
                 <div className="w-full md:w-6/12 flex flex-col justify-evenly">
-                  <h2 className="text-lg">{product.name}</h2>
+                  <h2 className="text-lg font-bold">{product.name}</h2>
                   <p className="text-xl font-bold">
                     {formatNumberWithComma(product.price)}
                   </p>

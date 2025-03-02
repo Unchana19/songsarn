@@ -187,7 +187,7 @@ export default function OrderDetailPage() {
                     />
                   ) : (
                     <ImagePlaceholder
-                      name={product.name}
+                      name={product.name.slice(0, 3).toUpperCase()}
                       classNames={"w-20 h-20"}
                     />
                   )}

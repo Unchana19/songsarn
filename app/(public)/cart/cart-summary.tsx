@@ -13,6 +13,8 @@ import EmptyComponents from "@/components/empty-components";
 import Link from "next/link";
 import { useCarts } from "@/hooks/useCarts";
 import Loading from "@/app/loading";
+import { calDeposit } from "@/utils/cal-deposit";
+import { calRest } from "@/utils/cal-rest";
 
 interface Props {
   nextPage(page: number): void;
@@ -97,13 +99,39 @@ export default function CartSummaryPage({
                   </div>
                 ))}
               <Divider className="my-1" />
-              <div className="flex justify-between font-bold text-lg">
-                <p>Total</p>
-                <p>
-                  {!isSuccess
-                    ? formatNumberWithComma(0)
-                    : formatNumberWithComma(calTotal(orderLines))}
-                </p>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between">
+                  <div className="flex flex-col justify-center">
+                    <p>Deposit (20%)</p>
+                    <p className="text-sm text-gray-400">Deposit is pay now</p>
+                  </div>
+                  <p>
+                    {!isSuccess
+                      ? formatNumberWithComma(0)
+                      : formatNumberWithComma(calDeposit(orderLines))}
+                  </p>
+                </div>
+                <div className="flex justify-between">
+                  <div className="flex flex-col justify-center">
+                    <p>The rest</p>
+                    <p className="text-sm text-gray-400">
+                      The rest will be paid after delivery
+                    </p>
+                  </div>
+                  <p>
+                    {!isSuccess
+                      ? formatNumberWithComma(0)
+                      : formatNumberWithComma(calRest(orderLines))}
+                  </p>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                  <p>Total</p>
+                  <p>
+                    {!isSuccess
+                      ? formatNumberWithComma(0)
+                      : formatNumberWithComma(calTotal(orderLines))}
+                  </p>
+                </div>
               </div>
               <Button
                 color="primary"
