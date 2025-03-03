@@ -2,14 +2,12 @@
 
 import type {
   ComponentDetail,
-  ManagerCPOGetOne,
   MaterialDetail,
   OrderLineDetail,
 } from "@/interfaces/manager-cpo-get-one.interface";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
-import { Spinner } from "@heroui/spinner";
 import { formatId } from "@/utils/format-id";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -21,15 +19,16 @@ import { getPaymentMethod } from "@/utils/get-payment-method";
 import { Chip } from "@heroui/chip";
 import { Image } from "@heroui/image";
 import { useFetchCPOByIdByManagerQuery } from "@/store";
+import Loading from "@/app/loading";
+import { calDeposit } from "@/utils/cal-deposit";
+import { calRest } from "@/utils/cal-rest";
 
-interface Props {
-  params: { id: string };
-}
-
-export default function CustomerPurchaseOrderDetailPage({ params }: Props) {
-  const { id } = params;
+export default function CustomerPurchaseOrderDetailPage() {
+  const params = useParams();
   const router = useRouter();
   const session = useSession();
+
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const { data: cpo, isLoading } = useFetchCPOByIdByManagerQuery({
     id,
@@ -37,11 +36,7 @@ export default function CustomerPurchaseOrderDetailPage({ params }: Props) {
   });
 
   if (isLoading) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Spinner size="lg" color="primary" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -97,12 +92,16 @@ export default function CustomerPurchaseOrderDetailPage({ params }: Props) {
                 <span className="font-semibold">Payment status</span>
                 <div
                   className={`px-3 py-1 rounded-full text-sm ${
-                    cpo.paid_date_time
+                    cpo.status.toLowerCase() === "completed"
                       ? "bg-success-100 text-success-600"
                       : "bg-warning-100 text-warning-600"
                   }`}
                 >
-                  {cpo.paid_date_time ? "Completed" : "Not paid"}
+                  {cpo.status.toLowerCase() === "completed"
+                    ? "Fully paid"
+                    : cpo.paid_date_time
+                      ? "Completed"
+                      : "Not paid"}
                 </div>
               </div>
               <div className="flex justify-between items-center">
@@ -133,14 +132,31 @@ export default function CustomerPurchaseOrderDetailPage({ params }: Props) {
           <div className="space-y-6">
             <div className="bg-default-50 p-6 rounded-xl space-y-4">
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Total</span>
+                <span>The rest</span>
                 <span className="text-primary">
-                  {formatNumberWithComma(cpo.total_price)}
+                  {formatNumberWithComma(
+                    calRest(cpo.total_price - cpo.delivery_price)
+                  )}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="font-semibold">Delivery fee</span>
+              <div className="flex justify-between items-center text-lg">
+                <span>Deposit (20%)</span>
+                <span className="">
+                  {formatNumberWithComma(
+                    calDeposit(cpo.total_price - cpo.delivery_price) +
+                      cpo.delivery_price
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-lg">
+                <span className="">Delivery fee</span>
                 <span>{formatNumberWithComma(cpo.delivery_price)}</span>
+              </div>
+              <div className="flex justify-between items-center text-lg">
+                <span>Total</span>
+                <span className="">
+                  {formatNumberWithComma(cpo.total_price)}
+                </span>
               </div>
             </div>
             {/* Order Lines */}

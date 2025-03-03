@@ -2,9 +2,8 @@
 
 import TabsSelect from "@/components/tabs-select";
 import { usePathname, useRouter } from "next/navigation";
-import { Key, useMemo, useState, useTransition } from "react";
+import { type Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
-import { Chip } from "@heroui/chip";
 import { Skeleton } from "@heroui/skeleton";
 import {
   TableRow,
@@ -15,7 +14,7 @@ import {
   TableBody,
 } from "@heroui/table";
 import { formatId } from "@/utils/format-id";
-import { Transaction } from "@/interfaces/transaction.interface";
+import type { Transaction } from "@/interfaces/transaction.interface";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { getPaymentMethod } from "@/utils/get-payment-method";
 import Link from "next/link";
@@ -125,6 +124,7 @@ export default function TransactionTab({ transactions, isLoading }: Props) {
           loadingContent={
             <div className="space-y-3">
               {[...Array(5)].map((_, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 <LoadingRow key={index} />
               ))}
             </div>

@@ -211,7 +211,7 @@ export default function PaymentModal({
         <ModalHeader className="flex flex-col gap-1">
           <h3 className="text-xl font-bold">QR Payment</h3>
           <p className="text-default-500 text-sm">
-            Scan QR code to pay {formatNumberWithComma(amount)}
+            Scan QR code to deposit {formatNumberWithComma(amount)}
           </p>
         </ModalHeader>
         <ModalBody>

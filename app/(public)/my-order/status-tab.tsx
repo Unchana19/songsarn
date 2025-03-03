@@ -80,10 +80,16 @@ export default function StatusTab({ cpos, isSuccess }: Props) {
                             <Chip
                               variant="flat"
                               color={
-                                order.paid_date_time ? "success" : "warning"
+                                order.status.toLowerCase() === "completed"
+                                  ? "success"
+                                  : "warning"
                               }
                             >
-                              {order.paid_date_time ? "Completed" : "Not paid"}
+                              {order.status.toLowerCase() === "completed"
+                                ? "Fully paid"
+                                : order.paid_date_time
+                                  ? "Deposit paid"
+                                  : "Not deposit paid"}
                             </Chip>
                           </p>
                           <p>Quantity: {order.quantity}</p>

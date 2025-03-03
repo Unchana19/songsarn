@@ -1,9 +1,9 @@
 export const getStatusCpo = (status: string) => {
   switch (status.toLowerCase()) {
     case "new":
-      return "Waiting for payment";
+      return "Waiting for deposit";
     case "paid":
-      return "Paid";
+      return "Deposit paid";
     case "processing":
       return "In process";
     case "finished process":

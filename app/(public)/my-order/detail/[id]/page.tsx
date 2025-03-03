@@ -6,13 +6,15 @@ import { useState } from "react";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@heroui/button";
-import { Spinner } from "@heroui/spinner";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { getStatusCpo } from "@/utils/get-status-cpo";
 import PaymentModal from "@/components/payment-modal";
 import { Image } from "@heroui/image";
 import ImagePlaceholder from "@/components/image-placeholder";
 import { useFetchCPOByIdQuery, useTestPaymentsMutation } from "@/store";
+import { calDeposit } from "@/utils/cal-deposit";
+import { calRest } from "@/utils/cal-rest";
+import Loading from "@/app/loading";
 
 export default function OrderDetailPage() {
   const session = useSession();
@@ -23,7 +25,6 @@ export default function OrderDetailPage() {
   const {
     data: cpo,
     isLoading,
-    isFetching,
     isSuccess,
     refetch,
   } = useFetchCPOByIdQuery({
@@ -39,7 +40,9 @@ export default function OrderDetailPage() {
     try {
       const data = {
         cpoId: cpo?.cpo.id,
-        amount: cpo?.cpo.total_price,
+        amount:
+          calDeposit(cpo.cpo.total_price - cpo.cpo.delivery_price) +
+          cpo.cpo.delivery_price,
       };
       await testPayment({ data, accessToken: session.data?.accessToken });
     } catch (error) {
@@ -49,12 +52,8 @@ export default function OrderDetailPage() {
     }
   };
 
-  if (isLoading || isFetching || !isSuccess) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Spinner size="lg" color="primary" />
-      </div>
-    );
+  if (isLoading || !isSuccess) {
+    return <Loading />;
   }
 
   if (!cpo) {
@@ -100,12 +99,14 @@ export default function OrderDetailPage() {
               <span className="font-semibold">Payment status</span>
               <div
                 className={`px-3 py-1 rounded-full text-sm ${
-                  cpo.cpo.payment_status === "Completed"
+                  cpo.cpo.order_status.toLowerCase() === "completed"
                     ? "bg-success-100 text-success-600"
                     : "bg-warning-100 text-warning-600"
                 }`}
               >
-                {cpo.cpo.payment_status}
+                {cpo.cpo.order_status.toLowerCase() === "completed"
+                  ? "Fully paid"
+                  : cpo.cpo.payment_status}
               </div>
             </div>
             <div className="flex justify-between items-center">
@@ -126,7 +127,7 @@ export default function OrderDetailPage() {
                   className="w-full text-white text-lg"
                   onPress={() => setIsPaymentModalOpen(true)}
                 >
-                  Pay now
+                  Deposit now
                 </Button>
                 <Button
                   color="danger"
@@ -135,7 +136,7 @@ export default function OrderDetailPage() {
                   onPress={handleTestPayment}
                   isLoading={results.isLoading}
                 >
-                  Test payment
+                  Test deposit
                 </Button>
               </div>
             )}
@@ -158,14 +159,48 @@ export default function OrderDetailPage() {
         <div className="space-y-6">
           <div className="bg-default-50 p-6 rounded-xl space-y-4">
             <div className="flex justify-between items-center text-lg font-semibold">
-              <span>Total</span>
+              <span>
+                {cpo.cpo.order_status.toLowerCase() === "new"
+                  ? "Deposit (20%)"
+                  : "The rest"}
+              </span>
               <span className="text-primary">
-                {formatNumberWithComma(cpo.cpo.total_price)}
+                {cpo.cpo.order_status.toLowerCase() === "new"
+                  ? formatNumberWithComma(
+                      calDeposit(cpo.cpo.total_price - cpo.cpo.delivery_price) +
+                        cpo.cpo.delivery_price
+                    )
+                  : formatNumberWithComma(
+                      calRest(cpo.cpo.total_price - cpo.cpo.delivery_price)
+                    )}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Delivery fee</span>
+            <div className="flex justify-between items-center text-lg">
+              <span>
+                {cpo.cpo.order_status.toLowerCase() === "new"
+                  ? "The rest"
+                  : "Deposit (20%)"}
+              </span>
+              <span className="">
+                {cpo.cpo.order_status.toLowerCase() === "new"
+                  ? formatNumberWithComma(
+                      calRest(cpo.cpo.total_price - cpo.cpo.delivery_price)
+                    )
+                  : formatNumberWithComma(
+                      calDeposit(cpo.cpo.total_price - cpo.cpo.delivery_price) +
+                        cpo.cpo.delivery_price
+                    )}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-lg">
+              <span className="">Delivery fee</span>
               <span>{formatNumberWithComma(cpo.cpo.delivery_price)}</span>
+            </div>
+            <div className="flex justify-between items-center text-lg">
+              <span>Total</span>
+              <span className="">
+                {formatNumberWithComma(cpo.cpo.total_price)}
+              </span>
             </div>
           </div>
 
@@ -210,7 +245,10 @@ export default function OrderDetailPage() {
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         orderId={cpo.cpo.id}
-        amount={cpo.cpo.total_price}
+        amount={
+          calDeposit(cpo.cpo.total_price - cpo.cpo.delivery_price) +
+          cpo.cpo.delivery_price
+        }
       />
     </div>
   );

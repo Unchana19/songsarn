@@ -14,7 +14,7 @@ export const getHistoryStatus = (
       };
     case "paid":
       return {
-        label: "Paid",
+        label: "Deposit paid",
         color: "primary",
       };
     case "processing":

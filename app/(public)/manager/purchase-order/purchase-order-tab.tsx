@@ -2,13 +2,13 @@
 
 import { Suspense } from "react";
 import TabsSelect from "@/components/tabs-select";
-import { Skeleton } from "@heroui/skeleton";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { type Key, useTransition } from "react";
 import CustomerPurchaseOrder from "./customer-purchase-order";
 import MaterialPurchaseOrder from "./material-purchase-order";
 import { useSession } from "next-auth/react";
 import { useFetchCPOByManagerQuery, useFetchMPOsQuery } from "@/store";
+import Loading from "@/app/loading";
 
 function PurchaseOrderContent() {
   const session = useSession();
@@ -47,14 +47,14 @@ function PurchaseOrderContent() {
     switch (label) {
       case "Customer":
         return isLoadingCPO || !isSuccessCPO ? (
-          <SkeletonLoading />
+          <Loading />
         ) : (
           <CustomerPurchaseOrder cpos={cpo} />
         );
 
       case "Material":
         return isLoadingMPO || !isSuccessMPO ? (
-          <SkeletonLoading />
+          <Loading />
         ) : (
           <MaterialPurchaseOrder mpo={mpo} />
         );
@@ -88,19 +88,9 @@ function PurchaseOrderContent() {
   );
 }
 
-function SkeletonLoading() {
-  return (
-    <div className="flex flex-col gap-5">
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-10 w-full" />
-    </div>
-  );
-}
-
 export default function PurchaseOrderTab() {
   return (
-    <Suspense fallback={<SkeletonLoading />}>
+    <Suspense fallback={<Loading />}>
       <PurchaseOrderContent />
     </Suspense>
   );

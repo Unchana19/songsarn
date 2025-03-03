@@ -25,6 +25,7 @@ import {
   useFinishedProcessCPOMutation,
   useProcessCPOMutation,
 } from "@/store";
+import { toastSuccess } from "@/utils/toast-config";
 
 interface Props {
   cpos: ManagerCPOGetAll[];
@@ -93,6 +94,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
     await processCPO({ id, accessToken: session.data?.accessToken || "" });
 
     actionModal.onClose();
+    toastSuccess("Update order status successfully");
     router.push("/manager/purchase-order?type=customer&status=in-process");
   };
 
@@ -103,6 +105,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
     });
 
     actionModal.onClose();
+    toastSuccess("Update order status successfully");
     router.push(
       "/manager/purchase-order?type=customer&status=ready-to-delivery"
     );
@@ -112,6 +115,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
     await deliveryCPO({ id, accessToken: session.data?.accessToken || "" });
 
     actionModal.onClose();
+    toastSuccess("Update order status successfully");
     router.push("/manager/purchase-order?type=customer&status=on-delivery");
   };
 
@@ -122,6 +126,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
     });
 
     actionModal.onClose();
+    toastSuccess("Update order status successfully");
     router.push("/manager/purchase-order?type=customer&status=completed");
   };
 
@@ -177,9 +182,17 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
                           Payment status:{" "}
                           <Chip
                             variant="flat"
-                            color={order.paid_date_time ? "success" : "warning"}
+                            color={
+                              order.status.toLocaleLowerCase() === "completed"
+                                ? "success"
+                                : "warning"
+                            }
                           >
-                            {order.paid_date_time ? "Completed" : "Not paid"}
+                            {order.status.toLocaleLowerCase() === "completed"
+                              ? "Fully paid"
+                              : order.paid_date_time
+                                ? "Deposit paid"
+                                : "Not deposit paid"}
                           </Chip>
                         </p>
                         <p>Buyer: {order.user_name}</p>

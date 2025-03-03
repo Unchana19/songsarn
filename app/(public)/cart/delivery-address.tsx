@@ -206,7 +206,7 @@ export default function DeliveryAddressPage({
               <p>
                 {!isSuccess
                   ? formatNumberWithComma(0)
-                  : formatNumberWithComma(calDeposit(orderLines))}
+                  : formatNumberWithComma(calDeposit(calTotal(orderLines)))}
               </p>
             </div>
             <div className="flex justify-between">
@@ -219,7 +219,7 @@ export default function DeliveryAddressPage({
               <p>
                 {!isSuccess
                   ? formatNumberWithComma(0)
-                  : formatNumberWithComma(calRest(orderLines))}
+                  : formatNumberWithComma(calRest(calTotal(orderLines)))}
               </p>
             </div>
           </div>
