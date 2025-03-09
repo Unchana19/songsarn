@@ -40,7 +40,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
   const [cpoId, setCPOId] = useState("");
   const [message, setMessage] = useState("");
   const actionModal = useDisclosure();
-  const [currentTab, setCurrentTab] = useState("paid");
+  const [currentTab, setCurrentTab] = useState("deposit-paid");
 
   const [processCPO, resultsProcessCPO] = useProcessCPOMutation();
   const [finishedProcessCPO, resultsFinishedProcessCPO] =
@@ -49,7 +49,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
   const [completedCPO, resultsCompletedCPO] = useCompletedCPOMutation();
 
   const tabs = [
-    { id: "paid", label: "Paid" },
+    { id: "deposit-paid", label: "Deposit paid" },
     { id: "in-process", label: "In process" },
     { id: "ready-to-delivery", label: "Ready to delivery" },
     { id: "on-delivery", label: "On delivery" },
@@ -66,7 +66,7 @@ export default function CustomerPurchaseOrder({ cpos }: Props) {
   const filteredCPOs = useMemo(() => {
     return cpos.filter((cpo) => {
       switch (currentTab) {
-        case "paid":
+        case "deposit-paid":
           return cpo.status === "PAID";
         case "in-process":
           return cpo.status === "PROCESSING";

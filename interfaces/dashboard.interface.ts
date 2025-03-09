@@ -32,7 +32,7 @@ export interface DashboardSummary {
 }
 
 export interface DailyRevenue {
-  day: string;
+  label: string;
   revenue: number;
 }
 
