@@ -1,25 +1,26 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Category } from "@/interfaces/category.interface";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import type { Category } from "@/interfaces/category.interface";
 import {
   createCategorySchema,
-  CreateCategorySchema,
+  type CreateCategorySchema,
 } from "@/lib/schemas/createCategoySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/button";
 import { Image } from "@heroui/image";
 import { Input } from "@heroui/input";
 import { useForm } from "react-hook-form";
-import {
-  RiImageAddFill,
-  RiImageEditFill,
-  RiDeleteBin6Line,
-} from "react-icons/ri";
+import { RiImageAddFill, RiImageEditFill } from "react-icons/ri";
 import { useSession } from "next-auth/react";
 import { Select, SelectItem } from "@heroui/select";
 import { Card } from "@heroui/card";
 import { Skeleton } from "@heroui/skeleton";
 import ComponentCategoryCard from "@/components/component-category-card";
 import EmptyComponents from "@/components/empty-components";
+import {
+  useFetchBomCategoriesQuery,
+  useFetchComponentCategoriesQuery,
+} from "@/store";
 
 interface Props {
   label: string;
@@ -50,76 +51,49 @@ export default function EditCategory({
   handleDiscard,
 }: Props) {
   const session = useSession();
-  const [componentCategories, setComponentCategories] = useState<Category[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: componentCategories, isLoading: isLoadingComponentCategories } =
+    useFetchComponentCategoriesQuery(session.data?.accessToken || "");
+
+  const {
+    data: bomCategories = [],
+    isLoading: isLoadingBomCategories,
+    isSuccess: isSuccessBomCategories,
+  } = useFetchBomCategoriesQuery({
+    categoryId: category?.id || "",
+    accessToken: session.data?.accessToken || "",
+  });
+
   const [selectedComponentCategory, setSelectedComponentCategory] =
     useState<Category | null>();
   const [selectedComponentCategories, setSelectedComponentCategories] =
     useState<Category[]>([]);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (label === "product") {
-      fetchComponentCategories();
       if (category) {
-        fetchBOM();
+        if (!isLoadingBomCategories || isSuccessBomCategories) {
+          setSelectedComponentCategories(bomCategories);
+        }
+      } else {
+        setSelectedComponentCategories([]);
       }
     }
     setValue("type", label.toLowerCase());
-  }, [label, category, session]);
-
-  const fetchComponentCategories = async () => {
-    try {
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/categories/component-categories", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setComponentCategories(result);
-      }
-    } catch (error) {
-      console.error("Error fetching component categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchBOM = async () => {
-    if (!category) return;
-
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(
-        `/api/categories/bom-categories/${category.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok && Array.isArray(result)) {
-        setSelectedComponentCategories(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch BOM", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [
+    label,
+    category,
+    bomCategories,
+    isLoadingBomCategories,
+    isSuccessBomCategories,
+  ]);
 
   const getAvailableComponentCategories = () => {
     return componentCategories.filter(
-      (category) =>
+      (category: Category) =>
         !selectedComponentCategories.some(
           (selected) => selected.id === category.id
         )
@@ -127,7 +101,9 @@ export default function EditCategory({
   };
 
   const handleSelectionChange = (categoryId: string) => {
-    const selected = componentCategories.find((c) => c.id === categoryId);
+    const selected = componentCategories.find(
+      (c: Category) => c.id === categoryId
+    );
     setSelectedComponentCategory(selected || null);
   };
 
@@ -183,7 +159,11 @@ export default function EditCategory({
     fileInputRef.current?.click();
   };
 
-  if (isLoading) {
+  if (
+    isLoadingComponentCategories ||
+    isLoadingBomCategories ||
+    !isSuccessBomCategories
+  ) {
     return (
       <div className="w-full">
         <Skeleton className="w-48 h-8 rounded-lg mb-5" />
@@ -222,7 +202,8 @@ export default function EditCategory({
         </h3>
       </div>
       <div className="flex mt-5 flex-col md:flex-row gap-10">
-        <div
+        <button
+          type="button"
           onClick={handleImageClick}
           className="flex justify-center w-1/3 cursor-pointer"
         >
@@ -258,7 +239,7 @@ export default function EditCategory({
               </div>
             ) : null}
           </Card>
-        </div>
+        </button>
         <div className="flex flex-col gap-5 items-center w-2/3">
           <div className="flex flex-col gap-3 w-full">
             <p>Name</p>
@@ -295,13 +276,17 @@ export default function EditCategory({
                         : []
                     }
                     onChange={(e) => handleSelectionChange(e.target.value)}
-                    isLoading={isLoading}
+                    isLoading={
+                      isLoadingComponentCategories || isLoadingBomCategories
+                    }
                   >
-                    {getAvailableComponentCategories().map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    {getAvailableComponentCategories().map(
+                      (category: Category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      )
+                    )}
                   </Select>
                   <Button
                     color="primary"

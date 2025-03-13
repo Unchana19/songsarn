@@ -5,14 +5,56 @@ import type { NextRequestWithAuth } from "next-auth/middleware";
 export default async function middleware(req: NextRequestWithAuth) {
   const token = await getToken({ req });
   const isAuthenticated = !!token;
+  const isCustomer = token?.role === "customer";
   const isManager = token?.role === "manager";
+  const isStaff = token?.role === "staff";
 
   const path = req.nextUrl.pathname;
 
   if (path === "/") {
-    if (isAuthenticated && isManager) {
-      return NextResponse.redirect(new URL("/manager/dashboard", req.url));
+    if (isAuthenticated) {
+      if (isManager) {
+        return NextResponse.redirect(new URL("/manager/dashboard", req.url));
+      }
+      if (isStaff) {
+        return NextResponse.redirect(
+          new URL("/manager/product-component", req.url)
+        );
+      }
     }
+  }
+
+  const managerRoutes = ["/manager/dashboard", "/manager/manage-staff"];
+
+  const isManagerRoute = managerRoutes.some((route) => path.startsWith(route));
+
+  if (isManagerRoute) {
+    if (!isAuthenticated || !isManager) {
+      const redirectUrl = new URL("/login", req.url);
+      redirectUrl.searchParams.set("callbackUrl", path);
+      return NextResponse.redirect(redirectUrl);
+    }
+    return NextResponse.next();
+  }
+
+  const customerRoutes = [
+    "/all-products",
+    "/my-order",
+    "/create-shrine",
+    "/cart",
+  ];
+
+  const isCustomerRoute = customerRoutes.some((route) =>
+    path.startsWith(route)
+  );
+
+  if (isCustomerRoute) {
+    if (isAuthenticated && !isCustomer) {
+      const redirectUrl = new URL("/login", req.url);
+      redirectUrl.searchParams.set("callbackUrl", path);
+      return NextResponse.redirect(redirectUrl);
+    }
+    return NextResponse.next();
   }
 
   const authRoutes = ["/login", "/sign-up"];
@@ -33,7 +75,7 @@ export default async function middleware(req: NextRequestWithAuth) {
   );
 
   if (path.startsWith("/manager")) {
-    if (!isAuthenticated || !isManager) {
+    if (!isAuthenticated || isCustomer) {
       const redirectUrl = new URL("/login", req.url);
       redirectUrl.searchParams.set("callbackUrl", path);
       return NextResponse.redirect(redirectUrl);

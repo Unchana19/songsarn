@@ -40,7 +40,18 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setMessage(result.error);
+      switch (result.error) {
+        case "Authentication failed":
+          setMessage("Email or password is incorrect.");
+          break;
+        case "Email is not verified":
+          setMessage("Please verify your email before logging in.");
+          break;
+
+        default:
+          setMessage(result.error);
+          break;
+      }
       onOpen();
     } else {
       router.push("/");

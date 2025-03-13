@@ -1,10 +1,10 @@
 "use client";
 
 import PopupModal from "@/components/popup-modal";
-import { MPOGetOne } from "@/interfaces/mpo-get-one.interface";
+import type { MaterialMPO } from "@/interfaces/mpo-get-one.interface";
 import {
   updateMPOSchema,
-  UpdateMPOSchema,
+  type UpdateMPOSchema,
 } from "@/lib/schemas/updateMPOSchema";
 import { convertTimestampToDateTime } from "@/utils/convert-timestamp";
 import { formatId } from "@/utils/format-id";
@@ -14,14 +14,14 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { useDisclosure } from "@heroui/modal";
 import { Select, SelectItem } from "@heroui/select";
-import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Card, CardBody, CardHeader } from "@heroui/card";
+import { useEditMPOOrderLineMutation, useFetchMPOByIdQuery } from "@/store";
 
 interface Props {
   params: { id: string };
@@ -30,8 +30,18 @@ interface Props {
 export default function MaterialPurchaseOrderDetail({ params }: Props) {
   const { id } = params;
   const session = useSession();
-  const [isLoading, setIsLoading] = useState(true);
-  const [mpo, setMpo] = useState<MPOGetOne | null>(null);
+
+  const {
+    currentData: mpo,
+    isLoading,
+    isSuccess,
+  } = useFetchMPOByIdQuery({
+    id,
+    accessToken: session.data?.accessToken || "",
+  });
+
+  const [editMPOOrderLine, results] = useEditMPOOrderLineMutation();
+
   const [selected, setSelected] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -48,33 +58,14 @@ export default function MaterialPurchaseOrderDetail({ params }: Props) {
   });
 
   useEffect(() => {
-    fetchMpo();
-  }, [session]);
-
-  const fetchMpo = async () => {
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(`/api/material-purchase-orders/${id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setMpo(result);
-        calculateTotalPrice(result.materials);
-        setSelected(result.payment_method);
-        setValue("materials", result.materials);
-      }
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
+    if (!isLoading && isSuccess) {
+      calculateTotalPrice(mpo.materials);
+      setSelected(mpo.payment_method);
+      setValue("materials", mpo.materials);
     }
-  };
+  }, [mpo, setValue, isLoading, isSuccess]);
 
-  const calculateTotalPrice = (materials: any[]) => {
+  const calculateTotalPrice = (materials: MaterialMPO[]) => {
     const total = materials.reduce((sum, material) => {
       const price = material.material_price || 0;
       return sum + price;
@@ -89,29 +80,21 @@ export default function MaterialPurchaseOrderDetail({ params }: Props) {
         payment_method: selected,
         ...data,
       };
-      const response = await fetch(
-        "/api/material-purchase-orders/mpo-order-line",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-          body: JSON.stringify(dataWithPayment),
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        setError("Save successfully");
-        fetchMpo();
-        onOpen();
-      } else {
-        setError(result.message);
-      }
-    } catch (error) {}
+
+      await editMPOOrderLine({
+        data: dataWithPayment,
+        accessToken: session.data?.accessToken || "",
+      });
+
+      setError("Save successfully");
+      onOpen();
+    } catch (error) {
+      setError("Failed to save changes");
+      onOpen();
+    }
   };
 
-  if (isLoading) {
+  if (isLoading || !isSuccess) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <Spinner size="lg" color="primary" />
@@ -201,9 +184,9 @@ export default function MaterialPurchaseOrderDetail({ params }: Props) {
               </h3>
             </CardHeader>
             <CardBody className="p-6">
-              {mpo?.materials.map((material, index) => (
+              {mpo?.materials.map((material: MaterialMPO, index: number) => (
                 <div
-                  key={index}
+                  key={material.material_id}
                   className="bg-white p-4 rounded-lg mb-4 border border-default-200"
                 >
                   <div className="grid grid-cols-2 gap-4">

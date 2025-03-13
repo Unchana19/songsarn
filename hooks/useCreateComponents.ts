@@ -31,10 +31,7 @@ export function useCreateComponents({
   const router = useRouter();
 
   const { data: bomCategories, isLoading: isLoadingBOMCateogires } =
-    useFetchBomComponentsCategoriesQuery({
-      categoryId: selectedCategory,
-      accessToken,
-    });
+    useFetchBomComponentsCategoriesQuery(accessToken);
 
   const { data: components, isLoading: isLoadingComponents } =
     useFetchComponentsQuery(accessToken);

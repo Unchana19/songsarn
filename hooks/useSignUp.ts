@@ -21,6 +21,7 @@ export function useSignUp() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isValid, isSubmitting },
   } = methods;
 
@@ -51,5 +52,6 @@ export function useSignUp() {
     isOpen,
     onOpen,
     onOpenChange,
+    reset,
   };
 }

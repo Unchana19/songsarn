@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 export const SearchIcon = (
   props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>,
 ) => (

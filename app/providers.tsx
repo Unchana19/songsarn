@@ -20,9 +20,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <Provider store={store}>
       <SessionProvider>
-        <HeroUIProvider navigate={router.push}>
-          <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-        </HeroUIProvider>
+        <NextThemesProvider {...themeProps}>
+          <HeroUIProvider navigate={router.push}>
+            {children}
+          </HeroUIProvider>
+        </NextThemesProvider>
       </SessionProvider>
     </Provider>
   );

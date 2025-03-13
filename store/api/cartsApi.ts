@@ -8,19 +8,7 @@ const cartsApi = createApi({
   endpoints(builder) {
     return {
       addToCart: builder.mutation({
-        invalidatesTags: (
-          _result,
-          _error,
-          {
-            userId,
-          }: {
-            userId: string;
-            productId: string;
-            accessToken: string;
-          }
-        ) => {
-          return [{ type: "UsersCarts", id: userId }];
-        },
+        invalidatesTags: ["UsersCarts"],
         query: ({
           userId,
           productId,
@@ -64,8 +52,26 @@ const cartsApi = createApi({
           accessToken: string;
         }) => {
           return {
-            url: "/carts",
-            params: { id: userId },
+            url: `/carts?id=${userId}`,
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      fetchCountCartsById: builder.query({
+        providesTags: ["UsersCarts"],
+        query: ({
+          userId,
+          accessToken,
+        }: {
+          userId: string;
+          accessToken: string;
+        }) => {
+          return {
+            url: `/carts/count?id=${userId}`,
             method: "GET",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -170,6 +176,7 @@ const cartsApi = createApi({
 export const {
   useAddToCartMutation,
   useFetchCartsByIdQuery,
+  useFetchCountCartsByIdQuery,
   useIncreaseQuantityByIdMutation,
   useDecreaseQuantityByIdMutation,
   useDeleteOrderByIdMutation,

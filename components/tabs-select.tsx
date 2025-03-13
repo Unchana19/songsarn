@@ -1,6 +1,6 @@
 import { Spinner } from "@heroui/spinner";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Key } from "@react-types/shared";
+import type { Key } from "@react-types/shared";
 
 interface Props {
   tabs: { id: string; label: string }[];
@@ -36,11 +36,11 @@ export default function TabsSelect({
             key={tab.id}
             title={tab.label}
             className={`m-1 ${size === "lg" ? "p-5" : ""} rounded-3xl`}
-          ></Tab>
+          />
         ))}
       </Tabs>
       {isPending && (
-        <Spinner color="primary" className="self-center ml-3"></Spinner>
+        <Spinner color="primary" className="self-center ml-3" />
       )}
     </div>
   );

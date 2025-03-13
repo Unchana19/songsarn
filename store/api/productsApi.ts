@@ -1,5 +1,3 @@
-import type { Category } from "@/interfaces/category.interface";
-import type { Product } from "@/interfaces/product.interface";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const productsApi = createApi({
@@ -19,24 +17,19 @@ const productsApi = createApi({
       }),
 
       fetchProductsByCategory: builder.query({
-        providesTags: (result, error, category: Category) => {
-          const tags = result.map((product: Product) => {
-            return { type: "Product", id: product.id };
-          });
-          tags.push({ type: "CategoryProducts", id: category.id });
-          return tags;
-        },
-        query: (category: Category) => {
+        providesTags: ["Products", "CategoryProducts"],
+        query: (categoryId: string) => {
           return {
-            url: "/products/find-by-category",
-            params: { categoryId: category.id },
+            url: `/products/find-by-category?categoryId=${categoryId}`,
             method: "GET",
           };
         },
       }),
 
       fetchProductById: builder.query({
-        providesTags: (result, error, id: string) => [{ type: "Product", id }],
+        providesTags: (_result, _error, id: string) => [
+          { type: "Product", id },
+        ],
         query: (id: string) => {
           return {
             url: "/products/find-by-id",
@@ -75,6 +68,47 @@ const productsApi = createApi({
           };
         },
       }),
+
+      createProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/products",
+            method: "POST",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      editProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/products",
+            method: "PATCH",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      deleteProduct: builder.mutation({
+        invalidatesTags: ["Product"],
+        query: ({ id, accessToken }) => {
+          return {
+            url: `/products?id=${id}`,
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -84,5 +118,8 @@ export const {
   useFetchProductsByCategoryQuery,
   useCustomizeProductMutation,
   useFetchProductByIdQuery,
+  useCreateProductMutation,
+  useEditProductMutation,
+  useDeleteProductMutation,
 } = productsApi;
 export { productsApi };

@@ -27,24 +27,25 @@ import { useSession } from "next-auth/react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa";
+import { useCreateMPOMutation, useFetchRequisitionsQuery } from "@/store";
 
 interface Props {
   requisitions: Requisition[];
-  fetchRequisition: () => void;
 }
 
-export default function AllRequisition({
-  requisitions,
-  fetchRequisition,
-}: Props) {
+export default function AllRequisition({ requisitions }: Props) {
   const session = useSession();
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set([]));
   const [selectedRequisitions, setSelectedRequisitions] = useState<
     Requisition[]
   >([]);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const [error, setError] = useState("");
+  const { refetch } = useFetchRequisitionsQuery(
+    session.data?.accessToken || ""
+  );
+  const [createMPO] = useCreateMPOMutation();
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const filterSeletedRequisitions = () => {
     setSelectedRequisitions(
@@ -81,30 +82,19 @@ export default function AllRequisition({
   };
 
   const onSubmit = async (data: CreateMPOSchema) => {
-    try {
-      const dataRequisition = selectedRequisitions.map((requisition) => ({
-        material_id: requisition.material_id,
-        quantity: requisition.quantity,
-        requisition_id: requisition.id,
-      }));
-      const dataWithMeterial = { ...data, material: [...dataRequisition] };
-      const response = await fetch("/api/material-purchase-orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-        body: JSON.stringify(dataWithMeterial),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setError("");
-        onOpenChange();
-        fetchRequisition();
-      } else {
-        setError(result.message);
-      }
-    } catch (error) {}
+    const dataRequisition = selectedRequisitions.map((requisition) => ({
+      material_id: requisition.material_id,
+      quantity: requisition.quantity,
+      requisition_id: requisition.id,
+    }));
+    const dataWithMeterial = { ...data, material: [...dataRequisition] };
+    await createMPO({
+      data: dataWithMeterial,
+      accessToken: session.data?.accessToken || "",
+    });
+
+    await refetch();
+    onOpenChange();
   };
 
   return (
@@ -149,7 +139,7 @@ export default function AllRequisition({
         </TableBody>
       </Table>
       <Button
-        onClick={handleCreateOrder}
+        onPress={handleCreateOrder}
         size="lg"
         color="primary"
         radius="full"
@@ -203,7 +193,7 @@ export default function AllRequisition({
                     </Button>
 
                     <Button
-                      onClick={onClose}
+                      onPress={onClose}
                       size="lg"
                       variant="light"
                       radius="full"
@@ -211,8 +201,6 @@ export default function AllRequisition({
                     >
                       <p>Cancel</p>
                     </Button>
-
-                    <p className="text-danger">{error ?? `Error: ${error}`}</p>
                   </div>
                 </div>
               </ModalBody>

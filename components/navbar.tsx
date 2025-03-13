@@ -24,22 +24,44 @@ import {
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
 import { Image } from "@heroui/image";
+import { Badge } from "@heroui/badge";
 import {
   menuItemsManager,
   menuItemsCustomer,
 } from "@/constants/menu-tabs-items";
 import type { MenuItems } from "@/types";
 import { FaShoppingBag } from "react-icons/fa";
-import { useFetchUserQuery } from "@/store";
+import {
+  useFetchCountCartsByIdQuery,
+  useFetchProductsQuery,
+  useFetchUserQuery,
+} from "@/store";
+import { Input } from "@heroui/input";
+import { SearchIcon } from "./icons/search-icon";
+import type { Product } from "@/interfaces/product.interface";
+import ImagePlaceholder from "./image-placeholder";
+import { MdFavorite } from "react-icons/md";
 
 export default function NavbarComponent() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useFetchUserQuery(session?.userId ?? "");
+  const { data: user, isLoading: isLoadingUser } = useFetchUserQuery(
+    session?.userId ?? ""
+  );
+
+  const { data: products } = useFetchProductsQuery({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const filteredProducts = products
+    ?.filter((product: Product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, 5);
+
+  const { data: countOfCart } = useFetchCountCartsByIdQuery({
+    userId: session?.userId ?? "",
+    accessToken: session?.accessToken ?? "",
+  });
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isManager = session?.role === "manager";
@@ -56,7 +78,7 @@ export default function NavbarComponent() {
   }
 
   const renderAuthUI = () => {
-    if (isLoading) {
+    if (isLoadingUser) {
       return (
         <NavbarItem className="flex items-center gap-2">
           <Skeleton className="w-8 h-8 rounded-full" />
@@ -64,7 +86,7 @@ export default function NavbarComponent() {
       );
     }
 
-    if (!user && !isLoading) {
+    if (!user && !isLoadingUser) {
       return (
         <NavbarItem className="flex gap-2">
           <div>
@@ -140,21 +162,91 @@ export default function NavbarComponent() {
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="start" />
+      <NavbarContent justify="center" className="max-w-lg w-full">
+        {session?.role === "customer" && (
+          <NavbarItem className="relative w-full">
+            <Input
+              startContent={<SearchIcon />}
+              placeholder="Find your favorite shrine"
+              radius="full"
+              variant="bordered"
+              color="primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="w-full"
+            />
+            {showSuggestions && filteredProducts?.length > 0 && (
+              <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-1 p-2 border border-gray-200 z-50 max-h-[60vh] overflow-y-auto">
+                {filteredProducts.map((product: Product) => (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.id}`}
+                    className="w-full"
+                  >
+                    <div className="p-1.5 sm:p-2 hover:bg-primary-100 cursor-pointer flex items-center w-full gap-2 sm:gap-3 rounded-lg">
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        {product.img ? (
+                          <Image
+                            src={product.img}
+                            alt={product.name}
+                            width={60}
+                            height={60}
+                            className="rounded-lg object-cover w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                          />
+                        ) : (
+                          <ImagePlaceholder
+                            name={product.name.charAt(0).toUpperCase()}
+                            classNames="w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                          />
+                        )}
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                        {product.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </NavbarItem>
+        )}
+      </NavbarContent>
+
       <NavbarContent justify="end" className="gap-2 md:gap-5">
         {session?.role === "customer" ? (
           <NavbarItem className="flex gap-2">
             <Button
               as={Link}
-              href="/cart"
+              href="/like"
               color="primary"
-              isDisabled={pathname === "/cart"}
-              className={`opacity-100 ${pathname === "/cart" ? "border-1 border-primary" : ""}`}
+              isDisabled={pathname === "/like"}
+              className={`opacity-100 ${pathname === "/like" ? "border-1 border-primary" : ""}`}
               isIconOnly
-              variant={pathname === "/cart" ? "flat" : "light"}
+              variant={pathname === "/like" ? "flat" : "light"}
             >
-              <FaBasketShopping size={20} color="#D4AF37" />
+              <MdFavorite size={20} color="#D4AF37" />
             </Button>
+            <Badge
+              content={countOfCart}
+              color="primary"
+              size="md"
+              isInvisible={!countOfCart || countOfCart <= 0}
+              placement="top-right"
+            >
+              <Button
+                as={Link}
+                href="/cart"
+                color="primary"
+                isDisabled={pathname === "/cart"}
+                className={`opacity-100 ${pathname === "/cart" ? "border-1 border-primary" : ""}`}
+                isIconOnly
+                variant={pathname === "/cart" ? "flat" : "light"}
+              >
+                <FaBasketShopping size={20} color="#D4AF37" />
+              </Button>
+            </Badge>
           </NavbarItem>
         ) : null}
         {renderAuthUI()}

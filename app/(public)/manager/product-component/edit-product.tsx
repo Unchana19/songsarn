@@ -1,13 +1,13 @@
 "use client";
 
 import ComponentSelect from "@/components/component-select";
-import { Category } from "@/interfaces/category.interface";
-import { Color } from "@/interfaces/color.interface";
-import { Component } from "@/interfaces/component.interface";
-import { Product } from "@/interfaces/product.interface";
-import { SelectedComponent } from "@/interfaces/select-component";
+import type { Category } from "@/interfaces/category.interface";
+import type { Color } from "@/interfaces/color.interface";
+import type { Component } from "@/interfaces/component.interface";
+import type { Product } from "@/interfaces/product.interface";
+import type { SelectedComponent } from "@/interfaces/select-component";
 import {
-  CreateProductSchema,
+  type CreateProductSchema,
   createProductSchema,
 } from "@/lib/schemas/createProductSchema";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
@@ -19,9 +19,15 @@ import { Image } from "@heroui/image";
 import { Input, Textarea } from "@heroui/input";
 import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RiImageAddFill, RiImageEditFill } from "react-icons/ri";
+import {
+  useFetchBomCategoriesQuery,
+  useFetchBOMProductQuery,
+  useFetchColorsQuery,
+  useFetchComponentsQuery,
+} from "@/store";
 
 interface Props {
   category: Category;
@@ -41,10 +47,28 @@ export default function EditProduct({
   handleDiscard,
 }: Props) {
   const session = useSession();
-  const [bomCategories, setBomCategories] = useState<Category[]>([]);
-  const [components, setComponents] = useState<Component[]>([]);
-  const [colors, setColors] = useState<Color[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { currentData: bomCategories = [], isLoading: isLoadingBOMCategories } =
+    useFetchBomCategoriesQuery({
+      categoryId: category.id,
+      accessToken: session.data?.accessToken || "",
+    });
+
+  const { currentData: components = [], isLoading: isLoadingComponents } =
+    useFetchComponentsQuery(session.data?.accessToken || "");
+
+  const { currentData: colors = [], isLoading: isLoadingColors } =
+    useFetchColorsQuery(session.data?.accessToken || "");
+
+  const {
+    currentData: bomProduct = [],
+    isLoading: isLoadingBOMProduct,
+    isSuccess: isSuccessBOMProduct,
+  } = useFetchBOMProductQuery({
+    productId: product?.id || "",
+    accessToken: session.data?.accessToken || "",
+  });
+
   const [selectedComponents, setSelectedComponents] = useState<
     SelectedComponent[]
   >([]);
@@ -72,16 +96,12 @@ export default function EditProduct({
   };
 
   useEffect(() => {
-    fetchBOMCategories();
-    fetchComponents();
-    fetchColors();
-  }, [session]);
-
-  useEffect(() => {
     if (bomCategories.length > 0 && product) {
-      fetchBOMProducts();
+      if (!isLoadingBOMProduct && isSuccessBOMProduct) {
+        setSelectedComponents(bomProduct);
+      }
     } else if (bomCategories.length > 0) {
-      const initialComponents = bomCategories.map((category) => ({
+      const initialComponents = bomCategories.map((category: Category) => ({
         category_id: category.id,
         component: "",
         primary_color: null,
@@ -89,91 +109,13 @@ export default function EditProduct({
       }));
       setSelectedComponents(initialComponents);
     }
-  }, [bomCategories, product]);
-
-  const fetchComponents = async () => {
-    try {
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/components", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setComponents(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch components:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchBOMCategories = async () => {
-    if (!category) return;
-
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(
-        `/api/categories/bom-categories/${category.id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        setBomCategories(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch BOM categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchBOMProducts = async () => {
-    if (!product) return;
-
-    setIsLoading(true);
-    try {
-      const token = session.data?.accessToken;
-      const response = await fetch(`/api/products/bom-products/${product.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setSelectedComponents(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch BOM", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchColors = async () => {
-    try {
-      setIsLoading(true);
-      const token = session.data?.accessToken;
-      const response = await fetch("/api/materials/colors", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        setColors(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch colors:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [
+    bomCategories,
+    product,
+    isLoadingBOMProduct,
+    isSuccessBOMProduct,
+    bomProduct,
+  ]);
 
   const {
     register,
@@ -196,19 +138,21 @@ export default function EditProduct({
         },
   });
 
-  const calculateTotalPrice = () => {
+  const calculateTotalPrice = useCallback(() => {
     if (selectedComponents.length === 0) return 0;
 
     return selectedComponents.reduce((total, selection) => {
       if (!selection.component) return total;
 
-      const component = components.find((c) => c.id === selection.component);
+      const component = components.find(
+        (c: Component) => c.id === selection.component
+      );
       return total + (component?.price || 0);
     }, 0);
-  };
+  }, [selectedComponents, components]);
 
   const isFormValid = () => {
-    if (bomCategories.length === 0 || isLoading) return false;
+    if (bomCategories.length === 0 || isLoadingBOMCategories) return false;
 
     return selectedComponents.every((selection) => {
       return (
@@ -242,14 +186,14 @@ export default function EditProduct({
 
   useEffect(() => {
     setValue("price", calculateTotalPrice().toString());
-  }, [selectedComponents, setValue]);
+  }, [setValue, calculateTotalPrice]);
 
   const onSubmit = async (data: CreateProductSchema) => {
     await handleSave(data, selectedComponents, selectedFile);
   };
 
   const renderComponentSelects = () => {
-    if (isLoading) {
+    if (isLoadingBOMCategories || isLoadingComponents || isLoadingColors) {
       return (
         <div className="flex flex-col gap-4 w-full">
           <Skeleton className="h-12 w-full rounded-full" />
@@ -264,9 +208,9 @@ export default function EditProduct({
         <div>
           <h3 className="text-lg font-bold">BOM product</h3>
         </div>
-        {bomCategories.map((bomCategory) => {
+        {bomCategories.map((bomCategory: Category) => {
           const filterComponents = components.filter(
-            (c) => c.category_id === bomCategory.id
+            (c: Component) => c.category_id === bomCategory.id
           );
           const selectedComponent = selectedComponents.find(
             (sc) => sc.category_id === bomCategory.id
@@ -329,7 +273,7 @@ export default function EditProduct({
             accept="image/*"
             className="hidden"
           />
-          <div onClick={triggerFileInput} className="">
+          <button type="button" onClick={triggerFileInput} className="">
             <Card
               className="flex items-center justify-center border-primary border-1 rounded-xl w-full p-5 cursor-pointer"
               isHoverable
@@ -362,13 +306,15 @@ export default function EditProduct({
               accept="image/*"
               className="hidden"
             />
-          </div>
+          </button>
           <div className="mt-3">
             <h3 className="text-lg font-bold">Detail</h3>
           </div>
           <div className="flex flex-col gap-2 mt-2">
             <p>Product categoy</p>
-            {isLoading ? (
+            {isLoadingBOMCategories ||
+            isLoadingComponents ||
+            isLoadingComponents ? (
               <Skeleton className="h-6 w-1/2 rounded-full" />
             ) : (
               <p className="text-primary pl-2">{category?.name}</p>
@@ -376,7 +322,9 @@ export default function EditProduct({
           </div>
           <div className="flex flex-col gap-2">
             <p>Product name</p>
-            {isLoading ? (
+            {isLoadingBOMCategories ||
+            isLoadingComponents ||
+            isLoadingComponents ? (
               <Skeleton className="h-12 w-full rounded-full" />
             ) : (
               <Input
@@ -394,7 +342,9 @@ export default function EditProduct({
           </div>
           <div className="flex flex-col gap-2">
             <p>Product detail</p>
-            {isLoading ? (
+            {isLoadingBOMCategories ||
+            isLoadingComponents ||
+            isLoadingComponents ? (
               <Skeleton className="h-32 w-full rounded-2xl" />
             ) : (
               <Textarea
@@ -417,7 +367,9 @@ export default function EditProduct({
           </div>
           <div className="flex flex-col gap-2">
             <p>Total price</p>
-            {isLoading ? (
+            {isLoadingBOMCategories ||
+            isLoadingComponents ||
+            isLoadingComponents ? (
               <Skeleton className="h-12 w-full rounded-full" />
             ) : (
               <Card shadow="none" className="w-full">
@@ -426,7 +378,7 @@ export default function EditProduct({
                     {selectedComponents.map((selection) => {
                       if (!selection.component) return null;
                       const component = components.find(
-                        (c) => c.id === selection.component
+                        (c: Component) => c.id === selection.component
                       );
                       if (!component) return null;
 
@@ -471,9 +423,13 @@ export default function EditProduct({
                 <p className="text-white">Save</p>
               </Button>
               <Button
-                onClick={handleDiscard}
+                onPress={handleDiscard}
                 variant="light"
-                isDisabled={isLoading}
+                isDisabled={
+                  isLoadingBOMCategories ||
+                  isLoadingComponents ||
+                  isLoadingComponents
+                }
               >
                 <p>Discard</p>
               </Button>

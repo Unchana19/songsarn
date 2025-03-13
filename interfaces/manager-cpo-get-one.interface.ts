@@ -1,4 +1,4 @@
-interface MaterialDetail {
+export interface MaterialDetail {
   name: string;
   quantity: number;
   unit: string;
@@ -9,7 +9,7 @@ interface ColorDetail {
   color: string;
 }
 
-interface ComponentDetail {
+export interface ComponentDetail {
   id: string;
   name: string;
   img: string;
@@ -18,7 +18,7 @@ interface ComponentDetail {
   materials: MaterialDetail[];
 }
 
-interface OrderLineDetail {
+export interface OrderLineDetail {
   id: string;
   name: string;
   img: string;

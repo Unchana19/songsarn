@@ -34,11 +34,11 @@ import {
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { FiEdit, FiFilter } from "react-icons/fi";
+import { useCreateRequisitionMutation } from "@/store";
 
 interface Props {
   materials: Material[];
   handleEdit: (material: Material) => void;
-  fetchRequisition: () => void;
 }
 
 const STATUS_FILTERS = {
@@ -48,13 +48,10 @@ const STATUS_FILTERS = {
   "out-of-stock": "Out of stock",
 } as const;
 
-export default function AllMaterial({
-  materials,
-  handleEdit,
-  fetchRequisition,
-}: Props) {
+export default function AllMaterial({ materials, handleEdit }: Props) {
   const session = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [createRequisition, results] = useCreateRequisitionMutation();
   const [material, setMaterial] = useState<Material>();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [error, setError] = useState("");
@@ -84,22 +81,13 @@ export default function AllMaterial({
   const onSubmit = async (data: CreateRequisitionSchema) => {
     try {
       const dataWithMeterialId = { materialId: material?.id, ...data };
-      const response = await fetch("/api/requisitions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.accessToken}`,
-        },
-        body: JSON.stringify(dataWithMeterialId),
+
+      await createRequisition({
+        data: dataWithMeterialId,
+        accessToken: session.data?.accessToken || "",
       });
-      const result = await response.json();
-      if (response.ok) {
-        setError("");
-        onOpenChange();
-        await fetchRequisition();
-      } else {
-        setError(result.message);
-      }
+
+      onOpenChange();
     } catch (error) {
       setError("Something went wrong");
     }
@@ -183,7 +171,7 @@ export default function AllMaterial({
                   variant="flat"
                   color="primary"
                   radius="full"
-                  onClick={() => handleEdit(material)}
+                  onPress={() => handleEdit(material)}
                   startContent={<FiEdit />}
                 >
                   Edit
@@ -192,7 +180,7 @@ export default function AllMaterial({
                   color="primary"
                   radius="full"
                   className="text-white"
-                  onClick={() => handleRequisition(material)}
+                  onPress={() => handleRequisition(material)}
                 >
                   Send requisition
                 </Button>

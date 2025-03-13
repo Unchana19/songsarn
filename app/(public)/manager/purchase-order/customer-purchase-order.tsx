@@ -1,9 +1,9 @@
 "use client";
 
 import TabsSelect from "@/components/tabs-select";
-import { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
+import type { ManagerCPOGetAll } from "@/interfaces/manager-cpo-get-all.interface";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Key, useTransition, useMemo, useState, useEffect } from "react";
+import { type Key, useTransition, useMemo, useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import EmptyComponents from "@/components/empty-components";
@@ -19,13 +19,19 @@ import { getCPOMaterialStatus } from "@/utils/get-cpo-material-stataus";
 import { useSession } from "next-auth/react";
 import PopupModal from "@/components/popup-modal";
 import { useDisclosure } from "@heroui/modal";
+import {
+  useCompletedCPOMutation,
+  useDeliveryCPOMutation,
+  useFinishedProcessCPOMutation,
+  useProcessCPOMutation,
+} from "@/store";
+import { toastSuccess } from "@/utils/toast-config";
 
 interface Props {
   cpos: ManagerCPOGetAll[];
-  fetchCPOs: () => void;
 }
 
-export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
+export default function CustomerPurchaseOrder({ cpos }: Props) {
   const session = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -34,10 +40,16 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
   const [cpoId, setCPOId] = useState("");
   const [message, setMessage] = useState("");
   const actionModal = useDisclosure();
-  const [currentTab, setCurrentTab] = useState("paid");
+  const [currentTab, setCurrentTab] = useState("deposit-paid");
+
+  const [processCPO, resultsProcessCPO] = useProcessCPOMutation();
+  const [finishedProcessCPO, resultsFinishedProcessCPO] =
+    useFinishedProcessCPOMutation();
+  const [deliveryCPO, resultsDeliveryCPO] = useDeliveryCPOMutation();
+  const [completedCPO, resultsCompletedCPO] = useCompletedCPOMutation();
 
   const tabs = [
-    { id: "paid", label: "Paid" },
+    { id: "deposit-paid", label: "Deposit paid" },
     { id: "in-process", label: "In process" },
     { id: "ready-to-delivery", label: "Ready to delivery" },
     { id: "on-delivery", label: "On delivery" },
@@ -54,7 +66,7 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
   const filteredCPOs = useMemo(() => {
     return cpos.filter((cpo) => {
       switch (currentTab) {
-        case "paid":
+        case "deposit-paid":
           return cpo.status === "PAID";
         case "in-process":
           return cpo.status === "PROCESSING";
@@ -78,102 +90,56 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
     });
   };
 
-  const processCPO = async (id: string) => {
-    try {
-      const response = await fetch(
-        `/api/customer-purchase-orders/manager/process/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        fetchCPOs();
-        actionModal.onClose();
-        router.push("/manager/purchase-order?type=customer&status=in-process");
-      }
-    } catch (error) {}
+  const handleProcessCPO = async (id: string) => {
+    await processCPO({ id, accessToken: session.data?.accessToken || "" });
+
+    actionModal.onClose();
+    toastSuccess("Update order status successfully");
+    router.push("/manager/purchase-order?type=customer&status=in-process");
   };
 
-  const finishedProcessCPO = async (id: string) => {
-    try {
-      const response = await fetch(
-        `/api/customer-purchase-orders/manager/finished-process/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        fetchCPOs();
-        actionModal.onClose();
-        router.push(
-          "/manager/purchase-order?type=customer&status=ready-to-delivery"
-        );
-      }
-    } catch (error) {}
+  const handleFinishedProcessCPO = async (id: string) => {
+    await finishedProcessCPO({
+      id,
+      accessToken: session.data?.accessToken || "",
+    });
+
+    actionModal.onClose();
+    toastSuccess("Update order status successfully");
+    router.push(
+      "/manager/purchase-order?type=customer&status=ready-to-delivery"
+    );
   };
 
-  const deliveryCPO = async (id: string) => {
-    try {
-      const response = await fetch(
-        `/api/customer-purchase-orders/manager/delivery/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        fetchCPOs();
-        actionModal.onClose();
-        router.push("/manager/purchase-order?type=customer&status=on-delivery");
-      }
-    } catch (error) {}
+  const handleDeliveryCPO = async (id: string) => {
+    await deliveryCPO({ id, accessToken: session.data?.accessToken || "" });
+
+    actionModal.onClose();
+    toastSuccess("Update order status successfully");
+    router.push("/manager/purchase-order?type=customer&status=on-delivery");
   };
 
-  const deliveryCompletedCPO = async (id: string) => {
-    try {
-      const response = await fetch(
-        `/api/customer-purchase-orders/manager/completed/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.data?.accessToken}`,
-          },
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        fetchCPOs();
-        actionModal.onClose();
-        router.push("/manager/purchase-order?type=customer&status=completed");
-      }
-    } catch (error) {}
+  const handleCompletedCPO = async (id: string) => {
+    await completedCPO({
+      id,
+      accessToken: session.data?.accessToken || "",
+    });
+
+    actionModal.onClose();
+    toastSuccess("Update order status successfully");
+    router.push("/manager/purchase-order?type=customer&status=completed");
   };
 
   const handleActionConfirm = () => {
     switch (message) {
       case "process":
-        return processCPO(cpoId);
+        return handleProcessCPO(cpoId);
       case "finished process":
-        return finishedProcessCPO(cpoId);
+        return handleFinishedProcessCPO(cpoId);
       case "delivery":
-        return deliveryCPO(cpoId);
+        return handleDeliveryCPO(cpoId);
       case "completed":
-        return deliveryCompletedCPO(cpoId);
+        return handleCompletedCPO(cpoId);
       default:
         return;
     }
@@ -216,9 +182,17 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
                           Payment status:{" "}
                           <Chip
                             variant="flat"
-                            color={order.paid_date_time ? "success" : "warning"}
+                            color={
+                              order.status.toLocaleLowerCase() === "completed"
+                                ? "success"
+                                : "warning"
+                            }
                           >
-                            {order.paid_date_time ? "Completed" : "Not paid"}
+                            {order.status.toLocaleLowerCase() === "completed"
+                              ? "Fully paid"
+                              : order.paid_date_time
+                                ? "Deposit paid"
+                                : "Not deposit paid"}
                           </Chip>
                         </p>
                         <p>Buyer: {order.user_name}</p>
@@ -273,9 +247,9 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
                                           (detail) =>
                                             detail.needed > detail.available
                                         )
-                                        .map((detail, index) => (
+                                        .map((detail) => (
                                           <div
-                                            key={index}
+                                            key={detail.material_name}
                                             className="bg-white/60 rounded-lg p-3 border border-danger-100"
                                           >
                                             <div className="flex items-center justify-between mb-2">
@@ -347,6 +321,12 @@ export default function CustomerPurchaseOrder({ cpos, fetchCPOs }: Props) {
                               color="primary"
                               variant="bordered"
                               className="rounded-full font-medium flex items-center"
+                              isLoading={
+                                resultsProcessCPO.isLoading ||
+                                resultsFinishedProcessCPO.isLoading ||
+                                resultsDeliveryCPO.isLoading ||
+                                resultsCompletedCPO.isLoading
+                              }
                               isDisabled={
                                 order.status === "PAID" &&
                                 order.material_status ===

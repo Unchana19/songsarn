@@ -1,38 +1,68 @@
 "use client";
+import Loading from "@/app/loading";
 import EmptyComponents from "@/components/empty-components";
-import PopupModal from "@/components/popup-modal";
 import ProductCardSmall from "@/components/product-card-small";
+import ShopButton from "@/components/shop-button";
 import type { Category } from "@/interfaces/category.interface";
+import type { Like } from "@/interfaces/like.interface";
 import type { Product } from "@/interfaces/product.interface";
 import {
   useAddToCartMutation,
+  useCreateLikeMutation,
+  useDeleteLikeMutation,
+  useFetchLikesQuery,
   useFetchProductCategoriesQuery,
   useFetchProductsQuery,
 } from "@/store";
+import { toastError, toastSuccess } from "@/utils/toast-config";
 import { Button } from "@heroui/button";
-import { Card } from "@heroui/card";
-import { useDisclosure } from "@heroui/modal";
-import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
-import { FaCartPlus } from "react-icons/fa";
 
 export default function AllProductsPage() {
   const session = useSession();
-  const {
-    data: productsCategories,
-    isLoading: isLoadingProductCategories,
-  } = useFetchProductCategoriesQuery({});
+  const { data: productsCategories, isLoading: isLoadingProductCategories } =
+    useFetchProductCategoriesQuery({});
 
-  const {
-    data: products,
-    isLoading: isLoadingProducts,
-  } = useFetchProductsQuery({});
+  const { data: products, isLoading: isLoadingProducts } =
+    useFetchProductsQuery({});
+
+  const { data: likes, isLoading: isLoadingLikes } = useFetchLikesQuery({
+    userId: session.data?.userId,
+    accessToken: session.data?.accessToken,
+  });
+
+  const [createLike, resultsCreateLike] = useCreateLikeMutation();
+  const [deleteLike, resultsDeleteLike] = useDeleteLikeMutation();
+
+  const isLike = (productId: string) => {
+    return likes?.some((like: Like) => like.product_id === productId);
+  };
 
   const [addToCart, results] = useAddToCartMutation();
-  const [modalMessage, setModalMessage] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const handleLike = async (productId: string) => {
+    if (
+      session.status === "authenticated" &&
+      session.data?.userId &&
+      session.data?.accessToken
+    ) {
+      if (isLike(productId)) {
+        const like = likes?.find((like: Like) => like.product_id === productId);
+        await deleteLike({
+          id: like?.id,
+          accessToken: session.data.accessToken,
+        });
+      } else {
+        await createLike({
+          data: { user_id: session.data.userId, product_id: productId },
+          accessToken: session.data.accessToken,
+        });
+      }
+    } else {
+      toastError("Please login to like product");
+    }
+  };
 
   const handleAddToCart = async (product: Product) => {
     if (
@@ -40,83 +70,27 @@ export default function AllProductsPage() {
       session.data?.userId &&
       session.data?.accessToken
     ) {
-      try {
-        addToCart({
-          userId: session.data.userId,
-          productId: product.id,
-          accessToken: session.data.accessToken,
-        });
-      } catch (error) {
-        setModalMessage("An error occurred. Please try again.");
-        onOpen();
-      } finally {
-        setModalMessage("Product added to cart successfully");
-        onOpen();
-      }
+      await addToCart({
+        userId: session.data.userId,
+        productId: product.id,
+        accessToken: session.data.accessToken,
+      });
+
+      toastSuccess("Product added to cart");
     } else {
-      setModalMessage("Please login to add items to cart");
-      onOpen();
+      toastError("Please login to add product to cart");
     }
   };
 
-  if (isLoadingProductCategories || isLoadingProducts) {
-    return (
-      (<div>
-        <Skeleton className="h-8 w-32 rounded-lg mb-10" />
-        <div className="flex flex-col gap-10">
-          {[...Array(3)].map((_, categoryIndex) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            (<div key={categoryIndex} className="flex flex-col">
-              <div className="flex justify-between mb-5">
-                <Skeleton className="h-6 w-40 rounded-lg" />
-                <Skeleton className="h-10 w-32 rounded-full" />
-              </div>
-              <div className="flex flex-wrap justify-start">
-                {[...Array(4)].map((_, productIndex) => (
-                  <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                    key={productIndex}
-                    className="w-full md:w-1/2 xl:w-1/4 p-5"
-                  >
-                    <Card className="w-full space-y-5 p-4">
-                      <Skeleton className="rounded-lg">
-                        <div className="h-52 rounded-lg bg-default-300" />
-                      </Skeleton>
-                      <div className="space-y-3">
-                        <Skeleton className="w-3/5 rounded-lg">
-                          <div className="h-3 w-3/5 rounded-lg bg-default-200" />
-                        </Skeleton>
-                        <Skeleton className="w-4/5 rounded-lg">
-                          <div className="h-3 w-4/5 rounded-lg bg-default-200" />
-                        </Skeleton>
-                        <Skeleton className="w-2/5 rounded-lg">
-                          <div className="h-3 w-2/5 rounded-lg bg-default-300" />
-                        </Skeleton>
-                      </div>
-                      <div className="flex gap-4">
-                        <Skeleton className="w-32 rounded-lg">
-                          <div className="h-10 rounded-lg bg-default-200" />
-                        </Skeleton>
-                        <Skeleton className="w-10 rounded-lg">
-                          <div className="h-10 rounded-lg bg-default-200" />
-                        </Skeleton>
-                      </div>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>)
-          ))}
-        </div>
-      </div>)
-    );
+  if (isLoadingProductCategories || isLoadingProducts || isLoadingLikes) {
+    return <Loading />;
   }
 
   return (
     <div>
       <h2 className="font-bold text-lg">All products</h2>
       <div className="flex flex-col mt-10 gap-10">
-        {productsCategories.map((category: Category) => {
+        {productsCategories?.map((category: Category) => {
           const productsFilter = products.filter(
             (product: Product) => product.category_id === category.id
           );
@@ -146,30 +120,17 @@ export default function AllProductsPage() {
                           isTopSeller={index === 0}
                           product={product}
                           cardButton={
-                            <div className="flex gap-4">
-                              <Button
-                                as={Link}
-                                href={`/product/${product.id}`}
-                                color="primary"
-                                variant="bordered"
-                              >
-                                <p>See detail</p>
-                              </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleAddToCart(product);
-                                }}
-                                radius="full"
-                                className="z-10"
-                                isIconOnly
-                                color="primary"
-                                isLoading={results.isLoading}
-                              >
-                                <FaCartPlus color="white" size={20} />
-                              </Button>
-                            </div>
+                            <ShopButton
+                              product={product}
+                              isLiked={isLike(product.id)}
+                              handleLike={handleLike}
+                              isLoadingLike={
+                                resultsCreateLike.isLoading ||
+                                resultsDeleteLike.isLoading
+                              }
+                              handleAddToCart={handleAddToCart}
+                              isLoadingAddToCart={results.isLoading}
+                            />
                           }
                         />
                       </Link>
@@ -188,11 +149,6 @@ export default function AllProductsPage() {
           );
         })}
       </div>
-      <PopupModal
-        message={modalMessage}
-        isOpen={isOpen}
-        onClose={onOpenChange}
-      />
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@heroui/button";
 import { useSession } from "next-auth/react";
-import { Progress } from "@heroui/progress";
 
 import type { TimeFrame } from "@/enums/timeframe.enum";
 import { useFetchDashboardQuery } from "@/store";
@@ -15,6 +14,8 @@ import TopSellersCard from "./top-sellers";
 import RecentTransactions from "./recent-transaction";
 import UnsoldProductsCard from "./unsold-product";
 import PurchaseOrdersCard from "./purchase-order";
+import Loading from "@/app/loading";
+import ForecastRevenueChart from "./forecast-revenue";
 
 export default function DashboardPage() {
   const session = useSession();
@@ -32,19 +33,7 @@ export default function DashboardPage() {
   });
 
   if (!dashboardData || isLoading || !isSuccess) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="space-y-4 text-center">
-          <Progress
-            size="sm"
-            isIndeterminate
-            aria-label="Loading..."
-            className="max-w-md"
-          />
-          <p className="text-default-500">Loading dashboard data...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -97,8 +86,20 @@ export default function DashboardPage() {
           timeframe={timeframe}
         />
 
+        <ForecastRevenueChart
+          actualRevenue={dashboardData.dailyRevenue}
+          forecastRevenue={dashboardData.forecastRevenue}
+          timeframe={timeframe}
+        />
+      </div>
+
+      {/* Predict Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stock Status */}
         <StockStatusCard stockStatus={dashboardData.stockStatus} />
+
+        {/* Purchase Orders Card */}
+        <PurchaseOrdersCard purchaseOrders={dashboardData.purchaseOrders} />
       </div>
 
       {/* Top 5 Sellers Section */}
@@ -114,9 +115,6 @@ export default function DashboardPage() {
         {/* Unsold Products */}
         <UnsoldProductsCard unsoldProducts={dashboardData.unsoldProducts} />
       </div>
-
-      {/* Purchase Orders Card */}
-      <PurchaseOrdersCard purchaseOrders={dashboardData.purchaseOrders} />
     </div>
   );
 }

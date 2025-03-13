@@ -34,9 +34,41 @@ const paymentsApi = createApi({
           };
         },
       }),
+
+      fetchQRPayment: build.query({
+        providesTags: ["Payments"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/payments/generate-qr",
+            method: "POST",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
+
+      verifySlip: build.mutation({
+        invalidatesTags: ["Payments"],
+        query: ({ data, accessToken }) => {
+          return {
+            url: "/payments/verify-slip",
+            method: "POST",
+            body: data,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        },
+      }),
     };
   },
 });
 
-export const { useTestPaymentsMutation } = paymentsApi;
+export const {
+  useTestPaymentsMutation,
+  useFetchQRPaymentQuery,
+  useVerifySlipMutation,
+} = paymentsApi;
 export default paymentsApi;
