@@ -90,6 +90,7 @@ export {
 export {
   useAddToCartMutation,
   useFetchCartsByIdQuery,
+  useFetchCountCartsByIdQuery,
   useIncreaseQuantityByIdMutation,
   useDecreaseQuantityByIdMutation,
   useDeleteOrderByIdMutation,

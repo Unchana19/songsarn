@@ -24,13 +24,18 @@ import {
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
 import { Image } from "@heroui/image";
+import { Badge } from "@heroui/badge";
 import {
   menuItemsManager,
   menuItemsCustomer,
 } from "@/constants/menu-tabs-items";
 import type { MenuItems } from "@/types";
 import { FaShoppingBag } from "react-icons/fa";
-import { useFetchProductsQuery, useFetchUserQuery } from "@/store";
+import {
+  useFetchCountCartsByIdQuery,
+  useFetchProductsQuery,
+  useFetchUserQuery,
+} from "@/store";
 import { Input } from "@heroui/input";
 import { SearchIcon } from "./icons/search-icon";
 import type { Product } from "@/interfaces/product.interface";
@@ -44,8 +49,7 @@ export default function NavbarComponent() {
     session?.userId ?? ""
   );
 
-  const { data: products, isLoading: isLoadingProducts } =
-    useFetchProductsQuery({});
+  const { data: products } = useFetchProductsQuery({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const filteredProducts = products
@@ -53,6 +57,11 @@ export default function NavbarComponent() {
       product.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .slice(0, 5);
+
+  const { data: countOfCart } = useFetchCountCartsByIdQuery({
+    userId: session?.userId ?? "",
+    accessToken: session?.accessToken ?? "",
+  });
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isManager = session?.role === "manager";
@@ -219,17 +228,25 @@ export default function NavbarComponent() {
             >
               <MdFavorite size={20} color="#D4AF37" />
             </Button>
-            <Button
-              as={Link}
-              href="/cart"
+            <Badge
+              content={countOfCart}
               color="primary"
-              isDisabled={pathname === "/cart"}
-              className={`opacity-100 ${pathname === "/cart" ? "border-1 border-primary" : ""}`}
-              isIconOnly
-              variant={pathname === "/cart" ? "flat" : "light"}
+              size="md"
+              isInvisible={!countOfCart || countOfCart <= 0}
+              placement="top-right"
             >
-              <FaBasketShopping size={20} color="#D4AF37" />
-            </Button>
+              <Button
+                as={Link}
+                href="/cart"
+                color="primary"
+                isDisabled={pathname === "/cart"}
+                className={`opacity-100 ${pathname === "/cart" ? "border-1 border-primary" : ""}`}
+                isIconOnly
+                variant={pathname === "/cart" ? "flat" : "light"}
+              >
+                <FaBasketShopping size={20} color="#D4AF37" />
+              </Button>
+            </Badge>
           </NavbarItem>
         ) : null}
         {renderAuthUI()}
