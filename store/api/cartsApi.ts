@@ -1,14 +1,13 @@
-import type { OrderLine } from "@/interfaces/order-line.interface";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const cartsApi = createApi({
   reducerPath: "cartsApi",
   baseQuery: fetchBaseQuery({ baseUrl: `${process.env.NEXT_PUBLIC_API_URL}` }),
-  tagTypes: ["Cart", "UsersCarts"],
+  tagTypes: ["Cart"],
   endpoints(builder) {
     return {
       addToCart: builder.mutation({
-        invalidatesTags: ["UsersCarts"],
+        invalidatesTags: ["Cart"],
         query: ({
           userId,
           productId,
@@ -33,17 +32,7 @@ const cartsApi = createApi({
       }),
 
       fetchCartsById: builder.query({
-        providesTags: (result, _error, { userId }) => {
-          return result
-            ? [
-                ...result.map(
-                  (orderLine: OrderLine) =>
-                    ({ type: "Cart", id: orderLine.id }) as const
-                ),
-                { type: "UsersCarts", id: userId },
-              ]
-            : [{ type: "UsersCarts", id: userId }];
-        },
+        providesTags: ["Cart"],
         query: ({
           userId,
           accessToken,
@@ -62,7 +51,7 @@ const cartsApi = createApi({
       }),
 
       fetchCountCartsById: builder.query({
-        providesTags: ["UsersCarts"],
+        providesTags: ["Cart"],
         query: ({
           userId,
           accessToken,
@@ -81,18 +70,7 @@ const cartsApi = createApi({
       }),
 
       increaseQuantityById: builder.mutation({
-        invalidatesTags: (
-          _result,
-          _error,
-          {
-            orderId,
-          }: {
-            orderId: string;
-            accessToken?: string;
-          }
-        ) => {
-          return [{ type: "Cart", id: orderId }];
-        },
+        invalidatesTags: ["Cart"],
         query: ({
           orderId,
           accessToken,
@@ -111,18 +89,7 @@ const cartsApi = createApi({
       }),
 
       decreaseQuantityById: builder.mutation({
-        invalidatesTags: (
-          _result,
-          _error,
-          {
-            orderId,
-          }: {
-            orderId: string;
-            accessToken?: string;
-          }
-        ) => {
-          return [{ type: "Cart", id: orderId }];
-        },
+        invalidatesTags: ["Cart"],
         query: ({
           orderId,
           accessToken,
@@ -141,18 +108,7 @@ const cartsApi = createApi({
       }),
 
       deleteOrderById: builder.mutation({
-        invalidatesTags: (
-          _result,
-          _error,
-          {
-            orderId,
-          }: {
-            orderId: string;
-            accessToken?: string;
-          }
-        ) => {
-          return [{ type: "Cart", id: orderId }];
-        },
+        invalidatesTags: ["Cart"],
         query: ({
           orderId,
           accessToken,
