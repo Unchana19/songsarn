@@ -12,16 +12,7 @@ import EditComponent from "./edit-component";
 import { Skeleton } from "@heroui/skeleton";
 import PopupModal from "@/components/popup-modal";
 import { useProductComponent } from "@/hooks/useProductComponent";
-
-// Loading component
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-4">
-      <Skeleton className="w-3/4 h-8 rounded-lg" />
-      <Skeleton className="w-full h-64 rounded-lg" />
-    </div>
-  );
-}
+import Loading from "@/app/loading";
 
 // Main content component
 function ProductComponentContent() {
@@ -60,7 +51,7 @@ function ProductComponentContent() {
 
   const renderContent = () => {
     if (isLoading || !isSuccess) {
-      return <LoadingSkeleton />;
+      return <Loading />;
     }
 
     switch (activeStep) {
@@ -145,7 +136,7 @@ function ProductComponentContent() {
 // Main component wrapped with Suspense
 export default function ProductComponentTab() {
   return (
-    <Suspense fallback={<LoadingSkeleton />}>
+    <Suspense fallback={<Loading />}>
       <ProductComponentContent />
     </Suspense>
   );

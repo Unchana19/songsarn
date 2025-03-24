@@ -6,6 +6,7 @@ export const updateMPOSchema = z.object({
       mpo_ol_id: z.string().min(1),
       material_price: z
         .string()
+        .max(8)
         .regex(/^\d+(\.\d+)?$/, "Price must be a number"),
     })
   ),

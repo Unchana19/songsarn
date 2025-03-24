@@ -11,7 +11,6 @@ import { Card } from "@heroui/card";
 import { Image } from "@heroui/image";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
-import { Skeleton } from "@heroui/skeleton";
 import {
   Table,
   TableHeader,
@@ -30,6 +29,7 @@ import {
   RiImageEditFill,
 } from "react-icons/ri";
 import { useFetchBOMComponentQuery, useFetchMaterialsQuery } from "@/store";
+import Loading from "@/app/loading";
 
 interface Props {
   category: Category;
@@ -175,42 +175,7 @@ export default function EditComponent({
   };
 
   if (isLoadingMaterials || isLoadingBOMComponent) {
-    return (
-      <div>
-        <Skeleton className="rounded-lg">
-          <div className="h-24 rounded-lg bg-default-300" />
-        </Skeleton>
-        <div className="flex mt-5 flex-col md:flex-row gap-20">
-          <div className="w-4/12">
-            <Skeleton className="rounded-xl">
-              <div className="h-60 rounded-xl bg-default-300" />
-            </Skeleton>
-            <div className="flex flex-col gap-5 mt-10">
-              <Skeleton className="w-3/4 rounded-lg">
-                <div className="h-3 w-3/4 rounded-lg bg-default-200" />
-              </Skeleton>
-              <Skeleton className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200" />
-              </Skeleton>
-              <Skeleton className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200" />
-              </Skeleton>
-            </div>
-          </div>
-          <div className="flex flex-col gap-5 w-5/12">
-            <Skeleton className="w-3/4 rounded-lg">
-              <div className="h-3 w-3/4 rounded-lg bg-default-200" />
-            </Skeleton>
-            {[...Array(6)].map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <Skeleton key={index} className="w-full rounded-full">
-                <div className="h-10 w-full rounded-full bg-default-200" />
-              </Skeleton>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -349,6 +314,9 @@ export default function EditComponent({
                     radius="full"
                     labelPlacement="outside"
                     size="lg"
+                    {...register("quantity")}
+                    isInvalid={!!errors.quantity}
+                    errorMessage={errors.quantity?.message as string}
                     label="Quantity"
                     placeholder={`Enter ${selectedMaterial.name} quantity`}
                     value={quantity}
@@ -366,8 +334,8 @@ export default function EditComponent({
                 color="primary"
                 radius="full"
                 className="text-white"
-                onClick={handleAddMaterial}
-                isDisabled={quantity === ""}
+                onPress={handleAddMaterial}
+                isDisabled={!!errors.quantity}
               >
                 <RiAddLine size={25} />
                 <p>Add material</p>

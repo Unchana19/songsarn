@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import type { Transaction } from "@/interfaces/transaction.interface";
 import TransactionTab from "./transaction-tap";
 import { useFetchTransactionsQuery } from "@/store";
+import Loading from "@/app/loading";
 
 interface Props {
   searchParams: { type: string };
@@ -27,6 +28,10 @@ export default function TransactionPage({ searchParams }: Props) {
       }
     });
   }, [transactions, searchParams.type]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div>

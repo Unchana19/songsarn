@@ -5,6 +5,7 @@ import HistoryTab from "./history-tab";
 import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useFetchHistoriesQuery } from "@/store";
+import Loading from "@/app/loading";
 
 interface Props {
   searchParams: { type: string };
@@ -28,6 +29,10 @@ export default function HistoryPage({ searchParams }: Props) {
       }
     });
   }, [histories, searchParams.type]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div>
