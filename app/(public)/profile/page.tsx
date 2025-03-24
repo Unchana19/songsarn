@@ -1,6 +1,5 @@
 "use client";
 import PopupModal from "@/components/popup-modal";
-import type { User } from "@/interfaces/user.interface";
 import { updateProfileSchema } from "@/lib/schemas/updateProfileSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Avatar } from "@heroui/avatar";
