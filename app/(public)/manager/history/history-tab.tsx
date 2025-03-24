@@ -96,14 +96,6 @@ export default function HistoryTab({ histories, isLoading }: Props) {
         <TableBody
           items={filteredHistory}
           emptyContent={!isLoading && "No history records found"}
-          loadingContent={
-            <div className="space-y-3">
-              {[...Array(5)].map((_, index) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <LoadingRow key={index} />
-              ))}
-            </div>
-          }
           isLoading={isLoading}
         >
           {(history) => {

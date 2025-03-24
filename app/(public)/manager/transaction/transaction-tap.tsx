@@ -4,7 +4,6 @@ import TabsSelect from "@/components/tabs-select";
 import { usePathname, useRouter } from "next/navigation";
 import { type Key, useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
-import { Skeleton } from "@heroui/skeleton";
 import {
   TableRow,
   TableCell,
@@ -55,25 +54,6 @@ export default function TransactionTab({ transactions, isLoading }: Props) {
     });
   };
 
-  const getStatusColor = (
-    status: string
-  ): "success" | "primary" | "secondary" | "warning" | "danger" => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "success";
-      case "in process":
-        return "primary";
-      case "ready to delivery":
-        return "secondary";
-      case "waiting for payment":
-        return "warning";
-      case "cancelled":
-        return "danger";
-      default:
-        return "primary";
-    }
-  };
-
   const columns = [
     { key: "transaction_id", label: "TRANSACTION ID" },
     { key: "po_id", label: "PURCHASE ORDER ID" },
@@ -82,16 +62,6 @@ export default function TransactionTab({ transactions, isLoading }: Props) {
     { key: "payment_method", label: "METHOD" },
     { key: "amount", label: "AMOUNT" },
   ];
-
-  const LoadingRow = () => (
-    <TableRow>
-      {columns.map((column) => (
-        <TableCell key={column.key}>
-          <Skeleton className="h-3 w-3/4 rounded-lg" />
-        </TableCell>
-      ))}
-    </TableRow>
-  );
 
   return (
     <div className="mb-40 space-y-5">
@@ -121,14 +91,6 @@ export default function TransactionTab({ transactions, isLoading }: Props) {
         <TableBody
           items={filteredTransactions}
           emptyContent={!isLoading && "No transaction records found"}
-          loadingContent={
-            <div className="space-y-3">
-              {[...Array(5)].map((_, index) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <LoadingRow key={index} />
-              ))}
-            </div>
-          }
           isLoading={isLoading}
         >
           {(transaction) => {

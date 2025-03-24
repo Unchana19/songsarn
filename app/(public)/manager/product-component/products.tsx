@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/app/loading";
 import EmptyComponents from "@/components/empty-components";
 import PopupModal from "@/components/popup-modal";
 import type { Product } from "@/interfaces/product.interface";
@@ -52,33 +53,10 @@ export default function ProductsPage({
       onOpenChange();
     }
   };
-  const LoadingSkeleton = () => (
-    <div className="w-full md:w-1/2 xl:w-1/4 p-5">
-      <Card shadow="sm" className="w-full">
-        <CardHeader className="overflow-hidden flex justify-center pt-5">
-          <Skeleton className="rounded-lg">
-            <div className="h-[200px] w-full rounded-lg bg-default-300" />
-          </Skeleton>
-        </CardHeader>
-        <CardBody className="flex flex-col gap-4">
-          <Skeleton className="w-3/5 rounded-lg">
-            <div className="h-3 w-3/5 rounded-lg bg-default-200" />
-          </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-3 w-4/5 rounded-lg bg-default-200" />
-          </Skeleton>
-          <div className="flex justify-center gap-4">
-            <Skeleton className="rounded-full">
-              <div className="h-10 w-10 rounded-full bg-default-300" />
-            </Skeleton>
-            <Skeleton className="rounded-full">
-              <div className="h-10 w-24 rounded-full bg-default-300" />
-            </Skeleton>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
-  );
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div>
@@ -108,12 +86,7 @@ export default function ProductsPage({
         </div>
       </div>
       <div className="flex flex-wrap mt-5 justify-start">
-        {isLoading || !isSuccess ? (
-          Array(8)
-            .fill(null)
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            .map((_, index) => <LoadingSkeleton key={index} />)
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <EmptyComponents
             title="No Products Found"
             subTitle="There are no products in this category yet."

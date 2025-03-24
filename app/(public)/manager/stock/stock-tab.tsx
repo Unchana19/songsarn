@@ -45,6 +45,7 @@ import {
   useFetchRequisitionsQuery,
   useUpdateMaterialsMutation,
 } from "@/store";
+import Loading from "@/app/loading";
 
 function StockContent() {
   const session = useSession();
@@ -99,7 +100,7 @@ function StockContent() {
           isLoadingRequisitions ||
           !isSuccessMaterials ||
           !isSuccessRequisitions ? (
-          <SkeletonLoading />
+          <Loading />
         ) : (
           <AllMeterial materials={materials} handleEdit={handleEdit} />
         );
@@ -108,7 +109,7 @@ function StockContent() {
           isLoadingRequisitions ||
           !isSuccessMaterials ||
           !isSuccessRequisitions ? (
-          <SkeletonLoading />
+          <Loading />
         ) : (
           <AllRequisition requisitions={requisitions} />
         );
@@ -248,7 +249,7 @@ function StockContent() {
           return isSelected ? (
             <div key={tab.id} className="mt-5">
               {isLoadingMaterials || isLoadingRequisitions ? (
-                <SkeletonLoading />
+                <Loading />
               ) : (
                 getStepContent(tab.label)
               )}
@@ -438,15 +439,6 @@ function StockContent() {
         buttonTitle="Confirm"
         buttonFunction={handleDelete}
       />
-    </div>
-  );
-}
-function SkeletonLoading() {
-  return (
-    <div className="flex flex-col gap-5">
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-10 w-full" />
     </div>
   );
 }

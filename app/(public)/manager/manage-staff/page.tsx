@@ -32,6 +32,7 @@ import type { Staff } from "@/interfaces/staff.interface";
 import { useState, type Key } from "react";
 import type { SignUpSchema } from "@/lib/schemas/signUpSchema";
 import PopupModal from "@/components/popup-modal";
+import Loading from "@/app/loading";
 
 export default function ManageStaffPage() {
   const session = useSession();
@@ -127,6 +128,10 @@ export default function ManageStaffPage() {
 
   const { isVisible, toggleVisibility, register, handleSubmit, errors, reset } =
     useSignUp();
+
+  if (isLoading || !isSuccess) {
+    return <Loading />;
+  }
 
   return (
     <div>

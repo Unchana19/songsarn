@@ -7,7 +7,6 @@ import { Button } from "@heroui/button";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Image } from "@heroui/image";
 import { useDisclosure } from "@heroui/modal";
-import { Skeleton } from "@heroui/skeleton";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
@@ -16,9 +15,8 @@ import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import ImagePlaceholder from "@/components/image-placeholder";
 import EmptyComponents from "@/components/empty-components";
-import {
-  useFetchComponentsByCategoryIdQuery,
-} from "@/store";
+import { useFetchComponentsByCategoryIdQuery } from "@/store";
+import Loading from "@/app/loading";
 
 interface Props {
   label: string;
@@ -40,11 +38,14 @@ export default function ComponentsPage({
     null
   );
 
-  const { currentData: components, isLoading, isSuccess } =
-    useFetchComponentsByCategoryIdQuery({
-      categoryId,
-      accessToken: session.data?.accessToken || "",
-    });
+  const {
+    currentData: components,
+    isLoading,
+    isSuccess,
+  } = useFetchComponentsByCategoryIdQuery({
+    categoryId,
+    accessToken: session.data?.accessToken || "",
+  });
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -61,33 +62,9 @@ export default function ComponentsPage({
     }
   };
 
-  const LoadingSkeleton = () => (
-    <div className="w-full md:w-1/2 xl:w-1/4 p-5">
-      <Card shadow="sm" className="w-full">
-        <CardHeader className="overflow-hidden flex justify-center pt-5">
-          <Skeleton className="rounded-lg">
-            <div className="h-[200px] w-full rounded-lg bg-default-300" />
-          </Skeleton>
-        </CardHeader>
-        <CardBody className="flex flex-col gap-4">
-          <Skeleton className="w-3/5 rounded-lg">
-            <div className="h-3 w-3/5 rounded-lg bg-default-200" />
-          </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-3 w-4/5 rounded-lg bg-default-200" />
-          </Skeleton>
-          <div className="flex justify-center gap-4">
-            <Skeleton className="rounded-full">
-              <div className="h-10 w-10 rounded-full bg-default-300" />
-            </Skeleton>
-            <Skeleton className="rounded-full">
-              <div className="h-10 w-24 rounded-full bg-default-300" />
-            </Skeleton>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
-  );
+  if (isLoading || !isSuccess) {
+    return <Loading />;
+  }
 
   return (
     <div>
@@ -117,12 +94,7 @@ export default function ComponentsPage({
         </div>
       </div>
       <div className="flex flex-wrap mt-5 justify-start">
-        {isLoading || !isSuccess ? (
-          Array(8)
-            .fill(null)
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            .map((_, index) => <LoadingSkeleton key={index} />)
-        ) : components.length === 0 ? (
+        {components.length === 0 ? (
           <EmptyComponents
             title="No Components Found"
             subTitle="There are no components in this category yet."

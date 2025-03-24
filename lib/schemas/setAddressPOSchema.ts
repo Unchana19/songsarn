@@ -10,7 +10,7 @@ export const setAddressPOSchema = z.object({
   address: z.string().min(1).max(255),
   lat: z.number(),
   lng: z.number(),
-  delivery_price: z.number().default(0),
+  delivery_price: z.number().max(8).default(0),
 });
 
 export type setAddressPOSchema = z.infer<typeof setAddressPOSchema>;
