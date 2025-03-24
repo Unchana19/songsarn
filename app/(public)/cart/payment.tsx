@@ -39,7 +39,10 @@ export default function PaymentPage({
   const session = useSession();
   const router = useRouter();
 
-  const { orderLines, isSuccess, refetch } = useCarts({ userId, accessToken });
+  const { orderLines, isSuccess, refetch, refetchCountCart } = useCarts({
+    userId,
+    accessToken,
+  });
 
   const [addCpo, results] = useAddCPOMutation();
   const [modalMessage, setModalMessage] = useState("");
@@ -84,6 +87,7 @@ export default function PaymentPage({
           .unwrap()
           .then(async (response) => {
             await refetch();
+            await refetchCountCart();
             router.push(`my-order/detail/${response.id}`);
           });
       } catch {

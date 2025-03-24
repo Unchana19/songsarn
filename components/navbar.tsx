@@ -58,7 +58,7 @@ export default function NavbarComponent() {
     )
     .slice(0, 5);
 
-  const { data: countOfCart } = useFetchCountCartsByIdQuery({
+  const { currentData: countOfCart } = useFetchCountCartsByIdQuery({
     userId: session?.userId ?? "",
     accessToken: session?.accessToken ?? "",
   });

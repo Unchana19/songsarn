@@ -30,9 +30,13 @@ export default function StatusTab({ cpos, isSuccess }: Props) {
     const currentTab = searchParams.get("type") || "process";
     return cpos.filter((cpo) => {
       if (currentTab === "process") {
-        return ["NEW", "PAID", "PROCESSING", "ON DELIVERY"].includes(
-          cpo.status
-        );
+        return [
+          "NEW",
+          "PAID",
+          "PROCESSING",
+          "FINISHED PROCESS",
+          "ON DELIVERY",
+        ].includes(cpo.status);
       }
       return ["COMPLETED", "CANCELED"].includes(cpo.status);
     });

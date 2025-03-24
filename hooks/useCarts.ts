@@ -3,6 +3,7 @@ import {
   useDecreaseQuantityByIdMutation,
   useDeleteOrderByIdMutation,
   useFetchCartsByIdQuery,
+  useFetchCountCartsByIdQuery,
 } from "@/store";
 
 interface Props {
@@ -17,6 +18,11 @@ export function useCarts({ userId, accessToken }: Props) {
     isSuccess,
     refetch,
   } = useFetchCartsByIdQuery({
+    userId,
+    accessToken,
+  });
+
+  const { refetch: refetchCountCart } = useFetchCountCartsByIdQuery({
     userId,
     accessToken,
   });
@@ -44,6 +50,7 @@ export function useCarts({ userId, accessToken }: Props) {
     isLoading,
     isSuccess,
     refetch,
+    refetchCountCart,
     handleIncreaseQuantityById,
     increaseResults,
     handleDecreaseQuantityById,
