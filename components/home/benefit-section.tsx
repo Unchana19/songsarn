@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Card, CardBody } from "@heroui/card";
 import { IoSparkles } from "react-icons/io5";
 import { FaTruck } from "react-icons/fa";
@@ -30,30 +29,22 @@ const BenefitsSection = () => {
   return (
     <div className="py-16">
       <div className="max-w-7xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-5xl font-bold text-primary mb-4">
             บริการของเรา
           </h2>
           <p className="text-gray-600 text-xl">
             มั่นใจในคุณภาพและบริการที่เหนือระดับ
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
-            >
-              <Card shadow="sm" className="h-full hover:shadow-xl transition-shadow duration-300 shadow-primary">
+            <div key={index}>
+              <Card
+                shadow="sm"
+                className="h-full hover:shadow-xl transition-shadow duration-300 shadow-primary"
+              >
                 <CardBody className="flex flex-col items-center text-center p-6">
                   <div className="mb-6 text-primary">{benefit.icon}</div>
                   <h3 className="text-xl font-semibold mb-4">
@@ -62,7 +53,7 @@ const BenefitsSection = () => {
                   <p className="text-gray-600">{benefit.description}</p>
                 </CardBody>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

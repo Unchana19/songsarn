@@ -6,7 +6,7 @@ import type {
   OrderLineDetail,
 } from "@/interfaces/manager-cpo-get-one.interface";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import { formatId } from "@/utils/format-id";
 import { getStatusCpo } from "@/utils/get-status-cpo";
@@ -22,13 +22,18 @@ import { useFetchCPOByIdByManagerQuery } from "@/store";
 import Loading from "@/app/loading";
 import { calDeposit } from "@/utils/cal-deposit";
 import { calRest } from "@/utils/cal-rest";
+import { use } from "react";
 
-export default function CustomerPurchaseOrderDetailPage() {
-  const params = useParams();
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default function CustomerPurchaseOrderDetailPage(props: Props) {
+  const params = use(props.params);
   const router = useRouter();
   const session = useSession();
 
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { id } = params;
 
   const { data: cpo, isLoading } = useFetchCPOByIdByManagerQuery({
     id,

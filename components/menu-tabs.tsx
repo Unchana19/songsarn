@@ -34,6 +34,10 @@ export default function MenuTabsComponent() {
     {}
   );
 
+  if (pathname === "/login" || pathname === "/sign-up") {
+    return null;
+  }
+
   if (status === "loading" || isLoading) {
     return (
       <div className="md:flex gap-2 xl:max-w-6xl md:max-w-3xl hidden items-center border-b-1 overflow-x-auto px-10 min-h-20">

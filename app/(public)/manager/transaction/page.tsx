@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, use } from "react";
 import { useSession } from "next-auth/react";
 import type { Transaction } from "@/interfaces/transaction.interface";
 import TransactionTab from "./transaction-tap";
@@ -8,10 +8,11 @@ import { useFetchTransactionsQuery } from "@/store";
 import Loading from "@/app/loading";
 
 interface Props {
-  searchParams: { type: string };
+  searchParams: Promise<{ type: string }>;
 }
 
-export default function TransactionPage({ searchParams }: Props) {
+export default function TransactionPage(props: Props) {
+  const searchParams = use(props.searchParams);
   const session = useSession();
 
   const { data: transactions = [], isLoading } = useFetchTransactionsQuery(

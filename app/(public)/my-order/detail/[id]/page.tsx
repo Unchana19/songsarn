@@ -1,8 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import { formatId } from "@/utils/format-id";
 import { formatNumberWithComma } from "@/utils/num-with-comma";
 import { Button } from "@heroui/button";
@@ -16,11 +16,16 @@ import { calDeposit } from "@/utils/cal-deposit";
 import { calRest } from "@/utils/cal-rest";
 import Loading from "@/app/loading";
 
-export default function OrderDetailPage() {
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default function OrderDetailPage(props: Props) {
+  const params = use(props.params);
   const session = useSession();
   const router = useRouter();
-  const params = useParams();
-  const cpoId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const { id } = params;
 
   const {
     data: cpo,
@@ -28,7 +33,7 @@ export default function OrderDetailPage() {
     isSuccess,
     refetch,
   } = useFetchCPOByIdQuery({
-    id: cpoId,
+    id,
     accessToken: session.data?.accessToken,
   });
 
