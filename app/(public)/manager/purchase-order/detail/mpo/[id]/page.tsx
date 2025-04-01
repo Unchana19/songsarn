@@ -14,22 +14,24 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { useDisclosure } from "@heroui/modal";
 import { Select, SelectItem } from "@heroui/select";
-import { Spinner } from "@heroui/spinner";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { useEditMPOOrderLineMutation, useFetchMPOByIdQuery } from "@/store";
+import Loading from "@/app/loading";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function MaterialPurchaseOrderDetail({ params }: Props) {
-  const { id } = params;
+export default function MaterialPurchaseOrderDetail(props: Props) {
+  const params = use(props.params);
   const session = useSession();
+  
+  const { id } = params;
 
   const {
     currentData: mpo,
@@ -95,11 +97,7 @@ export default function MaterialPurchaseOrderDetail({ params }: Props) {
   };
 
   if (isLoading || !isSuccess) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Spinner size="lg" color="primary" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

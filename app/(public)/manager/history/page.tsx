@@ -2,16 +2,17 @@
 
 import type { History } from "@/interfaces/history.interface";
 import HistoryTab from "./history-tab";
-import { useMemo } from "react";
+import { useMemo, use } from "react";
 import { useSession } from "next-auth/react";
 import { useFetchHistoriesQuery } from "@/store";
 import Loading from "@/app/loading";
 
 interface Props {
-  searchParams: { type: string };
+  searchParams: Promise<{ type: string }>;
 }
 
-export default function HistoryPage({ searchParams }: Props) {
+export default function HistoryPage(props: Props) {
+  const searchParams = use(props.searchParams);
   const session = useSession();
 
   const {

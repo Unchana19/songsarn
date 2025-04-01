@@ -14,7 +14,17 @@ const nextConfig = {
     ]
   },
   images: {
-    domains: ['songsarn-project.s3.ap-southeast-1.amazonaws.com', 'lh3.googleusercontent.com/a/'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'songsarn-project.s3.ap-southeast-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/a/**',
+      },
+    ],
   },
 }
 

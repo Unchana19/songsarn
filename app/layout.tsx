@@ -9,6 +9,7 @@ import NavbarComponent from "@/components/navbar";
 import FooterComponent from "@/components/footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MenuTabsComponent from "@/components/menu-tabs";
 
 export const metadata: Metadata = {
   title: {
@@ -37,9 +38,12 @@ export default async function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <NavbarComponent />
-          <div className="w-full mb-60">
-            <ToastContainer />
-            {children}
+          <div className="relative flex flex-col min-h-screen items-center justify-center overflow-x-hidden">
+            <MenuTabsComponent />
+            <div className="w-full mb-60">
+              <ToastContainer />
+              {children}
+            </div>
           </div>
           <FooterComponent />
         </Providers>

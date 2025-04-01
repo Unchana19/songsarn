@@ -163,55 +163,53 @@ export default function NavbarComponent() {
       </NavbarContent>
 
       <NavbarContent justify="center" className="max-w-lg w-full">
-        {session?.role === "customer" && (
-          <NavbarItem className="relative w-full">
-            <Input
-              startContent={<SearchIcon />}
-              placeholder="Find your favorite shrine"
-              radius="full"
-              variant="bordered"
-              color="primary"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className="w-full"
-            />
-            {showSuggestions && filteredProducts?.length > 0 && (
-              <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-1 p-2 border border-gray-200 z-50 max-h-[60vh] overflow-y-auto">
-                {filteredProducts.map((product: Product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product/${product.id}`}
-                    className="w-full"
-                  >
-                    <div className="p-1.5 sm:p-2 hover:bg-primary-100 cursor-pointer flex items-center w-full gap-2 sm:gap-3 rounded-lg">
-                      <div className="min-w-[50px] sm:min-w-[60px]">
-                        {product.img ? (
-                          <Image
-                            src={product.img}
-                            alt={product.name}
-                            width={60}
-                            height={60}
-                            className="rounded-lg object-cover w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
-                          />
-                        ) : (
-                          <ImagePlaceholder
-                            name={product.name.charAt(0).toUpperCase()}
-                            classNames="w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
-                          />
-                        )}
-                      </div>
-                      <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                        {product.name}
-                      </span>
+        <NavbarItem className="relative w-full">
+          <Input
+            startContent={<SearchIcon />}
+            placeholder="Find your favorite shrine"
+            radius="full"
+            variant="bordered"
+            color="primary"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            className="w-full"
+          />
+          {showSuggestions && filteredProducts?.length > 0 && (
+            <div className="flex flex-col absolute w-full bg-white shadow-lg rounded-xl mt-1 p-2 border border-gray-200 z-50 max-h-[60vh] overflow-y-auto">
+              {filteredProducts.map((product: Product) => (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="w-full"
+                >
+                  <div className="p-1.5 sm:p-2 hover:bg-primary-100 cursor-pointer flex items-center w-full gap-2 sm:gap-3 rounded-lg">
+                    <div className="min-w-[50px] sm:min-w-[60px]">
+                      {product.img ? (
+                        <Image
+                          src={product.img}
+                          alt={product.name}
+                          width={60}
+                          height={60}
+                          className="rounded-lg object-cover w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                        />
+                      ) : (
+                        <ImagePlaceholder
+                          name={product.name.charAt(0).toUpperCase()}
+                          classNames="w-[50px] h-[50px] sm:w-[60px] sm:h-[60px]"
+                        />
+                      )}
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </NavbarItem>
-        )}
+                    <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                      {product.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end" className="gap-2 md:gap-5">
